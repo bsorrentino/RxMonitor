@@ -134,12 +134,14 @@ function startExample() {
         // Add to history
         window.history.pushState(example.code, example.name, "#" + example.code);
         // Google analytics
-        window.ga('send', {
-            hitType: 'event',
-            eventCategory: 'RX Marble Sample',
-            eventAction: 'START',
-            eventLabel: example.name
-        });
+        if( window.ga ) {
+            window.ga('send', {
+                hitType: 'event',
+                eventCategory: 'RX Marble Sample',
+                eventAction: 'START',
+                eventLabel: example.name
+            });    
+        }
         unsubscribe = example.exec(function () {
             // Complete stops before sample is completed
             setTimeout(function () {

@@ -84,11 +84,11 @@ pre {
 }
 
 .example__start:checked.only-stop + .example__startButton::after {
-    content: 'â– 	Stop';
+    content: 'Stop';
 }
 
 .example__start:checked + .example__startButton::after {
-    content: 'â™â™ Pauze';
+    content: 'Pause';
 }
 
 
@@ -97,7 +97,7 @@ pre {
 }
 
 .example__startButton::after {
-    content: 'â–º Start';
+    content: 'Start';
 }
 
 select {
