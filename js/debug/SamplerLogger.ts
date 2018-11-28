@@ -1,6 +1,13 @@
+
+type action<T> = (e:T) => void ;
+
 interface Observable {
-    subscribe( next:any, error?:any, complete?:any ):any;
-};
+    subscribe(
+        p:{ next:action<any>; 
+          error?:action<any>; 
+          complete?:action<any>;
+        }):any;
+}
 
 declare var Observable: {
     new ( subscribe:any ):Observable;
@@ -45,6 +52,8 @@ class SamplerLogger {
     static isStopSampleItem(info:Info ) {
         return info && info.type === SampleItemType.Stop;
     };
+
+    getSample() { return this.lastSample; }
 
     getSamples() {
         return new Observable((_a:any) => {

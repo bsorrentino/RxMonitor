@@ -1,5 +1,4 @@
 "use strict";
-;
 var SampleItemType;
 (function (SampleItemType) {
     SampleItemType[SampleItemType["Start"] = 0] = "Start";
@@ -32,6 +31,7 @@ class SamplerLogger {
         return info && info.type === SampleItemType.Stop;
     }
     ;
+    getSample() { return this.lastSample; }
     getSamples() {
         return new Observable((_a) => {
             var next = _a.next, error = _a.error, complete = _a.complete;
