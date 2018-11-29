@@ -1,86 +1,85 @@
-/** Class Created to hide some logging stuff */
-var ObservableBase = (function () {
-    function ObservableBase(name, isCreatedByValue) {
-        if (name === void 0) { name = ''; }
-        if (isCreatedByValue === void 0) { isCreatedByValue = false; }
-        this.name = name || '';
+"use strict";
+class ObservableBase {
+    /**
+     *
+     * @param name
+     * @param isCreatedByValue
+     */
+    constructor(name, isCreatedByValue = false) {
+        this.name = name;
         this.isCreatedByValue = isCreatedByValue;
-        this.logger = Observable.logger;
     }
-    /** Get ID on subscription, an Observable start a new stream each time so id changes */
-    ObservableBase.getProducerId = function () {
-        return "" + ObservableBase.lastId++;
-    };
+    static getProducerId() {
+        return String(ObservableBase.lastId++);
+    }
+    static get logger() {
+        return ObservableBase._logger;
+    }
+    static set logger(v) {
+        //console.log( "SET LOGGER", v);
+        ObservableBase._logger = v;
+    }
     // Show inner stream created by a value (example: delay, switchMap)
-    ObservableBase.prototype.createChildLogger = function (producerId, createdByValue) {
-        if (createdByValue === void 0) { createdByValue = true; }
+    createChildLogger(producerId, createdByValue = true) {
+        let id = ObservableBase.getProducerId();
         var createdById = producerId || '';
-        var id = ObservableBase.getProducerId();
-        var logger = Observable.logger;
+        let logger = ObservableBase.logger;
         var isStopped = false;
         return {
-            start: function () { return logger ? logger.onStart(id, '', createdById, createdByValue, true) : undefined; },
-            value: function (val) {
+            start: () => logger ? logger.onStart(id, '', createdById, createdByValue, true) : undefined,
+            value: (val) => {
                 if (logger)
                     logger.onValue(val, id, '', createdById);
             },
-            error: function (err) {
+            error: (err) => {
                 if (logger) {
                     logger.onError(err, id, '', createdById);
                     if (!isStopped) {
                         isStopped = true;
-                        //logger.onStop(id, '', createdById);
                     }
                 }
             },
-            complete: function () {
+            complete: () => {
                 if (logger) {
                     logger.onComplete(id, '', createdById);
                     if (!isStopped) {
                         isStopped = true;
-                        //logger.onStop(id, '', createdById);
                     }
                 }
             },
-            end: function () {
+            end: () => {
                 if (logger && !isStopped) {
                     isStopped = true;
                     logger.onStop(id, '', createdById);
                 }
             }
         };
-    };
-    // TODO
-    ObservableBase.prototype.logAndSubscribeToObservable = function (observable, observer, producerId, createdByValue) {
-        if (createdByValue === void 0) { createdByValue = true; }
+    }
+    logAndSubscribeToObservable(observable, observer, producerId, createdByValue = true) {
         if (observable && observable.subscribe) {
-            var childLogger_1 = this.createChildLogger(producerId, createdByValue);
-            childLogger_1.start();
-            var unsubscribe_1 = observable.subscribe({
-                next: function (val) {
+            var childLogger = this.createChildLogger(producerId, createdByValue);
+            childLogger.start();
+            var unsubscribe = observable.subscribe({
+                next: (val) => {
                     observer.next(val);
-                    childLogger_1.value(val);
+                    childLogger.value(val);
                 },
-                error: function (err) {
+                error: (err) => {
                     observer.error(err);
-                    childLogger_1.error(err);
+                    childLogger.error(err);
                 },
-                complete: function () {
+                complete: () => {
                     observer.complete();
-                    childLogger_1.complete();
+                    childLogger.complete();
                 }
             }, producerId);
-            return function () {
-                unsubscribe_1();
-                childLogger_1.end();
+            return () => {
+                unsubscribe();
+                childLogger.end();
             };
         }
-        return observable.subscribe(observable);
-    };
-    return ObservableBase;
-}());
-//========================================
-// STATIC
-//----------------------------------------
+        return observable.subscribe(observer);
+    }
+    ;
+}
 ObservableBase.lastId = 1;
-//# sourceMappingURL=ObservableBase.js.map

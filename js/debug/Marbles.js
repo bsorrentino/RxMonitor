@@ -374,7 +374,6 @@ function showMarbles(div, samples$, options) {
         });
     }
     samples$.subscribe(function (sample) {
-        console.log( "samples$.subscribe", sample);
         nbrOfSamplesReceived++;
         addSample(sample);
     });

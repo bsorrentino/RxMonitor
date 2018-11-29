@@ -1,17 +1,4 @@
 
-type action<T> = (e:T) => void ;
-
-interface Observable {
-    subscribe(
-        p:{ next:action<any>; 
-          error?:action<any>; 
-          complete?:action<any>;
-        }):any;
-}
-
-declare var Observable: {
-    new ( subscribe:any ):Observable;
-}
 
 type Info = { 
     type: SampleItemType;
@@ -59,8 +46,13 @@ class SamplerLogger {
         return new Observable((_a:any) => {
             var next = _a.next, error = _a.error, complete = _a.complete;
             return this.ticker.subscribe({
-                next: () => {
-                    next(this.getSample());
+                next: ( val:any ) => {
+
+                    let sample = this.getSample();
+                    //console.log( "getSamples", sample);
+
+                    next(sample);
+
                     this.lastSample = [];
                 },
                 error: error,
@@ -70,6 +62,7 @@ class SamplerLogger {
     };
     
     onStart(id:string, name:string, parentId:string, createdByValue:any, isIntermediate:any) {
+        //console.log( "onStart", name );
         this.lastSample.push({
             type: SampleItemType.Start,
             id: id,
@@ -79,7 +72,8 @@ class SamplerLogger {
             isIntermediate: isIntermediate,
         });
     };
-    onValue(value:any, id:string, name:string, parentId:string) {
+    onValue(value:string, id:string, name:string, parentId:string) {
+        //console.log( "onValue", name );
         this.lastSample.push({
             type: SampleItemType.Value,
             id: id,
@@ -89,6 +83,7 @@ class SamplerLogger {
         });
     };
     onError(err:any, id:string, name:string, parentId:string) {
+        //console.log( "onError", name );
         this.lastSample.push({
             type: SampleItemType.Error,
             id: id,
@@ -98,6 +93,7 @@ class SamplerLogger {
         });
     };
     onComplete(id:string, name:string, parentId:string) {
+        //console.log( "onComplete", name );
         this.lastSample.push({
             type: SampleItemType.Complete,
             id: id,
@@ -106,6 +102,7 @@ class SamplerLogger {
         });
     };
     onStop(id:string, name:string, parentId:string) {
+        //console.log( "onStop", name );
         this.lastSample.push({
             type: SampleItemType.Stop,
             id: id,

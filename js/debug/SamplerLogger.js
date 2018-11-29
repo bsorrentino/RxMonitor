@@ -36,8 +36,10 @@ class SamplerLogger {
         return new Observable((_a) => {
             var next = _a.next, error = _a.error, complete = _a.complete;
             return this.ticker.subscribe({
-                next: () => {
-                    next(this.getSample());
+                next: (val) => {
+                    let sample = this.getSample();
+                    //console.log( "getSamples", sample);
+                    next(sample);
                     this.lastSample = [];
                 },
                 error: error,
@@ -47,6 +49,7 @@ class SamplerLogger {
     }
     ;
     onStart(id, name, parentId, createdByValue, isIntermediate) {
+        //console.log( "onStart", name );
         this.lastSample.push({
             type: SampleItemType.Start,
             id: id,
@@ -58,6 +61,7 @@ class SamplerLogger {
     }
     ;
     onValue(value, id, name, parentId) {
+        //console.log( "onValue", name );
         this.lastSample.push({
             type: SampleItemType.Value,
             id: id,
@@ -68,6 +72,7 @@ class SamplerLogger {
     }
     ;
     onError(err, id, name, parentId) {
+        //console.log( "onError", name );
         this.lastSample.push({
             type: SampleItemType.Error,
             id: id,
@@ -78,6 +83,7 @@ class SamplerLogger {
     }
     ;
     onComplete(id, name, parentId) {
+        //console.log( "onComplete", name );
         this.lastSample.push({
             type: SampleItemType.Complete,
             id: id,
@@ -87,6 +93,7 @@ class SamplerLogger {
     }
     ;
     onStop(id, name, parentId) {
+        //console.log( "onStop", name );
         this.lastSample.push({
             type: SampleItemType.Stop,
             id: id,
