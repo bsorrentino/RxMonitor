@@ -1,19 +1,44 @@
-"use strict";
-function randomStreamObservable(slowDownFactor = 1, name = 'shapes$', values = ['□', '△', '○', '▷', '☆']) {
+// Declared in index.js
+declare var stepInMs:number;
+declare var isPaused:boolean;
+declare function delayAsync(delayInMs:number, value:any):void;
+declare function fill(char:string, useAsync:boolean):any|Promise<any>
+declare function filterTriangles(char:string, useAsync:boolean):boolean|Promise<boolean>
+
+
+interface Example {
+    name:string;
+    group:string;
+    autoPlay?:boolean;
+    exec:( ( p?:(() => void)) => () => void );
+    infoHtml:string;
+    onlyStop?:boolean;
+}
+
+interface Examples {
+
+    [name:string]:Example;
+}
+
+type Shape = string;
+
+
+function randomStreamObservable( slowDownFactor = 1, name = 'shapes$', values = ['□', '△', '○', '▷', '☆']) {
     return new Observable(randomStreamProducer(slowDownFactor, values), name);
 }
+
 function randomStreamProducer(slowDownFactor = 1, values = ['□', '△', '○', '▷', '☆']) {
     // ['□', '△', '○', '▷', '☆', '■', '▲', '●', '▶', '★']
-    return function (observer) {
+    return function (observer:Observer) {
         // Get Random Value
         function getRandomChar() {
             return values[Math.floor(Math.random() * values.length)];
         }
         // Loop with random delay
-        var cancelationToken;
+        var cancelationToken:number;
         function randomLoop() {
             var delayInMs = stepInMs * (Math.round(Math.random() * 10 * slowDownFactor) + 1);
-            cancelationToken = setTimeout(() => {
+            cancelationToken = setTimeout( () => {
                 if (!isPaused)
                     observer.next(getRandomChar());
                 if (cancelationToken)
@@ -31,11 +56,13 @@ function randomStreamProducer(slowDownFactor = 1, values = ['□', '△', '○',
         };
     };
 }
-function combineShapeAndFill(fill, shape) {
+function combineShapeAndFill(fill:string, shape:Shape) {
     var noneFilledShapes = ['□', '△', '○', '▷', '☆'];
     var filledShapes = ['■', '▲', '●', '▶', '★'];
-    var isFilled = (val) => filledShapes.indexOf(val) > -1;
-    var getShapeIndex = (val) => {
+    
+    var isFilled = (val:string) => filledShapes.indexOf(val) > -1;
+
+    var getShapeIndex = (val:string) => {
         var index = filledShapes.indexOf(val);
         return index > -1 ? index : noneFilledShapes.indexOf(val);
     };
@@ -43,10 +70,10 @@ function combineShapeAndFill(fill, shape) {
     return isFilled(fill) ? filledShapes[shapeIndex] : noneFilledShapes[shapeIndex];
 }
 /** Simulates an AJAX request */
-function getFilledShapeAsync(shape) {
+function getFilledShapeAsync(shape:Shape) {
     return delayAsync(stepInMs + 50 + Math.random() * 2300, fill(shape, false));
 }
-var examples = {
+var examples:Examples = {
     'shapes': {
         name: "shapes$",
         group: 'Sample streams',
@@ -82,7 +109,7 @@ var examples = {
     'never': {
         name: "never",
         group: 'Creating Observables',
-        exec: () => Observable.never().subscribe(),
+        exec:  () => Observable.never().subscribe(),
         infoHtml: "Creates an Observable that emits no items to the Observer.\n<pre>Observable.never())\n  .subscribe();</pre>"
     },
     'empty': {
@@ -187,9 +214,11 @@ var examples = {
     'filter': {
         name: "filter",
         group: 'Filtering',
-        exec: (done) => randomStreamObservable()
-            .filter(v => filterTriangles(v, false))
-            .subscribe({ complete: done }),
+        exec: (done) => 
+            randomStreamObservable()
+                .filter( v => filterTriangles(v, false) )
+                .subscribe({ complete: done })
+        ,
         infoHtml: "Filter items emitted by the source Observable by only emitting those that satisfy a specified predicate.\n<p>Example: Only allow triangles:</p>\n<pre>shapes$\n  .filter(shape => shape === '\u25B3' || shape === '\u25B7')\n  .subscribe();</pre>"
     },
     'distinct': {
@@ -464,11 +493,11 @@ var examples = {
             // After restart reset values
             startEl.innerText = '►';
             valueEl.innerText = '0';
-            var updatePauseButton = (isOn) => {
+            var updatePauseButton = (isOn:boolean) => {
                 startEl.innerText = isOn ? '❙❙' : '►';
                 return isOn;
             };
-            var updateValue = (value) => {
+            var updateValue = (value:any ) => {
                 valueEl.innerText = value.toString();
             };
             return Observable.fromEvent(startEl, 'click')
@@ -490,17 +519,15 @@ var examples = {
             var valueEl = document.getElementById('stopwatch__value');
             // After restart reset values
             valueEl.innerText = '0';
-            var updateValue = (value) => {
+            var updateValue = (value:any) => {
                 valueEl.innerText = value.toString();
             };
             var stop$ = Observable.fromEvent(stopEl, 'click');
             return Observable.fromEvent(startEl, 'click')
-                .exhaustMap(function () {
-                return Observable.interval(1000) // Don't start bnew when previous not completed
-                    .map(function (i) { return i + 1; })
-                    .takeUntil(stop$)
-                    .concat(Observable.single(0));
-            })
+                .exhaustMap(function () { return Observable.interval(1000) // Don't start bnew when previous not completed
+                .map(function (i) { return i + 1; })
+                .takeUntil(stop$)
+                .concat(Observable.single(0)); })
                 .subscribe(updateValue);
         },
         infoHtml: "This sample will start and reset a timer.<br/><br/>\n        <div>\n            <button id='stopwatch__start' autofocus class='button'>\u25BA</button>\n            <button id='stopwatch__reset' class='button'>\u25A0</button>\n            <span id='stopwatch__value'>0</span>\n        </div>\n\n        <pre>Observable\n  .fromEvent(startEl, 'click')\n  .exhaustMap(() => Observable // Don't start bnew when previous not completed\n    .interval(1000)\n    .map(i => i + 1)\n    .takeUntil(stop$)\n    .concat(Observable.single(0)) // Reset with 0 value\n  )\n  .subscribe(updateValue);</pre>"
@@ -511,18 +538,18 @@ var examples = {
         onlyStop: true,
         autoPlay: true,
         exec: function () {
-            var inputEl = document.getElementById('autocomplete');
+            var inputEl = document.getElementById('autocomplete') as HTMLInputElement;
             var resultEl = document.getElementById('autocomplete-result');
             // After restart reset values
             inputEl.value = '';
             resultEl.style.color = '';
             resultEl.innerHTML = '&nbsp;';
-            function getGitHubStars(term) {
+            function getGitHubStars(term:any) {
                 if (term) {
                     return window.fetch("https://api.github.com/search/repositories?q=" + encodeURIComponent(term) + "&sort=stars")
                         .then(function (response) { return response.json(); })
                         .then(function (result) {
-                        var first = (result.items || []).filter(function (item) { return item.name.startsWith(term); })[0];
+                        var first = (result.items || []).filter(function (item:any) { return item.name.startsWith(term); })[0];
                         return first ? first.name : '';
                     });
                 }
@@ -530,11 +557,11 @@ var examples = {
                     return new Promise(function (resolve) { return resolve(''); });
                 }
             }
-            function handelSucces(val) {
+            function handelSucces(val:any) {
                 resultEl.style.color = val ? '' : 'grey';
                 resultEl.innerText = val || '<No results>';
             }
-            function handleError(err) {
+            function handleError(err:any) {
                 resultEl.style.color = 'red';
                 resultEl.innerText = err && err.message || 'Error';
             }
@@ -543,14 +570,12 @@ var examples = {
                 .map(function (e) { return e.currentTarget.value; })
                 .distinctUntilChanged()
                 .debounceTime(500)
-                .switchMap(function (value) {
-                return Observable
-                    .fromPromise(getGitHubStars(value))
-                    .catch(function (err) {
-                    handleError(err);
-                    return Observable.empty();
-                });
-            })
+                .switchMap(function (value) { return Observable
+                .fromPromise(getGitHubStars(value))
+                .catch(function (err) {
+                handleError(err);
+                return Observable.empty();
+            }); })
                 .subscribe(handelSucces);
         },
         infoHtml: "Type a name and it will autocomplete to the first GitHub repo starting with this value:<br/><br/>\n        <input id='autocomplete' autofocus placeholder=\"Repo name?\"></input><div id='autocomplete-result'>&nbsp;</div>\n        <pre>Observable\n  .fromEvent<Event>(autoCompleteEl, 'keyup')\n  .map(e => e.currentTarget.value)\n  .distinctUntilChanged()\n  .debounceTime(500)\n  .switchMap(value => Observable\n    .fromPromise(searchGitHub(value))\n    .catch(err => {\n       handleError(err);\n       return Observable.empty();\n    })\n  )\n  .subscribe(handelSucces);</pre>"
@@ -571,10 +596,10 @@ var examples = {
             var start$ = mouseDown$.merge(touchStart$);
             var move$ = mouseMove$.merge(touchMove$);
             var end$ = mouseUp$.merge(touchEnd$);
-            function isValid(x) {
+            function isValid(x:number) {
                 return Math.abs(x - 400 + 64) < 4;
             }
-            function moveBlock(x) {
+            function moveBlock(x:number) {
                 // On destination ?
                 if (isValid(x)) {
                     blockDragEl.style.backgroundColor = "green";
@@ -585,12 +610,10 @@ var examples = {
                 blockDragEl.style.left = x + "px";
             }
             return start$
-                .exhaustMap(function (xStart) {
-                return move$
-                    .map(function (xMove) { return xMove - xStart; })
-                    .takeUntil(end$)
-                    .concat(Observable.single(0));
-            } // reset at end
+                .exhaustMap(function (xStart) { return move$
+                .map(function (xMove) { return xMove - xStart; })
+                .takeUntil(end$)
+                .concat(Observable.single(0)); } // reset at end
             )
                 .subscribe(function (x) { return moveBlock(x); });
         },

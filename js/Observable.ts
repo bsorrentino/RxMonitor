@@ -117,7 +117,7 @@ class Observable extends ObservableBase {
      * Create for 3 individual functions a observer object
      * This will unsubscribe once, error once and complete once
      */
-    createObserver(getUnsubscribe:any, observerOrNext:any, error:( (e:any) => void ), complete:( () => void )) {
+    createObserver(getUnsubscribe:any, observerOrNext?:Observer|((v:any)=>void), error?:( (e:any) => void ), complete?:( () => void )) {
 
         let nextHandler = (typeof observerOrNext === "object" ? observerOrNext.next : observerOrNext) || (() => <any>undefined );
         let errorHandler = (typeof observerOrNext === "object" ? observerOrNext.error : error) || (() => <any>undefined);
@@ -170,10 +170,6 @@ class Observable extends ObservableBase {
         let logger = ObservableBase.logger;
         let name = this.name;
 
-        // GUARD BLOCK
-        //if( !logger) throw new Error("illegal stte exception!. logger is undefined");
-        
-        
         var isStopped = false;
         // Logger can still be null when in subject started producing subject before debugSubject is initialized
         // reverse deps?
@@ -216,7 +212,14 @@ class Observable extends ObservableBase {
         };
     };
 
-    subscribe( observerOrNext:Observer, errorOrProducerId?:any, complete?:( () => void ), producerId?:string) {
+    /**
+     * 
+     * @param observerOrNext 
+     * @param errorOrProducerId 
+     * @param complete 
+     * @param producerId 
+     */
+    subscribe( observerOrNext?:Observer|((v:any)=>void), errorOrProducerId?:any, complete?:( () => void ), producerId?:string) {
         // Get ProducerId
         var error = errorOrProducerId;
         if (typeof errorOrProducerId === 'string') {
@@ -878,12 +881,8 @@ class Observable extends ObservableBase {
      * val: □
      * out: □──▷────□───────────○──────△───┤
      */
-    startWith () {
+    startWith ( ...values:any) {
         
-        var values:Array<any> = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            values[_i] = arguments[_i];
-        }
         return this.create((_a:any) => {
             var next = _a.next, error = _a.error, complete = _a.complete, producerId = _a.producerId;
             if (values)

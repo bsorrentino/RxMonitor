@@ -159,8 +159,6 @@ class Observable extends ObservableBase {
         let producerId = Observable.getProducerId();
         let logger = ObservableBase.logger;
         let name = this.name;
-        // GUARD BLOCK
-        //if( !logger) throw new Error("illegal stte exception!. logger is undefined");
         var isStopped = false;
         // Logger can still be null when in subject started producing subject before debugSubject is initialized
         // reverse deps?
@@ -203,6 +201,13 @@ class Observable extends ObservableBase {
         };
     }
     ;
+    /**
+     *
+     * @param observerOrNext
+     * @param errorOrProducerId
+     * @param complete
+     * @param producerId
+     */
     subscribe(observerOrNext, errorOrProducerId, complete, producerId) {
         // Get ProducerId
         var error = errorOrProducerId;
@@ -874,11 +879,7 @@ class Observable extends ObservableBase {
      * val: □
      * out: □──▷────□───────────○──────△───┤
      */
-    startWith() {
-        var values = [];
-        for (var _i = 0; _i < arguments.length; _i++) {
-            values[_i] = arguments[_i];
-        }
+    startWith(...values) {
         return this.create((_a) => {
             var next = _a.next, error = _a.error, complete = _a.complete, producerId = _a.producerId;
             if (values)

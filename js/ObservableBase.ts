@@ -8,9 +8,9 @@ type ChildLogger = {
 };
 
 interface Observer  {
-    next:(( e:any ) => void);
-    error:(( e:any ) => void);
-    complete:(() => void);
+    next?:(( e:any ) => void);
+    error?:(( e:any ) => void);
+    complete?:(() => void);
 
     producerId?:string;
 }
