@@ -1,19 +1,22 @@
-"use strict";
+
 // Time of one step
 var stepInMs = 200;
 var isPaused = false;
-function delayAsync(delayInMs, value) {
-    return new Promise(resolve => {
-        setTimeout(() => {
+
+
+function delayAsync(delayInMs:number, value:any):Promise<any> {
+    return new Promise( resolve => {
+        setTimeout( () => {
             resolve(value);
         }, delayInMs);
     });
 }
-function filterTriangles(char, useAsync) {
+
+function filterTriangles(char:string, useAsync:boolean):boolean|Promise<boolean> {
     var errorRate = 0;
     if (Math.random() < errorRate)
         throw new Error("Funny error in filter");
-    var delayResultAsync = (input) => {
+    var delayResultAsync = (input:any) => {
         var resolveWith = input[input.length - 1];
         if (useAsync) {
             return delayAsync(stepInMs * (input.length - 1), resolveWith === '✓');
@@ -43,8 +46,9 @@ function filterTriangles(char, useAsync) {
         }
     }
 }
-function fill(char, useAsync) {
-    var delayResultAsync = (input) => {
+
+function fill(char:string, useAsync:boolean):any|Promise<any> {
+    var delayResultAsync = (input:any) => {
         var resolveWith = input[input.length - 1];
         if (useAsync) {
             return delayAsync(stepInMs * (input.length - 1), resolveWith);
@@ -74,7 +78,11 @@ function fill(char, useAsync) {
         }
     }
 }
-var marbleDiagram;
+
+var marbleDiagram:any;
+
+declare function showMarbles(div:Element, samples$:Observable, options?:any):any;
+
 function createLogger() {
     // Sampler ticker
     var ticker = Observable.interval(stepInMs)
@@ -87,7 +95,8 @@ function createLogger() {
     return logger;
 }
 ;
-var unsubscribe;
+var unsubscribe:any;
+
 function selectExample(exampleCode = 'shapes') {
     if (marbleDiagram)
         marbleDiagram.clear();
@@ -96,12 +105,12 @@ function selectExample(exampleCode = 'shapes') {
     if (!example)
         throw new Error("Unknown example: '" + exampleCode + "'");
     // Select in combobox
-    var testsEl = document.getElementById('sampleNbr');
+    var testsEl = document.getElementById('sampleNbr') as HTMLInputElement;
     testsEl.value = exampleCode;
     var exampleInfoEl = document.getElementById('example__info');
     if (exampleInfoEl)
         exampleInfoEl.innerHTML = example.infoHtml || '';
-    var startEl = document.getElementById('example__start');
+    var startEl = document.getElementById('example__start') as HTMLInputElement;
     startEl.classList.toggle('only-stop', !!example.onlyStop);
     var startButtonEl = document.getElementById('example__startButton');
     startButtonEl.style.display = '';
@@ -127,8 +136,7 @@ function startExample() {
             // Complete stops before sample is completed
             setTimeout(function () {
                 stopExample();
-                var startEl = document.getElementById('example__start');
-                ;
+                var startEl = document.getElementById('example__start') as HTMLInputElement;;
                 startEl.checked = false;
             }, stepInMs + 50);
         });
@@ -150,8 +158,7 @@ function resumeExample() {
     isPaused = false;
 }
 function getExample() {
-    var testsEl = document.getElementById('sampleNbr');
-    ;
+    var testsEl = document.getElementById('sampleNbr') as HTMLSelectElement;;
     var exampleCode = testsEl.options[testsEl.selectedIndex].value;
     var example = examples[exampleCode];
     if (!example)
@@ -162,12 +169,12 @@ window.addEventListener('load', function () {
     var infoEl = document.getElementById('info');
     var exampleEl = document.getElementById('example');
     var infoButtonEl = document.getElementById('info-button');
-    var testsEl = document.getElementById('sampleNbr');
-    var startEl = document.getElementById('example__start');
+    var testsEl = document.getElementById('sampleNbr') as HTMLSelectElement;
+    var startEl = document.getElementById('example__start') as HTMLInputElement;
     var backButtonEl = document.getElementById('info__back');
     // Enable logging
     Observable.logger = createLogger();
-    var groupEls = [];
+    var groupEls:Array<HTMLOptGroupElement> = [];
     // Fill
     Object.keys(examples).forEach(function (exampleCode) {
         var example = examples[exampleCode];

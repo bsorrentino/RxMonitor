@@ -1,10 +1,3 @@
-// Declared in index.js
-declare var stepInMs:number;
-declare var isPaused:boolean;
-declare function delayAsync(delayInMs:number, value:any):void;
-declare function fill(char:string, useAsync:boolean):any|Promise<any>
-declare function filterTriangles(char:string, useAsync:boolean):boolean|Promise<boolean>
-
 
 interface Example {
     name:string;
@@ -216,7 +209,7 @@ var examples:Examples = {
         group: 'Filtering',
         exec: (done) => 
             randomStreamObservable()
-                .filter( v => filterTriangles(v, false) )
+                .filter( v => filterTriangles(v, false) as boolean )
                 .subscribe({ complete: done })
         ,
         infoHtml: "Filter items emitted by the source Observable by only emitting those that satisfy a specified predicate.\n<p>Example: Only allow triangles:</p>\n<pre>shapes$\n  .filter(shape => shape === '\u25B3' || shape === '\u25B7')\n  .subscribe();</pre>"
