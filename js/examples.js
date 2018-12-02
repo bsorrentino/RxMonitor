@@ -131,6 +131,7 @@ var examples = {
         infoHtml: "Converts a Promise to an Observable.\n<pre>Observable.fromPromise(getFilledShapeAsync('\u2606'))\n  .subscribe();</pre>"
     },
     'interval': {
+        autoPlay: true,
         name: "interval",
         group: 'Creating Observables',
         exec: function () {

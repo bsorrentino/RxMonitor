@@ -3,27 +3,39 @@ var rxmarbles;
 (function (rxmarbles) {
     // Time of one step
     class ExampleState {
-        constructor(marbles, _example, unsubscribe) {
+        constructor(marbles, _example, done) {
             this.marbles = marbles;
             this._example = _example;
-            this.unsubscribe = unsubscribe;
+            this.done = done;
             this.isPaused = false;
             if (!_example)
                 throw new Error("example in null!");
+            marbles.isPaused = this.isPaused = !_example.autoPlay;
+        }
+        get example() {
+            return this._example;
         }
         get isStopped() {
             return !this.unsubscribe;
+        }
+        start() {
+            this.marbles.isPaused = this.isPaused = false;
+            this.unsubscribe = this._example.exec(this.done);
+            return this;
         }
         /**
          *
          * @param unsubscribe
          */
         stop() {
-            if (this.unsubscribe) {
-                this.unsubscribe();
-                this.unsubscribe = undefined;
+            if (!this.isStopped) {
+                if (this.unsubscribe) {
+                    this.unsubscribe();
+                    this.unsubscribe = undefined;
+                }
+                this.marbles.isPaused = this.isPaused = true;
+                console.log("stop", this._example.name);
             }
-            this.marbles.isPaused = this.isPaused = true;
             return this;
         }
         pause() {
@@ -32,19 +44,9 @@ var rxmarbles;
         }
         resume() {
             if (this.isStopped)
-                throw new Error(this._example.name + " already stopped!");
+                return this.start();
             this.marbles.isPaused = this.isPaused = false;
             return this;
-        }
-        toggle() {
-            if (this._example.onlyStop) {
-                console.log(this.isPaused ? "resume" : "pause");
-                return this.isPaused ? this.resume() : this.pause();
-            }
-            else {
-                console.log(this.isPaused ? "start" : "stop");
-                return this.isPaused ? this.marbles.startExample(this._example) : this.stop();
-            }
         }
     }
     rxmarbles.ExampleState = ExampleState;
@@ -81,16 +83,16 @@ var rxmarbles;
             this._diagram.clear();
             // Add to history
             window.history.pushState(example.code, example.name, "#" + example.code);
-            let state = new ExampleState(this, example, example.exec(() => {
+            const state = new ExampleState(this, example, () => {
                 // Complete stops before sample is completed
                 setTimeout(() => {
-                    state.stop();
                     let startEl = document.getElementById('example__start');
                     ;
                     startEl.checked = false;
+                    state.stop();
                 }, this.stepInMs + 50);
-            }));
-            return state;
+            });
+            return (example.autoPlay) ? state.start() : state;
         }
     }
     rxmarbles.RxMarbles = RxMarbles;

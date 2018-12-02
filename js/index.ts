@@ -80,48 +80,41 @@ function fill(char:string, useAsync:boolean):any|Promise<any> {
 
 
 function selectExample(exampleCode = 'shapes') {
-
+    console.log( "selectExample", exampleCode );
     var example = examples[exampleCode];
     if (!example)
         throw new Error("Unknown example: '" + exampleCode + "'");
     
     marbles.diagram.clear();
 
-    if( currentExample ) currentExample.stop();
-    
     // Select in combobox
     let testsEl = document.getElementById('sampleNbr') as HTMLInputElement;
     testsEl.value = exampleCode;
+
     let exampleInfoEl = document.getElementById('example__info');
     if (exampleInfoEl)
         exampleInfoEl.innerHTML = example.infoHtml || '';
+
     let startEl = document.getElementById('example__start') as HTMLInputElement;
     startEl.classList.toggle('only-stop', !!example.onlyStop);
+
     let startButtonEl = document.getElementById('example__startButton');
     startButtonEl.style.display = '';
 
+    if( currentExample ) currentExample.stop();    
+
     let result = Object.assign({ code: exampleCode }, example);
+    currentExample = marbles.startExample( result )
+    //console.log( "currentExample", currentExample);
     // Auto start?
-    if (example.autoPlay) {
-        currentExample = marbles.startExample( result );
-        startEl.checked = true;
-    }
-    else {
-        startEl.checked = false;
-    }
+    startEl.checked = example.autoPlay;
     return result;
 }
 
-/*
-function getExample() {
+function getCurrentExampleCode() {
     let testsEl     = document.getElementById('sampleNbr') as HTMLSelectElement;;
-    let exampleCode = testsEl.options[testsEl.selectedIndex].value;
-    let example     = examples[exampleCode];
-
-    if (!example) throw new Error("Unknown example: '" + exampleCode + "'");
-    return Object.assign({ code: exampleCode }, example);
+    return testsEl.options[testsEl.selectedIndex].value;
 }
-*/
 
 window.addEventListener('load', function () {
     var infoEl          = document.getElementById('info');
@@ -164,8 +157,22 @@ window.addEventListener('load', function () {
     // Start Button
     startEl.checked = false;
     startEl.onclick = () => { 
-        currentExample = currentExample.toggle()        
-    };
+
+        if( currentExample.example.onlyStop ) {
+            
+            if( currentExample.isPaused ) {
+                currentExample = marbles.startExample( currentExample.example );
+            }
+            else 
+                currentExample.stop(); 
+        }
+        else {
+            return currentExample.isPaused ? currentExample.resume( ) : currentExample.pause();
+
+        }
+             
+    }
+
     // Info Button
     infoButtonEl.addEventListener('click', function () {
         if (infoEl.classList.contains('hide')) {

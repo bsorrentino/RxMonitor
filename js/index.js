@@ -74,12 +74,11 @@ function fill(char, useAsync) {
     }
 }
 function selectExample(exampleCode = 'shapes') {
+    console.log("selectExample", exampleCode);
     var example = examples[exampleCode];
     if (!example)
         throw new Error("Unknown example: '" + exampleCode + "'");
     marbles.diagram.clear();
-    if (currentExample)
-        currentExample.stop();
     // Select in combobox
     let testsEl = document.getElementById('sampleNbr');
     testsEl.value = exampleCode;
@@ -90,27 +89,20 @@ function selectExample(exampleCode = 'shapes') {
     startEl.classList.toggle('only-stop', !!example.onlyStop);
     let startButtonEl = document.getElementById('example__startButton');
     startButtonEl.style.display = '';
+    if (currentExample)
+        currentExample.stop();
     let result = Object.assign({ code: exampleCode }, example);
+    currentExample = marbles.startExample(result);
+    //console.log( "currentExample", currentExample);
     // Auto start?
-    if (example.autoPlay) {
-        currentExample = marbles.startExample(result);
-        startEl.checked = true;
-    }
-    else {
-        startEl.checked = false;
-    }
+    startEl.checked = example.autoPlay;
     return result;
 }
-/*
-function getExample() {
-    let testsEl     = document.getElementById('sampleNbr') as HTMLSelectElement;;
-    let exampleCode = testsEl.options[testsEl.selectedIndex].value;
-    let example     = examples[exampleCode];
-
-    if (!example) throw new Error("Unknown example: '" + exampleCode + "'");
-    return Object.assign({ code: exampleCode }, example);
+function getCurrentExampleCode() {
+    let testsEl = document.getElementById('sampleNbr');
+    ;
+    return testsEl.options[testsEl.selectedIndex].value;
 }
-*/
 window.addEventListener('load', function () {
     var infoEl = document.getElementById('info');
     var exampleEl = document.getElementById('example');
@@ -151,7 +143,16 @@ window.addEventListener('load', function () {
     // Start Button
     startEl.checked = false;
     startEl.onclick = () => {
-        currentExample = currentExample.toggle();
+        if (currentExample.example.onlyStop) {
+            if (currentExample.isPaused) {
+                currentExample = marbles.startExample(currentExample.example);
+            }
+            else
+                currentExample.stop();
+        }
+        else {
+            return currentExample.isPaused ? currentExample.resume() : currentExample.pause();
+        }
     };
     // Info Button
     infoButtonEl.addEventListener('click', function () {
