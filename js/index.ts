@@ -1,8 +1,7 @@
 
-// Time of one step
-var stepInMs = 200;
-var isPaused = false;
 
+var marbles:rxmarbles.RxMarbles;
+var currentExample:rxmarbles.ExampleState;
 
 function delayAsync(delayInMs:number, value:any):Promise<any> {
     return new Promise( resolve => {
@@ -19,7 +18,7 @@ function filterTriangles(char:string, useAsync:boolean):boolean|Promise<boolean>
     var delayResultAsync = (input:any) => {
         var resolveWith = input[input.length - 1];
         if (useAsync) {
-            return delayAsync(stepInMs * (input.length - 1), resolveWith === '✓');
+            return delayAsync(marbles.stepInMs * (input.length - 1), resolveWith === '✓');
         }
         else {
             return resolveWith === '✓';
@@ -51,7 +50,7 @@ function fill(char:string, useAsync:boolean):any|Promise<any> {
     var delayResultAsync = (input:any) => {
         var resolveWith = input[input.length - 1];
         if (useAsync) {
-            return delayAsync(stepInMs * (input.length - 1), resolveWith);
+            return delayAsync(marbles.stepInMs * (input.length - 1), resolveWith);
         }
         else {
             return resolveWith;
@@ -79,101 +78,61 @@ function fill(char:string, useAsync:boolean):any|Promise<any> {
     }
 }
 
-var marbleDiagram:any;
-
-declare function showMarbles(div:Element, samples$:Observable, options?:any):any;
-
-function createLogger() {
-    // Sampler ticker
-    var ticker = Observable.interval(stepInMs)
-        .filter(function () { return !isPaused; });
-    // Sample items
-    var logger = new SamplerLogger(ticker);
-    // Draw marble diagram
-    var div = document.getElementById("marble");
-    marbleDiagram = showMarbles(div, logger.getSamples());
-    return logger;
-}
-;
-var unsubscribe:any;
 
 function selectExample(exampleCode = 'shapes') {
-    if (marbleDiagram)
-        marbleDiagram.clear();
-    stopExample();
+
     var example = examples[exampleCode];
     if (!example)
         throw new Error("Unknown example: '" + exampleCode + "'");
+    
+    marbles.diagram.clear();
+
+    if( currentExample ) currentExample.stop();
+    
     // Select in combobox
-    var testsEl = document.getElementById('sampleNbr') as HTMLInputElement;
+    let testsEl = document.getElementById('sampleNbr') as HTMLInputElement;
     testsEl.value = exampleCode;
-    var exampleInfoEl = document.getElementById('example__info');
+    let exampleInfoEl = document.getElementById('example__info');
     if (exampleInfoEl)
         exampleInfoEl.innerHTML = example.infoHtml || '';
-    var startEl = document.getElementById('example__start') as HTMLInputElement;
+    let startEl = document.getElementById('example__start') as HTMLInputElement;
     startEl.classList.toggle('only-stop', !!example.onlyStop);
-    var startButtonEl = document.getElementById('example__startButton');
+    let startButtonEl = document.getElementById('example__startButton');
     startButtonEl.style.display = '';
+
+    let result = Object.assign({ code: exampleCode }, example);
     // Auto start?
     if (example.autoPlay) {
-        startExample();
+        currentExample = marbles.startExample( result );
         startEl.checked = true;
     }
     else {
         startEl.checked = false;
     }
-    return Object.assign({ code: exampleCode }, example);
+    return result;
 }
-function startExample() {
-    if (marbleDiagram)
-        marbleDiagram.clear();
-    isPaused = false;
-    var example = getExample();
-    if (example) {
-        // Add to history
-        window.history.pushState(example.code, example.name, "#" + example.code);
-        unsubscribe = example.exec(function () {
-            // Complete stops before sample is completed
-            setTimeout(function () {
-                stopExample();
-                var startEl = document.getElementById('example__start') as HTMLInputElement;;
-                startEl.checked = false;
-            }, stepInMs + 50);
-        });
-    }
-}
-function stopExample() {
-    if (unsubscribe) {
-        unsubscribe();
-        unsubscribe = undefined;
-    }
-    isPaused = true;
-}
-function pauzeExample() {
-    isPaused = true;
-}
-function resumeExample() {
-    if (!unsubscribe)
-        startExample();
-    isPaused = false;
-}
+
+/*
 function getExample() {
-    var testsEl = document.getElementById('sampleNbr') as HTMLSelectElement;;
-    var exampleCode = testsEl.options[testsEl.selectedIndex].value;
-    var example = examples[exampleCode];
-    if (!example)
-        throw new Error("Unknown example: '" + exampleCode + "'");
+    let testsEl     = document.getElementById('sampleNbr') as HTMLSelectElement;;
+    let exampleCode = testsEl.options[testsEl.selectedIndex].value;
+    let example     = examples[exampleCode];
+
+    if (!example) throw new Error("Unknown example: '" + exampleCode + "'");
     return Object.assign({ code: exampleCode }, example);
 }
+*/
+
 window.addEventListener('load', function () {
-    var infoEl = document.getElementById('info');
-    var exampleEl = document.getElementById('example');
-    var infoButtonEl = document.getElementById('info-button');
-    var testsEl = document.getElementById('sampleNbr') as HTMLSelectElement;
-    var startEl = document.getElementById('example__start') as HTMLInputElement;
-    var backButtonEl = document.getElementById('info__back');
+    var infoEl          = document.getElementById('info');
+    var exampleEl       = document.getElementById('example');
+    var infoButtonEl    = document.getElementById('info-button');
+    var testsEl         = document.getElementById('sampleNbr') as HTMLSelectElement;
+    var startEl         = document.getElementById('example__start') as HTMLInputElement;
+    var backButtonEl    = document.getElementById('info__back');
     // Enable logging
-    Observable.logger = createLogger();
+    marbles = rxmarbles.create();
+
     var groupEls:Array<HTMLOptGroupElement> = [];
     // Fill
     Object.keys(examples).forEach(function (exampleCode) {
@@ -196,7 +155,7 @@ window.addEventListener('load', function () {
         }
     });
     // Combobox change
-    testsEl.onchange = function () {
+    testsEl.onchange = () => {
         var exampleCode = testsEl.options[testsEl.selectedIndex].value;
         var example = selectExample(exampleCode);
         // Replace url
@@ -204,19 +163,13 @@ window.addEventListener('load', function () {
     };
     // Start Button
     startEl.checked = false;
-    startEl.onclick = function () {
-        var example = getExample();
-        if (example && !example.onlyStop) {
-            isPaused ? resumeExample() : pauzeExample();
-        }
-        else {
-            isPaused ? startExample() : stopExample();
-        }
+    startEl.onclick = () => { 
+        currentExample = currentExample.toggle()        
     };
     // Info Button
     infoButtonEl.addEventListener('click', function () {
         if (infoEl.classList.contains('hide')) {
-            stopExample();
+            currentExample.stop();
             infoEl.classList.remove('hide');
             exampleEl.classList.add('hide');
         }
@@ -241,7 +194,7 @@ window.addEventListener('load', function () {
         selectExample();
     }
     // Detect forward backward button
-    window.onpopstate = function (e) {
+    window.onpopstate = (e) => {
         if (e.state)
             selectExample(e.state);
     };

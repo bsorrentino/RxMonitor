@@ -1,7 +1,6 @@
 "use strict";
-// Time of one step
-var stepInMs = 200;
-var isPaused = false;
+var marbles;
+var currentExample;
 function delayAsync(delayInMs, value) {
     return new Promise(resolve => {
         setTimeout(() => {
@@ -16,7 +15,7 @@ function filterTriangles(char, useAsync) {
     var delayResultAsync = (input) => {
         var resolveWith = input[input.length - 1];
         if (useAsync) {
-            return delayAsync(stepInMs * (input.length - 1), resolveWith === '✓');
+            return delayAsync(marbles.stepInMs * (input.length - 1), resolveWith === '✓');
         }
         else {
             return resolveWith === '✓';
@@ -47,7 +46,7 @@ function fill(char, useAsync) {
     var delayResultAsync = (input) => {
         var resolveWith = input[input.length - 1];
         if (useAsync) {
-            return delayAsync(stepInMs * (input.length - 1), resolveWith);
+            return delayAsync(marbles.stepInMs * (input.length - 1), resolveWith);
         }
         else {
             return resolveWith;
@@ -74,90 +73,44 @@ function fill(char, useAsync) {
         }
     }
 }
-var marbleDiagram;
-function createLogger() {
-    // Sampler ticker
-    var ticker = Observable.interval(stepInMs)
-        .filter(function () { return !isPaused; });
-    // Sample items
-    var logger = new SamplerLogger(ticker);
-    // Draw marble diagram
-    var div = document.getElementById("marble");
-    marbleDiagram = showMarbles(div, logger.getSamples());
-    return logger;
-}
-;
-var unsubscribe;
 function selectExample(exampleCode = 'shapes') {
-    if (marbleDiagram)
-        marbleDiagram.clear();
-    stopExample();
     var example = examples[exampleCode];
     if (!example)
         throw new Error("Unknown example: '" + exampleCode + "'");
+    marbles.diagram.clear();
+    if (currentExample)
+        currentExample.stop();
     // Select in combobox
-    var testsEl = document.getElementById('sampleNbr');
+    let testsEl = document.getElementById('sampleNbr');
     testsEl.value = exampleCode;
-    var exampleInfoEl = document.getElementById('example__info');
+    let exampleInfoEl = document.getElementById('example__info');
     if (exampleInfoEl)
         exampleInfoEl.innerHTML = example.infoHtml || '';
-    var startEl = document.getElementById('example__start');
+    let startEl = document.getElementById('example__start');
     startEl.classList.toggle('only-stop', !!example.onlyStop);
-    var startButtonEl = document.getElementById('example__startButton');
+    let startButtonEl = document.getElementById('example__startButton');
     startButtonEl.style.display = '';
+    let result = Object.assign({ code: exampleCode }, example);
     // Auto start?
     if (example.autoPlay) {
-        startExample();
+        currentExample = marbles.startExample(result);
         startEl.checked = true;
     }
     else {
         startEl.checked = false;
     }
-    return Object.assign({ code: exampleCode }, example);
+    return result;
 }
-function startExample() {
-    if (marbleDiagram)
-        marbleDiagram.clear();
-    isPaused = false;
-    var example = getExample();
-    if (example) {
-        // Add to history
-        window.history.pushState(example.code, example.name, "#" + example.code);
-        unsubscribe = example.exec(function () {
-            // Complete stops before sample is completed
-            setTimeout(function () {
-                stopExample();
-                var startEl = document.getElementById('example__start');
-                ;
-                startEl.checked = false;
-            }, stepInMs + 50);
-        });
-    }
-}
-function stopExample() {
-    if (unsubscribe) {
-        unsubscribe();
-        unsubscribe = undefined;
-    }
-    isPaused = true;
-}
-function pauzeExample() {
-    isPaused = true;
-}
-function resumeExample() {
-    if (!unsubscribe)
-        startExample();
-    isPaused = false;
-}
+/*
 function getExample() {
-    var testsEl = document.getElementById('sampleNbr');
-    ;
-    var exampleCode = testsEl.options[testsEl.selectedIndex].value;
-    var example = examples[exampleCode];
-    if (!example)
-        throw new Error("Unknown example: '" + exampleCode + "'");
+    let testsEl     = document.getElementById('sampleNbr') as HTMLSelectElement;;
+    let exampleCode = testsEl.options[testsEl.selectedIndex].value;
+    let example     = examples[exampleCode];
+
+    if (!example) throw new Error("Unknown example: '" + exampleCode + "'");
     return Object.assign({ code: exampleCode }, example);
 }
+*/
 window.addEventListener('load', function () {
     var infoEl = document.getElementById('info');
     var exampleEl = document.getElementById('example');
@@ -166,7 +119,7 @@ window.addEventListener('load', function () {
     var startEl = document.getElementById('example__start');
     var backButtonEl = document.getElementById('info__back');
     // Enable logging
-    Observable.logger = createLogger();
+    marbles = rxmarbles.create();
     var groupEls = [];
     // Fill
     Object.keys(examples).forEach(function (exampleCode) {
@@ -189,7 +142,7 @@ window.addEventListener('load', function () {
         }
     });
     // Combobox change
-    testsEl.onchange = function () {
+    testsEl.onchange = () => {
         var exampleCode = testsEl.options[testsEl.selectedIndex].value;
         var example = selectExample(exampleCode);
         // Replace url
@@ -197,19 +150,13 @@ window.addEventListener('load', function () {
     };
     // Start Button
     startEl.checked = false;
-    startEl.onclick = function () {
-        var example = getExample();
-        if (example && !example.onlyStop) {
-            isPaused ? resumeExample() : pauzeExample();
-        }
-        else {
-            isPaused ? startExample() : stopExample();
-        }
+    startEl.onclick = () => {
+        currentExample = currentExample.toggle();
     };
     // Info Button
     infoButtonEl.addEventListener('click', function () {
         if (infoEl.classList.contains('hide')) {
-            stopExample();
+            currentExample.stop();
             infoEl.classList.remove('hide');
             exampleEl.classList.add('hide');
         }
@@ -234,7 +181,7 @@ window.addEventListener('load', function () {
         selectExample();
     }
     // Detect forward backward button
-    window.onpopstate = function (e) {
+    window.onpopstate = (e) => {
         if (e.state)
             selectExample(e.state);
     };

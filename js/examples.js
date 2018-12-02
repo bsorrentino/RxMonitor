@@ -12,9 +12,9 @@ function randomStreamProducer(slowDownFactor = 1, values = ['□', '△', '○',
         // Loop with random delay
         var cancelationToken;
         function randomLoop() {
-            var delayInMs = stepInMs * (Math.round(Math.random() * 10 * slowDownFactor) + 1);
+            var delayInMs = marbles.stepInMs * (Math.round(Math.random() * 10 * slowDownFactor) + 1);
             cancelationToken = setTimeout(() => {
-                if (!isPaused)
+                if (!currentExample.isPaused)
                     observer.next(getRandomChar());
                 if (cancelationToken)
                     randomLoop(); // Canceled in next handler? Recursive, normally TCO should be possible
@@ -44,7 +44,7 @@ function combineShapeAndFill(fill, shape) {
 }
 /** Simulates an AJAX request */
 function getFilledShapeAsync(shape) {
-    return delayAsync(stepInMs + 50 + Math.random() * 2300, fill(shape, false));
+    return delayAsync(marbles.stepInMs + 50 + Math.random() * 2300, fill(shape, false));
 }
 var examples = {
     'shapes': {
