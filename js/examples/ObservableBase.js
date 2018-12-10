@@ -28,7 +28,16 @@ var rxmarbles;
             let logger = ObservableBase.logger;
             var isStopped = false;
             return {
-                start: () => logger ? logger.onStart(id, '', createdById, createdByValue, true) : undefined,
+                start: () => {
+                    //id:string, name:string, parentId:string, createdByValue:any, isIntermediate:an
+                    let event = new CustomEvent("rxmarbles.start", { detail: { id: id,
+                            name: '',
+                            parentId: createdById,
+                            createdByValue: createdByValue,
+                            isIntermediate: true }
+                    });
+                    window.dispatchEvent(event);
+                },
                 value: (val) => {
                     if (logger)
                         logger.onValue(val, id, '', createdById);

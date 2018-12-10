@@ -13,6 +13,18 @@ var rxmarbles;
         constructor(ticker) {
             this.ticker = ticker;
             this.lastSample = [];
+            window.addEventListener("rxmarbles.start", e => {
+                let ce = e;
+                console.log("rxmarbles.start", ce.detail);
+                this.lastSample.push({
+                    type: SampleItemType.Start,
+                    id: ce.detail.id,
+                    parentId: ce.detail.parentId,
+                    name: ce.detail.name,
+                    createdByValue: ce.detail.createdByValue,
+                    isIntermediate: ce.detail.isIntermediate,
+                });
+            });
         }
         static isStartSampleItem(info) {
             return info && info.type === SampleItemType.Start;
@@ -47,18 +59,6 @@ var rxmarbles;
                     error: error,
                     complete: complete
                 });
-            });
-        }
-        ;
-        onStart(id, name, parentId, createdByValue, isIntermediate) {
-            //console.log( "onStart", name );
-            this.lastSample.push({
-                type: SampleItemType.Start,
-                id: id,
-                parentId: parentId,
-                name: name,
-                createdByValue: createdByValue,
-                isIntermediate: isIntermediate,
             });
         }
         ;

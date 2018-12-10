@@ -86,13 +86,13 @@ export class RxMarbles {
      */
     constructor( div:HTMLDivElement, public stepInMs:number ) {
         // Sampler ticker
-        let ticker = Observable.interval(stepInMs).filter( () => !this.isPaused );
+        let ticker = rxmarbles.Observable.interval(stepInMs).filter( () => !this.isPaused );
         // Sample items
         this._logger = new SamplerLogger(ticker);
         // Draw marble diagram
         this._diagram   = showMarbles(div, this._logger.getSamples());
 
-        Observable.logger = this._logger;
+        rxmarbles.Observable.logger = this._logger;
     }
 
     /**

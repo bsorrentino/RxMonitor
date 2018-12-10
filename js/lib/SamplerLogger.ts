@@ -24,6 +24,22 @@ export class SamplerLogger {
     lastSample:Array<Sample> = [];
 
     constructor( private ticker:Observable ) {
+
+        window.addEventListener( "rxmarbles.start",  e  => {
+            let ce = e as CustomEvent<any>;
+
+            console.log( "rxmarbles.start", ce.detail );
+
+            this.lastSample.push({
+                type: SampleItemType.Start,
+                id:             ce.detail.id,
+                parentId:       ce.detail.parentId,
+                name:           ce.detail.name,
+                createdByValue: ce.detail.createdByValue,
+                isIntermediate: ce.detail.isIntermediate,
+            });
+    
+        });
     }
 
     static isStartSampleItem( info:Info  ) {
@@ -63,17 +79,6 @@ export class SamplerLogger {
         });
     };
     
-    onStart(id:string, name:string, parentId:string, createdByValue:any, isIntermediate:any) {
-        //console.log( "onStart", name );
-        this.lastSample.push({
-            type: SampleItemType.Start,
-            id: id,
-            parentId: parentId,
-            name: name,
-            createdByValue: createdByValue,
-            isIntermediate: isIntermediate,
-        });
-    };
     onValue(value:string, id:string, name:string, parentId:string) {
         //console.log( "onValue", name );
         this.lastSample.push({

@@ -176,8 +176,17 @@ namespace rxmarbles {
         var isStopped = false;
         // Logger can still be null when in subject started producing subject before debugSubject is initialized
         // reverse deps?
-        if (logger)
-            logger.onStart(producerId, this.name, parentProducerId, this.isCreatedByValue, false);
+
+        {
+            //id:string, name:string, parentId:string, createdByValue:any, isIntermediate:an
+            let event = new CustomEvent( "rxmarbles.start", { detail: 
+                {   id:producerId, 
+                    name:this.name, 
+                    parentId:parentProducerId, 
+                    createdByValue:this.isCreatedByValue, 
+                    isIntermediate:false} } );
+            window.dispatchEvent( event );        
+        }
         var next = observer.next, error = observer.error, complete = observer.complete;
         // used functions for better error stack
         observer.next = (val:any) => {
