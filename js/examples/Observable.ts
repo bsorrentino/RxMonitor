@@ -170,7 +170,6 @@ namespace rxmarbles {
    startProducer(observer:Observer, parentProducerId = "") {
         
         let producerId = Observable.getProducerId();
-        let logger = ObservableBase.logger;
         let name = this.name;
 
         var isStopped = false;
@@ -190,24 +189,45 @@ namespace rxmarbles {
         var next = observer.next, error = observer.error, complete = observer.complete;
         // used functions for better error stack
         observer.next = (val:any) => {
-            if (logger)
-                logger.onValue(val, producerId, name, parentProducerId);
+
+            let event = new CustomEvent( "rxmarbles.value", { detail: 
+                {   id:producerId, 
+                    name:name, 
+                    parentId:parentProducerId, 
+                    value:val, 
+                    } 
+                });
+            window.dispatchEvent( event );
+        
             next.call(observer, val);
         };
         observer.error = (err:any) => {
-            if (logger)
-                logger.onError(err, producerId, name, parentProducerId);
-            if (logger && !isStopped) {
-                //logger.onStop(producerId, name, parentProducerId);
+            let event = new CustomEvent( "rxmarbles.value", { detail: 
+                {   id:producerId, 
+                    name:name, 
+                    parentId:parentProducerId, 
+                    err:err, 
+                    } 
+                });
+            window.dispatchEvent( event );
+            
+            if (!isStopped) {
                 isStopped = true;
             }
+
             error.call(observer, err);
         };
         observer.complete = () => {
-            if (logger)
-                logger.onComplete(producerId, name, parentProducerId);
-            if (logger && !isStopped) {
-                //logger.onStop(producerId, name, parentProducerId);
+
+            let event = new CustomEvent( "rxmarbles.complete", { detail: 
+                {   id:producerId, 
+                    name:name, 
+                    parentId:parentProducerId
+                    } 
+                });
+            window.dispatchEvent( event );
+
+            if (!isStopped) {
                 isStopped = true;
             }
             complete.call(observer);
@@ -217,10 +237,19 @@ namespace rxmarbles {
         var unsubscribe = this.producer(observer);
         return () => {
             unsubscribe();
-            if (logger && !isStopped) {
-                logger.onStop(producerId, name, parentProducerId);
+
+            if (!isStopped) {
                 isStopped = true;
             }
+
+            let event = new CustomEvent( "rxmarbles.stop", { detail: 
+                {   id:producerId, 
+                    name:name, 
+                    parentId:parentProducerId
+                    } 
+                });
+            window.dispatchEvent( event );
+
         };
     };
 

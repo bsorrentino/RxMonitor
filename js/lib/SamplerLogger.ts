@@ -31,7 +31,7 @@ export class SamplerLogger {
             console.log( "rxmarbles.start", ce.detail );
 
             this.lastSample.push({
-                type: SampleItemType.Start,
+                type:           SampleItemType.Start,
                 id:             ce.detail.id,
                 parentId:       ce.detail.parentId,
                 name:           ce.detail.name,
@@ -40,6 +40,68 @@ export class SamplerLogger {
             });
     
         });
+
+        //onStop(id:string, name:string, parentId:string);
+        window.addEventListener( "rxmarbles.stop",  e  => {
+
+            let ce = e as CustomEvent<any>;
+
+            console.log( "rxmarbles.stop", ce.detail );
+
+            this.lastSample.push({
+                type:       SampleItemType.Stop,
+                id:         ce.detail.id,
+                parentId:   ce.detail.parentId,
+                name:       ce.detail.name
+            });
+        });
+    
+        //onValue(value:string, id:string, name:string, parentId:string)
+        window.addEventListener( "rxmarbles.value",  e  => {
+
+            let ce = e as CustomEvent<any>;
+
+            console.log( "rxmarbles.value", ce.detail );
+
+            this.lastSample.push({
+                type:       SampleItemType.Value,
+                id:         ce.detail.id,
+                parentId:   ce.detail.parentId,
+                name:       ce.detail.name,
+                value:      ce.detail.value,
+            });
+        });
+
+        //onError(err:any, id:string, name:string, parentId:string) {
+        window.addEventListener( "rxmarbles.error",  e  => {
+
+                let ce = e as CustomEvent<any>;
+    
+                console.log( "rxmarbles.error", ce.detail );
+    
+                this.lastSample.push({
+                type:       SampleItemType.Error,
+                id:         ce.detail.id,
+                parentId:   ce.detail.parentId,
+                name:       ce.detail.name,
+                err:        ce.detail.err
+            });
+        });
+        //onComplete(id:string, name:string, parentId:string) {
+        window.addEventListener( "rxmarbles.complete",  e  => {
+
+            let ce = e as CustomEvent<any>;
+
+            console.log( "rxmarbles.complete", ce.detail );
+
+            this.lastSample.push({
+                type:       SampleItemType.Complete,
+                id:         ce.detail.id,
+                parentId:   ce.detail.parentId,
+                name:       ce.detail.name
+            });
+        });
+        
     }
 
     static isStartSampleItem( info:Info  ) {
@@ -79,44 +141,6 @@ export class SamplerLogger {
         });
     };
     
-    onValue(value:string, id:string, name:string, parentId:string) {
-        //console.log( "onValue", name );
-        this.lastSample.push({
-            type: SampleItemType.Value,
-            id: id,
-            parentId: parentId,
-            name: name,
-            value: value,
-        });
-    };
-    onError(err:any, id:string, name:string, parentId:string) {
-        //console.log( "onError", name );
-        this.lastSample.push({
-            type: SampleItemType.Error,
-            id: id,
-            parentId: parentId,
-            name: name,
-            err: err
-        });
-    };
-    onComplete(id:string, name:string, parentId:string) {
-        //console.log( "onComplete", name );
-        this.lastSample.push({
-            type: SampleItemType.Complete,
-            id: id,
-            parentId: parentId,
-            name: name
-        });
-    };
-    onStop(id:string, name:string, parentId:string) {
-        //console.log( "onStop", name );
-        this.lastSample.push({
-            type: SampleItemType.Stop,
-            id: id,
-            parentId: parentId,
-            name: name
-        });
-    };
 
 }
 

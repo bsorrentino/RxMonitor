@@ -159,7 +159,6 @@ var rxmarbles;
         /** Created startProducer so easily overridable */
         startProducer(observer, parentProducerId = "") {
             let producerId = Observable.getProducerId();
-            let logger = rxmarbles.ObservableBase.logger;
             let name = this.name;
             var isStopped = false;
             // Logger can still be null when in subject started producing subject before debugSubject is initialized
@@ -176,24 +175,36 @@ var rxmarbles;
             var next = observer.next, error = observer.error, complete = observer.complete;
             // used functions for better error stack
             observer.next = (val) => {
-                if (logger)
-                    logger.onValue(val, producerId, name, parentProducerId);
+                let event = new CustomEvent("rxmarbles.value", { detail: { id: producerId,
+                        name: name,
+                        parentId: parentProducerId,
+                        value: val,
+                    }
+                });
+                window.dispatchEvent(event);
                 next.call(observer, val);
             };
             observer.error = (err) => {
-                if (logger)
-                    logger.onError(err, producerId, name, parentProducerId);
-                if (logger && !isStopped) {
-                    //logger.onStop(producerId, name, parentProducerId);
+                let event = new CustomEvent("rxmarbles.value", { detail: { id: producerId,
+                        name: name,
+                        parentId: parentProducerId,
+                        err: err,
+                    }
+                });
+                window.dispatchEvent(event);
+                if (!isStopped) {
                     isStopped = true;
                 }
                 error.call(observer, err);
             };
             observer.complete = () => {
-                if (logger)
-                    logger.onComplete(producerId, name, parentProducerId);
-                if (logger && !isStopped) {
-                    //logger.onStop(producerId, name, parentProducerId);
+                let event = new CustomEvent("rxmarbles.complete", { detail: { id: producerId,
+                        name: name,
+                        parentId: parentProducerId
+                    }
+                });
+                window.dispatchEvent(event);
+                if (!isStopped) {
                     isStopped = true;
                 }
                 complete.call(observer);
@@ -203,10 +214,15 @@ var rxmarbles;
             var unsubscribe = this.producer(observer);
             return () => {
                 unsubscribe();
-                if (logger && !isStopped) {
-                    logger.onStop(producerId, name, parentProducerId);
+                if (!isStopped) {
                     isStopped = true;
                 }
+                let event = new CustomEvent("rxmarbles.stop", { detail: { id: producerId,
+                        name: name,
+                        parentId: parentProducerId
+                    }
+                });
+                window.dispatchEvent(event);
             };
         }
         ;

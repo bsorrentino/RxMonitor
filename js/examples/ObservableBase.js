@@ -2,6 +2,15 @@
 var rxmarbles;
 (function (rxmarbles) {
     class ObservableBase {
+        /*
+        private static _logger:SamplerLogger;
+        static get logger() {
+            return ObservableBase._logger;
+        }
+        static set logger(v:SamplerLogger) {
+            ObservableBase._logger = v;
+        }
+        */
         /**
          *
          * @param name
@@ -14,18 +23,10 @@ var rxmarbles;
         static getProducerId() {
             return String(ObservableBase.lastId++);
         }
-        static get logger() {
-            return ObservableBase._logger;
-        }
-        static set logger(v) {
-            //console.log( "SET LOGGER", v);
-            ObservableBase._logger = v;
-        }
         // Show inner stream created by a value (example: delay, switchMap)
         createChildLogger(producerId, createdByValue = true) {
             let id = ObservableBase.getProducerId();
             var createdById = producerId || '';
-            let logger = ObservableBase.logger;
             var isStopped = false;
             return {
                 start: () => {
@@ -39,30 +40,47 @@ var rxmarbles;
                     window.dispatchEvent(event);
                 },
                 value: (val) => {
-                    if (logger)
-                        logger.onValue(val, id, '', createdById);
+                    let event = new CustomEvent("rxmarbles.value", { detail: { id: id,
+                            name: '',
+                            parentId: createdById,
+                            value: val,
+                        }
+                    });
+                    window.dispatchEvent(event);
                 },
                 error: (err) => {
-                    if (logger) {
-                        logger.onError(err, id, '', createdById);
-                        if (!isStopped) {
-                            isStopped = true;
+                    let event = new CustomEvent("rxmarbles.value", { detail: { id: id,
+                            name: '',
+                            parentId: createdById,
+                            err: err,
                         }
+                    });
+                    window.dispatchEvent(event);
+                    if (!isStopped) {
+                        isStopped = true;
                     }
                 },
                 complete: () => {
-                    if (logger) {
-                        logger.onComplete(id, '', createdById);
-                        if (!isStopped) {
-                            isStopped = true;
+                    let event = new CustomEvent("rxmarbles.complete", { detail: { id: id,
+                            name: '',
+                            parentId: createdById
                         }
+                    });
+                    window.dispatchEvent(event);
+                    if (!isStopped) {
+                        isStopped = true;
                     }
                 },
                 end: () => {
-                    if (logger && !isStopped) {
+                    if (!isStopped) {
                         isStopped = true;
-                        logger.onStop(id, '', createdById);
                     }
+                    let event = new CustomEvent("rxmarbles.stop", { detail: { id: id,
+                            name: '',
+                            parentId: createdById
+                        }
+                    });
+                    window.dispatchEvent(event);
                 }
             };
         }

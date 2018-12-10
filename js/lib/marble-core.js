@@ -65,7 +65,6 @@ var rxmarbles;
             this._logger = new rxmarbles.SamplerLogger(ticker);
             // Draw marble diagram
             this._diagram = showMarbles(div, this._logger.getSamples());
-            rxmarbles.Observable.logger = this._logger;
         }
         get logger() {
             return this._logger;

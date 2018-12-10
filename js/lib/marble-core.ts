@@ -92,7 +92,6 @@ export class RxMarbles {
         // Draw marble diagram
         this._diagram   = showMarbles(div, this._logger.getSamples());
 
-        rxmarbles.Observable.logger = this._logger;
     }
 
     /**
