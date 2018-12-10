@@ -1,54 +1,69 @@
-"use strict";
-var SampleItemType;
-(function (SampleItemType) {
-    SampleItemType[SampleItemType["Start"] = 0] = "Start";
-    SampleItemType[SampleItemType["Value"] = 1] = "Value";
-    SampleItemType[SampleItemType["Error"] = 2] = "Error";
-    SampleItemType[SampleItemType["Complete"] = 3] = "Complete";
-    SampleItemType[SampleItemType["Stop"] = 4] = "Stop";
-})(SampleItemType || (SampleItemType = {}));
-class SamplerLogger {
-    constructor(ticker) {
-        this.ticker = ticker;
-        this.lastSample = [];
+
+
+namespace rxmarbles {
+
+export type Info = { 
+    type: SampleItemType;
+}
+export enum SampleItemType {
+    Start, Value, Error, Complete, Stop
+}
+
+export interface Sample {
+        type: SampleItemType,
+        id: string,
+        parentId: string,
+        name: string,
+        err?:any,
+        value?:any,
+        createdByValue?: any,
+        isIntermediate?: any,
+}
+
+export class SamplerLogger {
+    lastSample:Array<Sample> = [];
+
+    constructor( private ticker:Observable ) {
     }
-    static isStartSampleItem(info) {
+
+    static isStartSampleItem( info:Info  ) {
         return info && info.type === SampleItemType.Start;
     }
-    static isValueSampleItem(info) {
+    static isValueSampleItem(info:Info ) {
         return info && info.type === SampleItemType.Value;
-    }
-    ;
-    static isErrorSampleItem(info) {
+    };
+    static isErrorSampleItem(info:Info ) {
         return info && info.type === SampleItemType.Error;
-    }
-    ;
-    static isCompleteSampleItem(info) {
+    };
+    static isCompleteSampleItem(info:Info) {
         return info && info.type === SampleItemType.Complete;
-    }
-    ;
-    static isStopSampleItem(info) {
+    };
+    static isStopSampleItem(info:Info ) {
         return info && info.type === SampleItemType.Stop;
-    }
-    ;
+    };
+
     getSample() { return this.lastSample; }
+
     getSamples() {
-        return new Observable((_a) => {
+        return new Observable((_a:any) => {
             var next = _a.next, error = _a.error, complete = _a.complete;
             return this.ticker.subscribe({
-                next: (val) => {
+                next: ( val:any ) => {
+
                     let sample = this.getSample();
                     //console.log( "getSamples", sample);
+
                     next(sample);
+
                     this.lastSample = [];
                 },
                 error: error,
                 complete: complete
             });
         });
-    }
-    ;
-    onStart(id, name, parentId, createdByValue, isIntermediate) {
+    };
+    
+    onStart(id:string, name:string, parentId:string, createdByValue:any, isIntermediate:any) {
         //console.log( "onStart", name );
         this.lastSample.push({
             type: SampleItemType.Start,
@@ -58,9 +73,8 @@ class SamplerLogger {
             createdByValue: createdByValue,
             isIntermediate: isIntermediate,
         });
-    }
-    ;
-    onValue(value, id, name, parentId) {
+    };
+    onValue(value:string, id:string, name:string, parentId:string) {
         //console.log( "onValue", name );
         this.lastSample.push({
             type: SampleItemType.Value,
@@ -69,9 +83,8 @@ class SamplerLogger {
             name: name,
             value: value,
         });
-    }
-    ;
-    onError(err, id, name, parentId) {
+    };
+    onError(err:any, id:string, name:string, parentId:string) {
         //console.log( "onError", name );
         this.lastSample.push({
             type: SampleItemType.Error,
@@ -80,9 +93,8 @@ class SamplerLogger {
             name: name,
             err: err
         });
-    }
-    ;
-    onComplete(id, name, parentId) {
+    };
+    onComplete(id:string, name:string, parentId:string) {
         //console.log( "onComplete", name );
         this.lastSample.push({
             type: SampleItemType.Complete,
@@ -90,9 +102,8 @@ class SamplerLogger {
             parentId: parentId,
             name: name
         });
-    }
-    ;
-    onStop(id, name, parentId) {
+    };
+    onStop(id:string, name:string, parentId:string) {
         //console.log( "onStop", name );
         this.lastSample.push({
             type: SampleItemType.Stop,
@@ -100,6 +111,8 @@ class SamplerLogger {
             parentId: parentId,
             name: name
         });
-    }
-    ;
+    };
+
+}
+
 }

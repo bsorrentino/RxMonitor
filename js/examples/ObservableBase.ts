@@ -1,5 +1,7 @@
 
-type ChildLogger = {
+namespace rxmarbles {
+
+export type ChildLogger = {
     start: () =>  void;
     value: (val:any) => void;
     error: (err:any) => void;
@@ -7,7 +9,7 @@ type ChildLogger = {
     end: () => void;
 };
 
-interface Observer  {
+export interface Observer  {
     next?:(( e:any ) => void);
     error?:(( e:any ) => void);
     complete?:(() => void);
@@ -15,7 +17,7 @@ interface Observer  {
     producerId?:string;
 }
  
-class ObservableBase {
+export class ObservableBase {
 
     static lastId:number = 1;
 
@@ -105,5 +107,7 @@ logAndSubscribeToObservable(observable?:Observable, observer?:Observer, producer
     }
     return observable.subscribe(observer);
 };
+
+}
 
 }

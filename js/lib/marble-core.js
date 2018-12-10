@@ -60,12 +60,12 @@ var rxmarbles;
             this.stepInMs = stepInMs;
             this.isPaused = false;
             // Sampler ticker
-            let ticker = Observable.interval(stepInMs).filter(() => !this.isPaused);
+            let ticker = rxmarbles.Observable.interval(stepInMs).filter(() => !this.isPaused);
             // Sample items
-            this._logger = new SamplerLogger(ticker);
+            this._logger = new rxmarbles.SamplerLogger(ticker);
             // Draw marble diagram
             this._diagram = showMarbles(div, this._logger.getSamples());
-            Observable.logger = this._logger;
+            rxmarbles.Observable.logger = this._logger;
         }
         get logger() {
             return this._logger;

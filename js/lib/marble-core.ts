@@ -1,5 +1,5 @@
 
-declare function showMarbles(div:Element, samples$:Observable, options?:any):any;
+declare function showMarbles(div:Element, samples$:rxmarbles.Observable, options?:any):any;
 
 namespace rxmarbles {
 
