@@ -1,5 +1,7 @@
 
-type ChildLogger = {
+namespace example {
+
+export type ChildLogger = {
     start: () =>  void;
     value: (val:any) => void;
     error: (err:any) => void;
@@ -7,7 +9,7 @@ type ChildLogger = {
     end: () => void;
 };
 
-interface Observer  {
+export interface Observer  {
     next?:(( e:any ) => void);
     error?:(( e:any ) => void);
     complete?:(() => void);
@@ -15,21 +17,12 @@ interface Observer  {
     producerId?:string;
 }
  
-class ObservableBase {
+export class ObservableBase {
 
     static lastId:number = 1;
 
     static getProducerId() {
         return String(ObservableBase.lastId++);
-    }
-
-    private static _logger:SamplerLogger;
-    static get logger() {
-        return ObservableBase._logger;
-    }
-    static set logger(v:SamplerLogger) {
-        //console.log( "SET LOGGER", v);
-        ObservableBase._logger = v;
     }
 
     /**
@@ -46,36 +39,73 @@ class ObservableBase {
     let id = ObservableBase.getProducerId();
     var createdById = producerId || '';
 
-    let logger = ObservableBase.logger;
-
     var isStopped = false;
     return {
-        start: () =>  logger ? logger.onStart(id, '', createdById, createdByValue, true) : undefined ,
+        start: () =>  {
+            //id:string, name:string, parentId:string, createdByValue:any, isIntermediate:an
+            let event = new CustomEvent( "rxmarbles.start", { detail: 
+                {   id:id, 
+                    name:'', 
+                    parentId:createdById, 
+                    createdByValue:createdByValue, 
+                    isIntermediate:true} 
+                });
+            window.dispatchEvent( event );
+        },
         value: (val:any) => {
-            if (logger) 
-                logger.onValue(val, id, '', createdById);
+
+            let event = new CustomEvent( "rxmarbles.value", { detail: 
+                {   id:id, 
+                    name:'', 
+                    parentId:createdById, 
+                    value:val, 
+                    } 
+                });
+            window.dispatchEvent( event );
+    
         },
         error: (err:any) => {
-            if (logger) {
-                logger.onError(err, id, '', createdById);
-                if (!isStopped) {
-                    isStopped = true;
-                }
+
+            let event = new CustomEvent( "rxmarbles.value", { detail: 
+                {   id:id, 
+                    name:'', 
+                    parentId:createdById, 
+                    err:err, 
+                    } 
+                });
+            window.dispatchEvent( event );
+
+            if (!isStopped) {
+                isStopped = true;
             }
         },
         complete: () => {
-            if (logger) {
-                logger.onComplete(id, '', createdById);
-                if (!isStopped) {
-                    isStopped = true;
-                }
+
+            let event = new CustomEvent( "rxmarbles.complete", { detail: 
+                {   id:id, 
+                    name:'', 
+                    parentId:createdById
+                    } 
+                });
+            window.dispatchEvent( event );
+
+            if (!isStopped) {
+                isStopped = true;
             }
         },
         end: () => {
-            if (logger && !isStopped) {
+
+            if (!isStopped) {
                 isStopped = true;
-                logger.onStop(id, '', createdById);
             }
+
+            let event = new CustomEvent( "rxmarbles.stop", { detail: 
+                {   id:id, 
+                    name:'', 
+                    parentId:createdById
+                    } 
+                });
+            window.dispatchEvent( event );
         }
     };
 }
@@ -105,5 +135,7 @@ logAndSubscribeToObservable(observable?:Observable, observer?:Observer, producer
     }
     return observable.subscribe(observer);
 };
+
+}
 
 }

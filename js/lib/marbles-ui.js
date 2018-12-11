@@ -223,15 +223,15 @@ function showMarbles(div, samples$, options) {
         return sampleEl;
     }
     function sampleItemToTooltip(info) {
-        if (SamplerLogger.isValueSampleItem(info))
+        if (rxmarbles.SamplerLogger.isValueSampleItem(info))
             return "Value: " + toText(info.value);
-        if (SamplerLogger.isErrorSampleItem(info))
+        if (rxmarbles.SamplerLogger.isErrorSampleItem(info))
             return "Error: " + toText(info.err);
-        if (SamplerLogger.isStartSampleItem(info))
+        if (rxmarbles.SamplerLogger.isStartSampleItem(info))
             return ''; // `Subscribed`; // Disabled for easier colored line
-        if (SamplerLogger.isCompleteSampleItem(info))
+        if (rxmarbles.SamplerLogger.isCompleteSampleItem(info))
             return "Completed";
-        if (SamplerLogger.isStopSampleItem(info))
+        if (rxmarbles.SamplerLogger.isStopSampleItem(info))
             return "Unsubscribe";
         console.error('Unknown Sample Object', info);
         return '';
@@ -258,15 +258,15 @@ function showMarbles(div, samples$, options) {
                 return '───────'; // Multiple lines added for wide columns and clipped with CSS
             if (sample.length === 1) {
                 var info = sample[0];
-                if (SamplerLogger.isValueSampleItem(info))
+                if (rxmarbles.SamplerLogger.isValueSampleItem(info))
                     return getValue(info.value);
-                if (SamplerLogger.isStartSampleItem(info))
+                if (rxmarbles.SamplerLogger.isStartSampleItem(info))
                     return info.createdByValue ? '╰──────' : '───────'; // Multiple lines added for wide columns and clipped with CSS
-                if (SamplerLogger.isErrorSampleItem(info))
+                if (rxmarbles.SamplerLogger.isErrorSampleItem(info))
                     return '✖';
-                if (SamplerLogger.isCompleteSampleItem(info))
+                if (rxmarbles.SamplerLogger.isCompleteSampleItem(info))
                     return '┤';
-                if (SamplerLogger.isStopSampleItem(info))
+                if (rxmarbles.SamplerLogger.isStopSampleItem(info))
                     return '╴';
                 console.error('Unknown Sample Object', info);
                 return '?';
@@ -275,12 +275,12 @@ function showMarbles(div, samples$, options) {
                 // Start and Stop
                 if (sample.length >= 2 &&
                     sample[0].id === sample[1].id &&
-                    !sample.some(function (info) { return SamplerLogger.isValueSampleItem(info) || SamplerLogger.isErrorSampleItem(info); }) &&
-                    sample.some(function (info) { return SamplerLogger.isCompleteSampleItem(info); })) {
+                    !sample.some(function (info) { return rxmarbles.SamplerLogger.isValueSampleItem(info) || rxmarbles.SamplerLogger.isErrorSampleItem(info); }) &&
+                    sample.some(function (info) { return rxmarbles.SamplerLogger.isCompleteSampleItem(info); })) {
                     return '┤';
                 }
-                var valueInfos = sample.filter(function (info) { return SamplerLogger.isValueSampleItem(info); });
-                var errorInfos = sample.filter(function (info) { return SamplerLogger.isErrorSampleItem(info); });
+                var valueInfos = sample.filter(function (info) { return rxmarbles.SamplerLogger.isValueSampleItem(info); });
+                var errorInfos = sample.filter(function (info) { return rxmarbles.SamplerLogger.isErrorSampleItem(info); });
                 // If one Error and No Value
                 if (errorInfos.length === 1 && valueInfos.length === 0)
                     return '✖';
@@ -310,10 +310,10 @@ function showMarbles(div, samples$, options) {
                 rowEl.appendChild(sampleEl);
                 // Update Counters
                 if (!rowEl.getAttribute('data-parent-id')) {
-                    updateNbrOfValues(rowEl, sampleItems.filter(function (info) { return SamplerLogger.isValueSampleItem(info); }).length);
+                    updateNbrOfValues(rowEl, sampleItems.filter(function (info) { return rxmarbles.SamplerLogger.isValueSampleItem(info); }).length);
                 }
                 // End Row
-                var shouldEndRow = sampleItems.some(function (info) { return SamplerLogger.isStopSampleItem(info) || SamplerLogger.isCompleteSampleItem(info) || SamplerLogger.isErrorSampleItem(info); });
+                var shouldEndRow = sampleItems.some(function (info) { return rxmarbles.SamplerLogger.isStopSampleItem(info) || rxmarbles.SamplerLogger.isCompleteSampleItem(info) || rxmarbles.SamplerLogger.isErrorSampleItem(info); });
                 if (shouldEndRow)
                     rows.setRowEnded(rowEl, true);
             }
@@ -352,7 +352,7 @@ function showMarbles(div, samples$, options) {
         sample
             .reverse() // So first parents are created
             .forEach(function (sampleItem) {
-            if (SamplerLogger.isStartSampleItem(sampleItem)) {
+            if (rxmarbles.SamplerLogger.isStartSampleItem(sampleItem)) {
                 // Add
                 if (!rows.getRow(sampleItem.id)) {
                     rows.createAndInsertRow(sampleItem);
@@ -373,10 +373,12 @@ function showMarbles(div, samples$, options) {
                 rows.removeRow(rowEl);
         });
     }
-    samples$.subscribe(function (sample) {
-        nbrOfSamplesReceived++;
-        addSample(sample);
-    });
+    samples$.subscribe( 
+        { next: function(sample) {
+                    nbrOfSamplesReceived++;
+                    addSample(sample);
+                }       
+        });
     // Hover effect on column
     tableEl.addEventListener('mouseover', function (e) {
         var el = e.target;
