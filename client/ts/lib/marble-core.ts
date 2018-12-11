@@ -137,7 +137,7 @@ export class Observable {
     
 }
 
-export type ExampleCode = { code:string } & Example;
+export type ExampleCode = { code?:string } & Example;
 
 // Time of one step
 
@@ -232,21 +232,16 @@ export class RxMarbles {
      * 
      * @param example 
      */
-    startExample( example:ExampleCode ):ExampleState {
+    startExample( example:ExampleCode, done?:(()=>void) ):ExampleState {
 
         if( !example ) throw new Error( "example argument in null!");
 
         this._diagram.clear();
 
-        // Add to history
-        window.history.pushState(example.code, example.name, "#" + example.code);
-
         const state = new ExampleState( this, example, () => {
             // Complete stops before sample is completed
             setTimeout( () => {
-                let startEl = document.getElementById('example__start') as HTMLInputElement;;
-                startEl.checked = false;
-
+                if( done ) done();
                 state.stop();
             }, this.stepInMs + 50);
         });

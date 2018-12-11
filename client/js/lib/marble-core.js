@@ -183,18 +183,15 @@ var rxmarbles;
          *
          * @param example
          */
-        startExample(example) {
+        startExample(example, done) {
             if (!example)
                 throw new Error("example argument in null!");
             this._diagram.clear();
-            // Add to history
-            window.history.pushState(example.code, example.name, "#" + example.code);
             const state = new ExampleState(this, example, () => {
                 // Complete stops before sample is completed
                 setTimeout(() => {
-                    let startEl = document.getElementById('example__start');
-                    ;
-                    startEl.checked = false;
+                    if (done)
+                        done();
                     state.stop();
                 }, this.stepInMs + 50);
             });

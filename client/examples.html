@@ -1,0 +1,45 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>RX Marbles</title>
+
+  <!--https://tinyurl.com/rxmarbles-->
+
+  <link rel="stylesheet" type="text/css" href="css/marbles.css">
+
+  <script type="text/javascript" src="js/examples/ObservableBase.js"></script>
+  <script type="text/javascript" src="js/examples/Observable.js"></script>
+  <script type="text/javascript" src="js/lib/marble-core.js"></script>
+  <script type="text/javascript" src="js/lib/marble-handler.js"></script>
+  <script type="text/javascript" src="js/lib/marble-ui.js"></script>
+  <script type="text/javascript" src="js/examples/examples.js"></script>
+  <script type="text/javascript" src="js/examples/index.js"></script>
+</head>
+<body>
+
+  <header>
+    <h1>RX Marbles <a id='info-button' class='info-button' href='#'>i</a></h1>
+    <select id="sampleNbr" autofocus></select>
+  </header>
+
+  <div id='example'>
+    <div id='example__info' class='example__info'></div>
+    <input type="checkbox" id="example__start" class="example__start" class="start" value='1'/>
+    <label for="example__start" id="example__startButton" class="example__startButton button"></label>
+    <div id='marble'></div>
+  </div>
+
+  <div id='info' class='info hide'>
+    <p>
+      Hi, welcome to rxMarble live.
+    </p>
+    <p>
+      To better understand RxJs, I hacked a very basic RxJs version together with some logging capabilities, so this is not using the real RxJs.</br>
+      For the Marble diagram I wanted to keep it simple and have choosen to use a HTML table without any javascript libraries.</br>
+      The rendering code is not optimized in any way so it will be slow.
+    </p>
+    <span id='info__back' class='button'>Back</span>
+  </div>
+
+</body>
+</html>

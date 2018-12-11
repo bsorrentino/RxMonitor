@@ -2,11 +2,11 @@
 declare var currentExample:rxmarbles.ExampleState;
 
 interface Example {
-    name:string;
-    group:string;
-    autoPlay?:boolean;
     exec:( ( p?:(() => void)) => () => void );
-    infoHtml:string;
+    name?:string;
+    group?:string;
+    autoPlay?:boolean;
+    infoHtml?:string;
     onlyStop?:boolean;
 }
 

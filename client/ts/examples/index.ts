@@ -104,8 +104,15 @@ function selectExample(exampleCode = 'shapes') {
     if( currentExample ) currentExample.stop();    
 
     let result = Object.assign({ code: exampleCode }, example);
-    currentExample = marbles.startExample( result )
-    //console.log( "currentExample", currentExample);
+
+    // Add to history
+    window.history.pushState(exampleCode, example.name, "#" + exampleCode);
+
+    currentExample = marbles.startExample( result, () => {
+        let startEl = document.getElementById('example__start') as HTMLInputElement;;
+        startEl.checked = false;
+    });
+
     // Auto start?
     startEl.checked = example.autoPlay;
     return result;
