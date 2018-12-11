@@ -1,5 +1,3 @@
-
-
 namespace rxmarbles {
 
 export type Info = { 
@@ -123,13 +121,12 @@ export class SamplerLogger {
     getSample() { return this.lastSample; }
 
     getSamples() {
-        return new Observable((_a:any) => {
-            var next = _a.next, error = _a.error, complete = _a.complete;
+        return new Observable((_a:Observer) => {
+            let next = _a.next, error = _a.error, complete = _a.complete;
             return this.ticker.subscribe({
                 next: ( val:any ) => {
 
                     let sample = this.getSample();
-                    //console.log( "getSamples", sample);
 
                     next(sample);
 

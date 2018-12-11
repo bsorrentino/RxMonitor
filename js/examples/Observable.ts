@@ -1,7 +1,7 @@
 
 
 
-namespace rxmarbles {
+namespace example {
 
     export class Observable extends ObservableBase {
 

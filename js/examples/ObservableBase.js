@@ -1,16 +1,7 @@
 "use strict";
-var rxmarbles;
-(function (rxmarbles) {
+var example;
+(function (example) {
     class ObservableBase {
-        /*
-        private static _logger:SamplerLogger;
-        static get logger() {
-            return ObservableBase._logger;
-        }
-        static set logger(v:SamplerLogger) {
-            ObservableBase._logger = v;
-        }
-        */
         /**
          *
          * @param name
@@ -112,5 +103,5 @@ var rxmarbles;
         ;
     }
     ObservableBase.lastId = 1;
-    rxmarbles.ObservableBase = ObservableBase;
-})(rxmarbles || (rxmarbles = {}));
+    example.ObservableBase = ObservableBase;
+})(example || (example = {}));

@@ -94,11 +94,10 @@ var rxmarbles;
         getSample() { return this.lastSample; }
         getSamples() {
             return new rxmarbles.Observable((_a) => {
-                var next = _a.next, error = _a.error, complete = _a.complete;
+                let next = _a.next, error = _a.error, complete = _a.complete;
                 return this.ticker.subscribe({
                     next: (val) => {
                         let sample = this.getSample();
-                        //console.log( "getSamples", sample);
                         next(sample);
                         this.lastSample = [];
                     },

@@ -373,10 +373,12 @@ function showMarbles(div, samples$, options) {
                 rows.removeRow(rowEl);
         });
     }
-    samples$.subscribe(function (sample) {
-        nbrOfSamplesReceived++;
-        addSample(sample);
-    });
+    samples$.subscribe( 
+        { next: function(sample) {
+                    nbrOfSamplesReceived++;
+                    addSample(sample);
+                }       
+        });
     // Hover effect on column
     tableEl.addEventListener('mouseover', function (e) {
         var el = e.target;

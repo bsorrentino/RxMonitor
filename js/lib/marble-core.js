@@ -1,6 +1,113 @@
 "use strict";
 var rxmarbles;
 (function (rxmarbles) {
+    class Observable {
+        constructor(producer) {
+            this.producer = producer;
+        }
+        static interval(intervalInMs) {
+            return new this((observer) => {
+                var counter = 0;
+                var cancellationToken = setInterval(() => {
+                    observer.next(counter++);
+                }, intervalInMs || 0);
+                return () => clearTimeout(cancellationToken);
+            });
+        }
+        startProducer(observer) {
+            var isStopped = false;
+            let next = observer.next, error = observer.error, complete = observer.complete;
+            // used functions for better error stack
+            observer.next = (val) => next.call(observer, val);
+            observer.error = (err) => {
+                error.call(observer, err);
+                if (!isStopped)
+                    isStopped = true;
+            };
+            observer.complete = () => {
+                complete.call(observer);
+                if (!isStopped)
+                    isStopped = true;
+            };
+            var unsubscribe = this.producer(observer);
+            return () => {
+                unsubscribe();
+                if (!isStopped)
+                    isStopped = true;
+            };
+        }
+        ;
+        createObserver(getUnsubscribe, _observer) {
+            let nextHandler = (_observer ? _observer.next : undefined) || (() => undefined);
+            let errorHandler = (_observer ? _observer.error : undefined) || (() => undefined);
+            let completeHandler = (_observer ? _observer.complete : undefined) || (() => undefined);
+            let unsubscribeOnce = () => {
+                if (!isEnded) {
+                    isEnded = true;
+                    // When producers calls complete/error (or next in error) synchronious, unsubscribe is undefined
+                    var unsubscribe = getUnsubscribe();
+                    if (typeof unsubscribe === "function")
+                        unsubscribe();
+                }
+            };
+            var isEnded = false;
+            let observer = {
+                next: (value) => {
+                    if (!isEnded) {
+                        try {
+                            nextHandler(value);
+                        }
+                        catch (err) {
+                            errorHandler(err);
+                            unsubscribeOnce();
+                            throw err;
+                        }
+                    }
+                },
+                error: (err) => {
+                    if (!isEnded) {
+                        errorHandler(err); // No need to catch
+                        unsubscribeOnce();
+                    }
+                },
+                complete: () => {
+                    if (!isEnded) {
+                        completeHandler(); // No need to catch, complete shouldn't call error
+                        unsubscribeOnce();
+                    }
+                }
+            };
+            return {
+                observer: observer,
+                unsubscribe: unsubscribeOnce
+            };
+        }
+        ;
+        subscribe(_observer) {
+            var unsubscribe;
+            let _a = this.createObserver(() => unsubscribe, _observer);
+            let observer = _a.observer;
+            let unsubscribeOnce = _a.unsubscribe;
+            // Start producer at each subscription
+            unsubscribe = this.startProducer(observer);
+            return unsubscribeOnce;
+        }
+        filter(predicate) {
+            return new Observable((_a) => {
+                let next = _a.next, error = _a.error, complete = _a.complete, producerId = _a.producerId;
+                return this.subscribe({
+                    next: (val) => {
+                        if (next && predicate(val))
+                            next(val);
+                    },
+                    error: error,
+                    complete: complete
+                });
+            });
+        }
+        ;
+    }
+    rxmarbles.Observable = Observable;
     // Time of one step
     class ExampleState {
         constructor(marbles, _example, done) {

@@ -1,7 +1,7 @@
 "use strict";
-var rxmarbles;
-(function (rxmarbles) {
-    class Observable extends rxmarbles.ObservableBase {
+var example;
+(function (example) {
+    class Observable extends example.ObservableBase {
         constructor(producer, name = '', isCreatedByValue = false) {
             super(name, isCreatedByValue);
             this.producer = producer;
@@ -1347,5 +1347,5 @@ var rxmarbles;
         ;
     }
     Observable.producerId = '';
-    rxmarbles.Observable = Observable;
-})(rxmarbles || (rxmarbles = {}));
+    example.Observable = Observable;
+})(example || (example = {}));

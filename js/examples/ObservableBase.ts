@@ -1,5 +1,5 @@
 
-namespace rxmarbles {
+namespace example {
 
 export type ChildLogger = {
     start: () =>  void;
@@ -24,16 +24,6 @@ export class ObservableBase {
     static getProducerId() {
         return String(ObservableBase.lastId++);
     }
-
-    /*
-    private static _logger:SamplerLogger;
-    static get logger() {
-        return ObservableBase._logger;
-    }
-    static set logger(v:SamplerLogger) {
-        ObservableBase._logger = v;
-    }
-    */
 
     /**
      * 
