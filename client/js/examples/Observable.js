@@ -165,45 +165,42 @@ var example;
             // reverse deps?
             {
                 //id:string, name:string, parentId:string, createdByValue:any, isIntermediate:an
-                let event = new CustomEvent("rxmarbles.start", { detail: { id: producerId,
-                        name: this.name,
-                        parentId: parentProducerId,
-                        createdByValue: this.isCreatedByValue,
-                        isIntermediate: false } });
-                window.dispatchEvent(event);
+                rxmarbles.onStart({ id: producerId,
+                    name: this.name,
+                    parentId: parentProducerId,
+                    createdByValue: this.isCreatedByValue,
+                    isIntermediate: false
+                });
             }
             var next = observer.next, error = observer.error, complete = observer.complete;
             // used functions for better error stack
             observer.next = (val) => {
-                let event = new CustomEvent("rxmarbles.value", { detail: { id: producerId,
-                        name: name,
-                        parentId: parentProducerId,
-                        value: val,
-                    }
+                rxmarbles.onValue({
+                    id: producerId,
+                    name: name,
+                    parentId: parentProducerId,
+                    value: val,
                 });
-                window.dispatchEvent(event);
                 next.call(observer, val);
             };
             observer.error = (err) => {
-                let event = new CustomEvent("rxmarbles.value", { detail: { id: producerId,
-                        name: name,
-                        parentId: parentProducerId,
-                        err: err,
-                    }
+                rxmarbles.onError({
+                    id: producerId,
+                    name: name,
+                    parentId: parentProducerId,
+                    err: err,
                 });
-                window.dispatchEvent(event);
                 if (!isStopped) {
                     isStopped = true;
                 }
                 error.call(observer, err);
             };
             observer.complete = () => {
-                let event = new CustomEvent("rxmarbles.complete", { detail: { id: producerId,
-                        name: name,
-                        parentId: parentProducerId
-                    }
+                rxmarbles.onComplete({
+                    id: producerId,
+                    name: name,
+                    parentId: parentProducerId
                 });
-                window.dispatchEvent(event);
                 if (!isStopped) {
                     isStopped = true;
                 }
@@ -217,12 +214,11 @@ var example;
                 if (!isStopped) {
                     isStopped = true;
                 }
-                let event = new CustomEvent("rxmarbles.stop", { detail: { id: producerId,
-                        name: name,
-                        parentId: parentProducerId
-                    }
+                rxmarbles.onStop({
+                    id: producerId,
+                    name: name,
+                    parentId: parentProducerId
                 });
-                window.dispatchEvent(event);
             };
         }
         ;

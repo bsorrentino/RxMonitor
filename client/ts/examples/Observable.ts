@@ -178,38 +178,33 @@ namespace example {
 
         {
             //id:string, name:string, parentId:string, createdByValue:any, isIntermediate:an
-            let event = new CustomEvent( "rxmarbles.start", { detail: 
+            rxmarbles.onStart(
                 {   id:producerId, 
                     name:this.name, 
                     parentId:parentProducerId, 
                     createdByValue:this.isCreatedByValue, 
-                    isIntermediate:false} } );
-            window.dispatchEvent( event );        
+                    isIntermediate:false
+                });
+                  
         }
         var next = observer.next, error = observer.error, complete = observer.complete;
         // used functions for better error stack
         observer.next = (val:any) => {
-
-            let event = new CustomEvent( "rxmarbles.value", { detail: 
-                {   id:producerId, 
+            rxmarbles.onValue({   
+                    id:producerId, 
                     name:name, 
                     parentId:parentProducerId, 
                     value:val, 
-                    } 
                 });
-            window.dispatchEvent( event );
-        
             next.call(observer, val);
         };
         observer.error = (err:any) => {
-            let event = new CustomEvent( "rxmarbles.value", { detail: 
-                {   id:producerId, 
+            rxmarbles.onError({
+                      id:producerId, 
                     name:name, 
                     parentId:parentProducerId, 
                     err:err, 
-                    } 
                 });
-            window.dispatchEvent( event );
             
             if (!isStopped) {
                 isStopped = true;
@@ -218,14 +213,11 @@ namespace example {
             error.call(observer, err);
         };
         observer.complete = () => {
-
-            let event = new CustomEvent( "rxmarbles.complete", { detail: 
-                {   id:producerId, 
+            rxmarbles.onComplete({
+                    id:producerId, 
                     name:name, 
-                    parentId:parentProducerId
-                    } 
+                    parentId:parentProducerId 
                 });
-            window.dispatchEvent( event );
 
             if (!isStopped) {
                 isStopped = true;
@@ -242,14 +234,11 @@ namespace example {
                 isStopped = true;
             }
 
-            let event = new CustomEvent( "rxmarbles.stop", { detail: 
-                {   id:producerId, 
+            rxmarbles.onStop({   
+                    id:producerId, 
                     name:name, 
                     parentId:parentProducerId
-                    } 
                 });
-            window.dispatchEvent( event );
-
         };
     };
 

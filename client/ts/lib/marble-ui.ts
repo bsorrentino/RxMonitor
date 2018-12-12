@@ -1,6 +1,6 @@
 /** Simple Quick & Dirty marble visualizer, POJS no framework */
 
-function showMarbles(div:Element, samples$:rxmarbles.Observable, options?:any) {
+function showMarbles(div:Element, samples$:rxmarbles.Observable<rxmarbles.Sample[]>, options?:any) {
 
     var _a = (options || {}).maxNbrOfSamples, maxNbrOfSamples = _a === void 0 ? 50 : _a;
     var nbrOfSamplesReceived = 0;
@@ -23,10 +23,10 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable, options?:any) {
     }
     // Group row related functons
     var rows = {
-        generateRowId: function generateRowId(id) {
+        generateRowId: function generateRowId(id:any) {
             return 'marble__row-' + id;
         },
-        createRow: function createRow(id, name, isIntermediate, childOrParentId) {
+        createRow: function createRow(id:any, name:any, isIntermediate:any, childOrParentId:any) {
             // Row
             var rowEl = document.createElement('tr');
             rowEl.classList.add('marble__row');
@@ -70,8 +70,8 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable, options?:any) {
             }
             return rowEl;
         },
-        highlightRows: function highlightRows(rowIds) {
-            var rowElIds = rowIds.map(function (id) { return rows.generateRowId(id); });
+        highlightRows: function highlightRows(rowIds:any) {
+            var rowElIds = rowIds.map(function (id:any) { return rows.generateRowId(id); });
             rows.getRows().forEach(function (rowEl) {
                 if (rowElIds.includes(rowEl.id)) {
                     rowEl.classList.add("marble__row-highlight");
@@ -81,8 +81,8 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable, options?:any) {
                 }
             });
         },
-        highlightParentRows: function highlightRows(rowIds) {
-            var rowElIds = rowIds.map(function (id) { return rows.generateRowId(id); });
+        highlightParentRows: function highlightRows(rowIds:any) {
+            var rowElIds = rowIds.map(function (id:any) { return rows.generateRowId(id); });
             rows.getRows().forEach(function (rowEl) {
                 if (rowElIds.includes(rowEl.id)) {
                     rowEl.classList.add("marble__row-parent");
@@ -92,27 +92,27 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable, options?:any) {
                 }
             });
         },
-        removeRow: function removeRow(rowEl) {
+        removeRow: function removeRow(rowEl:any) {
             tableEl.removeChild(rowEl);
         },
-        getRow: function getRow(id) {
+        getRow: function getRow(id:any) {
             return document.getElementById(rows.generateRowId(id));
         },
         getRows: function getRows() {
             return Array.from(tableEl.children);
         },
-        isRowEmpty: function isRowEmpty(rowEl) {
+        isRowEmpty: function isRowEmpty(rowEl:any) {
             // TODO: optimize
             return Array.from(rowEl.children).slice(2).every(function (tdEl) { return tdEl.innerText === ''; });
         },
-        getRowEnded: function getRowEnded(rowEl) {
+        getRowEnded: function getRowEnded(rowEl:any) {
             return !!rowEl.getAttribute('data-has-ended');
         },
-        setRowEnded: function setRowEnded(rowEl, isEnded) {
+        setRowEnded: function setRowEnded(rowEl:any, isEnded:any) {
             if (isEnded === void 0) { isEnded = true; }
             rowEl.setAttribute('data-has-ended', isEnded ? '1' : '');
         },
-        findFreeForParent: function findFreeForParent(parentId) {
+        findFreeForParent: function findFreeForParent(parentId:any) {
             return rows.getRows()
                 .filter(function (rowEl) { return rowEl.getAttribute('data-parent-id') === parentId && rows.getRowEnded(rowEl); });
         },
@@ -121,15 +121,15 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable, options?:any) {
                 .map(function (rowEl) { return rowEl.getAttribute('data-id') || ''; })
                 .filter(function (id) { return !!id; });
         },
-        createAndInsertRow: function inserRow(sampleItem) {
+        createAndInsertRow: function inserRow(sampleItem:any) {
             var ids = rows.getIdsVisible();
-            var findRow = function (findId) {
+            var findRow = function (findId:any) {
                 var index = ids.indexOf(findId);
                 return index >= 0
                     ? tableEl.children[index]
                     : undefined;
             };
-            var findParent = function (findParentOfId) {
+            var findParent = function (findParentOfId:any) {
                 var children = ids
                     .filter(function (id) { return id.indexOf(findParentOfId + '-') === 0; });
                 var depths = children.map(function (id) { return id.split('-').length; });
@@ -189,7 +189,7 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable, options?:any) {
     };
     var cols = {
         selectedColumn: -1,
-        highlightColumn: function (columnIndex) {
+        highlightColumn: function (columnIndex:any) {
             var rows = Array.from(tableEl.children);
             if (columnIndex === undefined || cols.selectedColumn !== columnIndex) {
                 var highlightColumnIndex_1 = columnIndex === undefined ? cols.selectedColumn : columnIndex;
@@ -204,7 +204,7 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable, options?:any) {
             }
         }
     };
-    function toText(item) {
+    function toText(item:any) {
         if (item === null)
             return "<null>";
         if (item === undefined)
@@ -218,7 +218,7 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable, options?:any) {
         //if (Array.isArray(item)) return "<Array>";
         return item.toString();
     }
-    function createCell(text, details) {
+    function createCell(text:any, details?:any) {
         var sampleEl = document.createElement('td');
         sampleEl.classList.add('marble__sample');
         sampleEl.innerText = text;
@@ -226,27 +226,27 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable, options?:any) {
             sampleEl.title = details;
         return sampleEl;
     }
-    function sampleItemToTooltip(info:rxmarbles.Info) {
-        if (rxmarbles.SamplerLogger.isValueSampleItem(info))
+    function sampleItemToTooltip(info:rxmarbles.Sample) {
+        if (rxmarbles.SamplerLogger.isValue(info))
             return "Value: " + toText(info.value);
-        if (rxmarbles.SamplerLogger.isErrorSampleItem(info))
+        if (rxmarbles.SamplerLogger.isError(info))
             return "Error: " + toText(info.err);
-        if (rxmarbles.SamplerLogger.isStartSampleItem(info))
+        if (rxmarbles.SamplerLogger.isStart(info))
             return ''; // `Subscribed`; // Disabled for easier colored line
-        if (rxmarbles.SamplerLogger.isCompleteSampleItem(info))
+        if (rxmarbles.SamplerLogger.isComplete(info))
             return "Completed";
-        if (rxmarbles.SamplerLogger.isStopSampleItem(info))
+        if (rxmarbles.SamplerLogger.isStop(info))
             return "Unsubscribe";
         console.error('Unknown Sample Object', info);
         return '';
     }
-    function sampleToTooltip(sample) {
+    function sampleToTooltip(sample:Array<any>) {
         if (!sample)
             return '';
         return sample.reverse().map( sampleItem => sampleItemToTooltip(sampleItem) ).join('\n');
     }
-    function getSampleInfo(sample) {
-        function getValue(value) {
+    function getSampleInfo(sample:any) {
+        function getValue(value:any):any {
             if (typeof value === 'string')
                 return value; // truncate?
             if (typeof value === 'boolean')
@@ -262,15 +262,15 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable, options?:any) {
                 return '───────'; // Multiple lines added for wide columns and clipped with CSS
             if (sample.length === 1) {
                 var info = sample[0];
-                if (rxmarbles.SamplerLogger.isValueSampleItem(info))
+                if (rxmarbles.SamplerLogger.isValue(info))
                     return getValue(info.value);
-                if (rxmarbles.SamplerLogger.isStartSampleItem(info))
+                if (rxmarbles.SamplerLogger.isStart(info))
                     return info.createdByValue ? '╰──────' : '───────'; // Multiple lines added for wide columns and clipped with CSS
-                if (rxmarbles.SamplerLogger.isErrorSampleItem(info))
+                if (rxmarbles.SamplerLogger.isError(info))
                     return '✖';
-                if (rxmarbles.SamplerLogger.isCompleteSampleItem(info))
+                if (rxmarbles.SamplerLogger.isComplete(info))
                     return '┤';
-                if (rxmarbles.SamplerLogger.isStopSampleItem(info))
+                if (rxmarbles.SamplerLogger.isStop(info))
                     return '╴';
                 console.error('Unknown Sample Object', info);
                 return '?';
@@ -279,12 +279,12 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable, options?:any) {
                 // Start and Stop
                 if (sample.length >= 2 &&
                     sample[0].id === sample[1].id &&
-                    !sample.some( (info:rxmarbles.Info) => rxmarbles.SamplerLogger.isValueSampleItem(info) || rxmarbles.SamplerLogger.isErrorSampleItem(info) ) &&
-                    sample.some( (info:rxmarbles.Info) => rxmarbles.SamplerLogger.isCompleteSampleItem(info))) {
+                    !sample.some( (info:rxmarbles.SampleInfo) => rxmarbles.SamplerLogger.isValue(info) || rxmarbles.SamplerLogger.isError(info) ) &&
+                    sample.some( (info:rxmarbles.SampleInfo) => rxmarbles.SamplerLogger.isComplete(info))) {
                     return '┤';
                 }
-                var valueInfos = sample.filter( (info:rxmarbles.Info) => rxmarbles.SamplerLogger.isValueSampleItem(info) );
-                var errorInfos = sample.filter( (info:rxmarbles.Info) => rxmarbles.SamplerLogger.isErrorSampleItem(info) );
+                var valueInfos = sample.filter( (info:rxmarbles.SampleInfo) => rxmarbles.SamplerLogger.isValue(info) );
+                var errorInfos = sample.filter( (info:rxmarbles.SampleInfo) => rxmarbles.SamplerLogger.isError(info) );
                 // If one Error and No Value
                 if (errorInfos.length === 1 && valueInfos.length === 0) return '✖';
                 if (errorInfos.length === 0 && valueInfos.length === 1) return getValue(valueInfos[0].value);
@@ -301,7 +301,7 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable, options?:any) {
         function removeOldestColumn() {
             const rowEls = tableEl.children;
         }*/
-    function addSampleForId(id, sample) {
+    function addSampleForId(id:any, sample:Array<any>) {
         var rowEl = rows.getRow(id);
         if (rowEl) {
             if (!rows.getRowEnded(rowEl)) {
@@ -312,10 +312,10 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable, options?:any) {
                 rowEl.appendChild(sampleEl);
                 // Update Counters
                 if (!rowEl.getAttribute('data-parent-id')) {
-                    updateNbrOfValues(rowEl, sampleItems.filter( (info:rxmarbles.Info) => rxmarbles.SamplerLogger.isValueSampleItem(info)).length);
+                    updateNbrOfValues(rowEl, sampleItems.filter( (info:rxmarbles.SampleInfo) => rxmarbles.SamplerLogger.isValue(info)).length);
                 }
                 // End Row
-                var shouldEndRow = sampleItems.some( (info:rxmarbles.Info) => rxmarbles.SamplerLogger.isStopSampleItem(info) || rxmarbles.SamplerLogger.isCompleteSampleItem(info) || rxmarbles.SamplerLogger.isErrorSampleItem(info) );
+                var shouldEndRow = sampleItems.some( (info:rxmarbles.SampleInfo) => rxmarbles.SamplerLogger.isStop(info) || rxmarbles.SamplerLogger.isComplete(info) || rxmarbles.SamplerLogger.isError(info) );
                 if (shouldEndRow)
                     rows.setRowEnded(rowEl, true);
             }
@@ -342,19 +342,19 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable, options?:any) {
             }
         }
     }
-    function updateNbrOfValues(rowEl, offset, reset?) {
+    function updateNbrOfValues(rowEl:any, offset:any, reset?:any) {
         if (!reset && !offset)
             return;
         var cellEl = rowEl.firstChild.nextSibling;
         var value = reset ? 0 : parseInt(cellEl.innerText.substring(1), 10);
         cellEl.innerText = "#" + (value + offset);
     }
-    function addSample(sample) {
+    function addSample(sample:Array<any>) {
         // Create required rows
         sample
             .reverse() // So first parents are created
             .forEach((sampleItem) => {
-                if (rxmarbles.SamplerLogger.isStartSampleItem(sampleItem)) {
+                if (rxmarbles.SamplerLogger.isStart(sampleItem)) {
                     // Add
                     if (!rows.getRow(sampleItem.id)) {
                         rows.createAndInsertRow(sampleItem);

@@ -1,23 +1,21 @@
-declare function showMarbles(div:Element, samples$:rxmarbles.Observable, options?:any):any;
-
 namespace rxmarbles {
 
-export interface Observer  {
-    next?:(( e:any ) => void);
+export interface Observer<T>  {
+    next?:(( e:T ) => void);
     error?:(( e:any ) => void);
     complete?:(() => void);
 
     producerId?:string;
 }
 
-export class Observable {
+export class Observable<T> {
 
-    constructor( private producer:((observer:Observer) => () => any )) {
+    constructor( private producer:((observer:Observer<T>) => () => any )) {
 
     }
 
     static interval(intervalInMs:number) {
-        return new this( (observer:Observer) => {
+        return new this( (observer:Observer<number>) => {
             var counter = 0;
             var cancellationToken = setInterval(() => {
                 observer.next(counter++);
@@ -26,13 +24,13 @@ export class Observable {
         });
     }
 
-    private startProducer(observer:Observer) {
+    private startProducer(observer:Observer<T>) {
 
         var isStopped = false;
 
         let next = observer.next, error = observer.error, complete = observer.complete;
         // used functions for better error stack
-        observer.next = (val:any) => next.call(observer, val);
+        observer.next = (val:T) => next.call(observer, val);
         
         observer.error = (err:any) => {
             error.call(observer, err);
@@ -58,7 +56,7 @@ export class Observable {
         
     };
 
-    private createObserver(getUnsubscribe:(()=>any), _observer?:Observer) {
+    private createObserver(getUnsubscribe:(()=>any), _observer?:Observer<T>) {
         let nextHandler =       (_observer ? _observer.next : undefined) || (() => <any>undefined );
         let errorHandler =      (_observer ? _observer.error : undefined ) || (() => <any>undefined);
         let completeHandler =   (_observer ? _observer.complete : undefined ) || (() => <any>undefined);
@@ -106,7 +104,7 @@ export class Observable {
         };
     };
 
-    subscribe( _observer?:Observer ) {
+    subscribe( _observer?:Observer<T> ) {
 
         var unsubscribe:(()=>void);
         let _a = this.createObserver(() => unsubscribe, _observer);
@@ -119,12 +117,12 @@ export class Observable {
     
     }
 
-    filter(predicate:((e:any) => boolean)) {
+    filter(predicate:((e:T) => boolean)) {
 
-        return new Observable((_a:Observer) => {
+        return new Observable((_a:Observer<T>) => {
             let next = _a.next, error = _a.error, complete = _a.complete, producerId = _a.producerId;
             return this.subscribe({
-                next: (val) => {
+                next: (val:T) => {
                     if (next && predicate(val))
                         next(val);
                 },
