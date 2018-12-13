@@ -1,4 +1,10 @@
 
+import {interval, from, of } from 'rxjs';
+import { delay, concatMap, tap } from 'rxjs/operators';
+
+import * as rxmarbles from '../lib/marble-core';
+import { onStart, onValue, onStop, onComplete } from '../lib/marble-handler';
+
 var marbles:rxmarbles.RxMarbles;
 var currentExample:rxmarbles.ExampleState;
 
@@ -11,7 +17,7 @@ window.addEventListener('load',  () => {
         autoPlay: true,
         exec: () => {
 
-            rxmarbles.onStart( {   
+            onStart( {   
                 id:producerId, 
                 name:name, 
                 //parentId:parentProducerId, 
@@ -19,20 +25,24 @@ window.addEventListener('load',  () => {
                 isIntermediate:false
             });
 
-            [ 'A', 'B', 'C', 'D', 'E'].forEach( (val, index ) => {
-                setTimeout( () => {
-                    console.log( "val", val);
+            of( 'A', 'B', 'C', 'D', 'E', 'F' )
+            .pipe( delay(500), concatMap( e => of(e).pipe( delay(1000) )))
+            .subscribe( val => {
 
-                    rxmarbles.onValue({   
-                            id:producerId, 
-                            name:name, 
-                            //parentId:parentProducerId, 
-                            value:val, 
-                            });   
+                onValue({   
+                    id:producerId, 
+                    name:name, 
+                    //parentId:parentProducerId, 
+                    value:val, 
+                    });   
 
-                }, (1000 * index+1) + 500 ) ;
-    
-            })
+            }, err => {},
+            () => onComplete( { 
+                id:producerId, 
+                name:name, 
+                //parentId:parentProducerId, 
+                 } ));
+            
 
             return () => {}
         }

@@ -1,5 +1,12 @@
-namespace rxmarbles {
 
+import { 
+    SamplerLogger, 
+ } from './marble-handler';
+
+ import {
+     showMarbles
+ } from './marble-ui';
+ 
 export interface Observer<T>  {
     next?:(( e:T ) => void);
     error?:(( e:any ) => void);
@@ -218,7 +225,7 @@ export class RxMarbles {
      */
     constructor( div:HTMLDivElement, public stepInMs:number ) {
         // Sampler ticker
-        let ticker = rxmarbles.Observable.interval(stepInMs).filter( () => !this.isPaused );
+        let ticker = Observable.interval(stepInMs).filter( () => !this.isPaused );
         // Sample items
         this._logger = new SamplerLogger(ticker);
         // Draw marble diagram
@@ -260,4 +267,3 @@ export function create( element = "marble", stepInMs:number = 200 ):RxMarbles {
 
 
 
-}

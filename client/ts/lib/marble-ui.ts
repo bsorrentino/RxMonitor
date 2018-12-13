@@ -1,6 +1,16 @@
 /** Simple Quick & Dirty marble visualizer, POJS no framework */
 
-type MarblesOptions = {
+import { Observable } from './marble-core';
+import { 
+    Sample, 
+    SampleInfo,
+    isComplete, 
+    isError, 
+    isStart, 
+    isStop, 
+    isValue } from './marble-handler';
+
+export type MarblesOptions = {
     maxNbrOfSamples:number;
 }
 
@@ -10,7 +20,7 @@ type MarblesOptions = {
  * @param samples$ 
  * @param options 
  */
-function showMarbles( div:HTMLElement, samples$:rxmarbles.Observable<rxmarbles.Sample[]>, options:MarblesOptions = { maxNbrOfSamples:50 }) {
+export function showMarbles( div:HTMLElement, samples$:Observable<Sample[]>, options:MarblesOptions = { maxNbrOfSamples:50 }) {
 
     const maxNbrOfSamples = options.maxNbrOfSamples;
     
@@ -236,16 +246,16 @@ function showMarbles( div:HTMLElement, samples$:rxmarbles.Observable<rxmarbles.S
             sampleEl.title = details;
         return sampleEl;
     }
-    function sampleItemToTooltip(info:rxmarbles.Sample) {
-        if (rxmarbles.isValue(info))
+    function sampleItemToTooltip(info:Sample) {
+        if (isValue(info))
             return "Value: " + toText(info.value);
-        if (rxmarbles.isError(info))
+        if (isError(info))
             return "Error: " + toText(info.err);
-        if (rxmarbles.isStart(info))
+        if (isStart(info))
             return ''; // `Subscribed`; // Disabled for easier colored line
-        if (rxmarbles.isComplete(info))
+        if (isComplete(info))
             return "Completed";
-        if (rxmarbles.isStop(info))
+        if (isStop(info))
             return "Unsubscribe";
         console.error('Unknown Sample Object', info);
         return '';
@@ -272,15 +282,15 @@ function showMarbles( div:HTMLElement, samples$:rxmarbles.Observable<rxmarbles.S
                 return '───────'; // Multiple lines added for wide columns and clipped with CSS
             if (sample.length === 1) {
                 var info = sample[0];
-                if (rxmarbles.isValue(info))
+                if (isValue(info))
                     return getValue(info.value);
-                if (rxmarbles.isStart(info))
+                if (isStart(info))
                     return info.createdByValue ? '╰──────' : '───────'; // Multiple lines added for wide columns and clipped with CSS
-                if (rxmarbles.isError(info))
+                if (isError(info))
                     return '✖';
-                if (rxmarbles.isComplete(info))
+                if (isComplete(info))
                     return '┤';
-                if (rxmarbles.isStop(info))
+                if (isStop(info))
                     return '╴';
                 console.error('Unknown Sample Object', info);
                 return '?';
@@ -289,12 +299,12 @@ function showMarbles( div:HTMLElement, samples$:rxmarbles.Observable<rxmarbles.S
                 // Start and Stop
                 if (sample.length >= 2 &&
                     sample[0].id === sample[1].id &&
-                    !sample.some( (info:rxmarbles.SampleInfo) => rxmarbles.isValue(info) || rxmarbles.isError(info) ) &&
-                    sample.some( (info:rxmarbles.SampleInfo) => rxmarbles.isComplete(info))) {
+                    !sample.some( (info:SampleInfo) => isValue(info) || isError(info) ) &&
+                    sample.some( (info:SampleInfo) => isComplete(info))) {
                     return '┤';
                 }
-                var valueInfos = sample.filter( (info:rxmarbles.SampleInfo) => rxmarbles.isValue(info) );
-                var errorInfos = sample.filter( (info:rxmarbles.SampleInfo) => rxmarbles.isError(info) );
+                var valueInfos = sample.filter( (info:SampleInfo) => isValue(info) );
+                var errorInfos = sample.filter( (info:SampleInfo) => isError(info) );
                 // If one Error and No Value
                 if (errorInfos.length === 1 && valueInfos.length === 0) return '✖';
                 if (errorInfos.length === 0 && valueInfos.length === 1) return getValue(valueInfos[0].value);
@@ -322,10 +332,10 @@ function showMarbles( div:HTMLElement, samples$:rxmarbles.Observable<rxmarbles.S
                 rowEl.appendChild(sampleEl);
                 // Update Counters
                 if (!rowEl.getAttribute('data-parent-id')) {
-                    updateNbrOfValues(rowEl, sampleItems.filter( (info:rxmarbles.SampleInfo) => rxmarbles.isValue(info)).length);
+                    updateNbrOfValues(rowEl, sampleItems.filter( (info:SampleInfo) => isValue(info)).length);
                 }
                 // End Row
-                var shouldEndRow = sampleItems.some( (info:rxmarbles.SampleInfo) => rxmarbles.isStop(info) || rxmarbles.isComplete(info) || rxmarbles.isError(info) );
+                var shouldEndRow = sampleItems.some( (info:SampleInfo) => isStop(info) || isComplete(info) || isError(info) );
                 if (shouldEndRow)
                     rows.setRowEnded(rowEl, true);
             }
@@ -364,7 +374,7 @@ function showMarbles( div:HTMLElement, samples$:rxmarbles.Observable<rxmarbles.S
         sample
             .reverse() // So first parents are created
             .forEach((sampleItem) => {
-                if (rxmarbles.isStart(sampleItem)) {
+                if (isStart(sampleItem)) {
                     // Add
                     if (!rows.getRow(sampleItem.id)) {
                         rows.createAndInsertRow(sampleItem);

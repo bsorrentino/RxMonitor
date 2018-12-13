@@ -1,4 +1,5 @@
-namespace rxmarbles {
+
+import { Observable, Observer } from './marble-core' ;
 
 export type SampleInfo = { 
     type: SampleItemType;
@@ -165,4 +166,3 @@ export class SamplerLogger {
 
 }
 
-}
