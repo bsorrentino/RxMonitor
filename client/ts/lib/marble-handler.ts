@@ -72,7 +72,7 @@ export class SamplerLogger {
     }
     
 
-    getSamples( sampleFilter:( (s:Sample) => boolean), tickTime:number = 1000 ) {
+    getSamples( sampleFilter:( (s:Sample) => boolean), tickTime:number = 1000 ):Observable<Sample[]> {
 
         let sort = (a:SampleInfo,b:SampleInfo) => {
             let timeDiff = b.time - a.time ;
@@ -85,7 +85,7 @@ export class SamplerLogger {
         return this.samples
                 .pipe( filter( sampleFilter)  )
                 .pipe( bufferTime( tickTime ), map( s => s.sort( sort ) ))
-                .pipe( _log )
+                //.pipe( _log )
                 ;
     }
     
