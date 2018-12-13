@@ -1,7 +1,143 @@
+import * as rxmarbles from '../lib/marble-core';
 
+declare var marbles:rxmarbles.RxMarbles;
 
+export type ChildLogger = {
+    start: () =>  void;
+    value: (val:any) => void;
+    error: (err:any) => void;
+    complete: () => void;
+    end: () => void;
+};
 
-namespace example {
+export interface Observer  {
+    next?:(( e:any ) => void);
+    error?:(( e:any ) => void);
+    complete?:(() => void);
+
+    producerId?:string;
+}
+     
+export class ObservableBase {
+
+    static lastId:number = 1;
+
+    static getProducerId() {
+        return String(ObservableBase.lastId++);
+    }
+
+    /**
+     * 
+     * @param name 
+     * @param isCreatedByValue 
+     */
+    constructor( public name:string, public isCreatedByValue:boolean = false) {
+
+    }
+
+    // Show inner stream created by a value (example: delay, switchMap)
+    createChildLogger(producerId?:string, createdByValue:boolean = true):ChildLogger {
+    let id = ObservableBase.getProducerId();
+    var createdById = producerId || '';
+
+    var isStopped = false;
+    return {
+        start: () =>  {
+            //id:string, name:string, parentId:string, createdByValue:any, isIntermediate:an
+            let event = new CustomEvent( "rxmarbles.start", { detail: 
+                {   id:id, 
+                    name:'', 
+                    parentId:createdById, 
+                    createdByValue:createdByValue, 
+                    isIntermediate:true} 
+                });
+            window.dispatchEvent( event );
+        },
+        value: (val:any) => {
+
+            let event = new CustomEvent( "rxmarbles.value", { detail: 
+                {   id:id, 
+                    name:'', 
+                    parentId:createdById, 
+                    value:val, 
+                    } 
+                });
+            window.dispatchEvent( event );
+    
+        },
+        error: (err:any) => {
+
+            let event = new CustomEvent( "rxmarbles.value", { detail: 
+                {   id:id, 
+                    name:'', 
+                    parentId:createdById, 
+                    err:err, 
+                    } 
+                });
+            window.dispatchEvent( event );
+
+            if (!isStopped) {
+                isStopped = true;
+            }
+        },
+        complete: () => {
+
+            let event = new CustomEvent( "rxmarbles.complete", { detail: 
+                {   id:id, 
+                    name:'', 
+                    parentId:createdById
+                    } 
+                });
+            window.dispatchEvent( event );
+
+            if (!isStopped) {
+                isStopped = true;
+            }
+        },
+        end: () => {
+
+            if (!isStopped) {
+                isStopped = true;
+            }
+
+            let event = new CustomEvent( "rxmarbles.stop", { detail: 
+                {   id:id, 
+                    name:'', 
+                    parentId:createdById
+                    } 
+                });
+            window.dispatchEvent( event );
+        }
+    };
+}
+    
+logAndSubscribeToObservable(observable?:Observable, observer?:Observer, producerId?:string, createdByValue:boolean = true) {
+    if (observable && observable.subscribe) {
+        var childLogger = this.createChildLogger(producerId, createdByValue);
+        childLogger.start();
+        var unsubscribe = observable.subscribe({
+            next: (val) => {
+                observer.next(val);
+                childLogger.value(val);
+            },
+            error: (err) => {
+                observer.error(err);
+                childLogger.error(err);
+            },
+            complete: () => {
+                observer.complete();
+                childLogger.complete();
+            }
+        }, producerId);
+        return  () => {
+            unsubscribe();
+            childLogger.end();
+        };
+    }
+    return observable.subscribe(observer);
+    }
+
+}
 
     export class Observable extends ObservableBase {
 
@@ -178,7 +314,7 @@ namespace example {
 
         {
             //id:string, name:string, parentId:string, createdByValue:any, isIntermediate:an
-            rxmarbles.onStart(
+            marbles.logger.onStart(
                 {   id:producerId, 
                     name:this.name, 
                     parentId:parentProducerId, 
@@ -190,7 +326,7 @@ namespace example {
         var next = observer.next, error = observer.error, complete = observer.complete;
         // used functions for better error stack
         observer.next = (val:any) => {
-            rxmarbles.onValue({   
+            marbles.logger.onValue({   
                     id:producerId, 
                     name:name, 
                     parentId:parentProducerId, 
@@ -199,7 +335,7 @@ namespace example {
             next.call(observer, val);
         };
         observer.error = (err:any) => {
-            rxmarbles.onError({
+            marbles.logger.onError({
                       id:producerId, 
                     name:name, 
                     parentId:parentProducerId, 
@@ -213,7 +349,7 @@ namespace example {
             error.call(observer, err);
         };
         observer.complete = () => {
-            rxmarbles.onComplete({
+            marbles.logger.onComplete({
                     id:producerId, 
                     name:name, 
                     parentId:parentProducerId 
@@ -234,7 +370,7 @@ namespace example {
                 isStopped = true;
             }
 
-            rxmarbles.onStop({   
+            marbles.logger.onStop({   
                     id:producerId, 
                     name:name, 
                     parentId:parentProducerId
@@ -1353,7 +1489,5 @@ namespace example {
         }, 'exhaustMap');
     };
     
-}
-
 }
 

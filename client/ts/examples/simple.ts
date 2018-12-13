@@ -1,8 +1,13 @@
 
-var marbles:rxmarbles.RxMarbles;
+import {interval, from, of } from 'rxjs';
+import { delay, concatMap, tap } from 'rxjs/operators';
+
+import * as rxmarbles from '../lib/marble-core';
+
 var currentExample:rxmarbles.ExampleState;
 
 window.addEventListener('load',  () => { 
+    let marbles = rxmarbles.create();
 
     let producerId = '1';
     let name = "test";
@@ -11,7 +16,7 @@ window.addEventListener('load',  () => {
         autoPlay: true,
         exec: () => {
 
-            rxmarbles.onStart( {   
+            marbles.logger.onStart( {   
                 id:producerId, 
                 name:name, 
                 //parentId:parentProducerId, 
@@ -19,27 +24,33 @@ window.addEventListener('load',  () => {
                 isIntermediate:false
             });
 
-            [ 'A', 'B', 'C', 'D', 'E'].forEach( (val, index ) => {
-                setTimeout( () => {
-                    console.log( "val", val);
+            of( 'A', 'B', 'C', 'D', 'E', 'F' )
+            .pipe( delay(500), concatMap( e => of(e).pipe( delay(1000) )))
+            .subscribe( val => {
 
-                    rxmarbles.onValue({   
+                marbles.logger.onValue({   
+                    id:producerId, 
+                    name:name, 
+                    //parentId:parentProducerId, 
+                    value:val, 
+                    });   
+
+            }, err => {},
+            () => { 
+                marbles.logger.onComplete( { 
                             id:producerId, 
                             name:name, 
                             //parentId:parentProducerId, 
-                            value:val, 
-                            });   
-
-                }, (1000 * index+1) + 500 ) ;
-    
-            })
+                            }) 
+                })                 
+                ;
+            
 
             return () => {}
         }
         
     };
  
-    marbles = rxmarbles.create();
 
     currentExample = marbles.startExample( shapes$ );
 
