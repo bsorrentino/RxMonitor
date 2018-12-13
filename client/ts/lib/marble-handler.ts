@@ -80,10 +80,13 @@ export class SamplerLogger {
             return b.type - a.type; 
 
         }
+
+        let _log = tap( (v) => console.log( 'value', v), err => {}, () => console.log( 'complete'));
         return this.samples
-                //.pipe( tap( (v) => console.log( 'value', v), err => {}, () => console.log( 'complete')))
                 .pipe( filter( sampleFilter)  )
-                .pipe( bufferTime( tickTime ), map( s => s.sort( sort ) ));
+                .pipe( bufferTime( tickTime ), map( s => s.sort( sort ) ))
+                .pipe( _log )
+                ;
     }
     
 

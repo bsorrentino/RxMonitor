@@ -36,11 +36,14 @@ window.addEventListener('load',  () => {
                     });   
 
             }, err => {},
-            () => marbles.logger.onComplete( { 
-                id:producerId, 
-                name:name, 
-                //parentId:parentProducerId, 
-                 } ));
+            () => { 
+                marbles.logger.onComplete( { 
+                            id:producerId, 
+                            name:name, 
+                            //parentId:parentProducerId, 
+                            }) 
+                })                 
+                ;
             
 
             return () => {}
