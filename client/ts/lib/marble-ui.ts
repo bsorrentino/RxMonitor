@@ -1,8 +1,19 @@
 /** Simple Quick & Dirty marble visualizer, POJS no framework */
 
-function showMarbles(div:Element, samples$:rxmarbles.Observable<rxmarbles.Sample[]>, options?:any) {
+type MarblesOptions = {
+    maxNbrOfSamples:number;
+}
 
-    var _a = (options || {}).maxNbrOfSamples, maxNbrOfSamples = _a === void 0 ? 50 : _a;
+/**
+ * 
+ * @param div 
+ * @param samples$ 
+ * @param options 
+ */
+function showMarbles( div:HTMLElement, samples$:rxmarbles.Observable<rxmarbles.Sample[]>, options:MarblesOptions = { maxNbrOfSamples:50 }) {
+
+    const maxNbrOfSamples = options.maxNbrOfSamples;
+    
     var nbrOfSamplesReceived = 0;
     
     function createTable() {
@@ -22,7 +33,7 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable<rxmarbles.Sample
         nbrOfSamplesReceived = 0;
     }
     // Group row related functons
-    var rows = {
+    let rows = {
         generateRowId: function generateRowId(id:any) {
             return 'marble__row-' + id;
         },
@@ -96,40 +107,39 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable<rxmarbles.Sample
             tableEl.removeChild(rowEl);
         },
         getRow: function getRow(id:any) {
-            return document.getElementById(rows.generateRowId(id));
+            return document.getElementById(rows.generateRowId(id)) as HTMLTableRowElement;
         },
         getRows: function getRows() {
-            return Array.from(tableEl.children);
+            return Array.from(tableEl.children) as Array<HTMLTableRowElement>;
         },
-        isRowEmpty: function isRowEmpty(rowEl:any) {
+        isRowEmpty: function isRowEmpty(rowEl:HTMLElement) {
             // TODO: optimize
-            return Array.from(rowEl.children).slice(2).every(function (tdEl) { return tdEl.innerText === ''; });
+            return Array.from(rowEl.children).slice(2).every( tdEl => (<HTMLElement>tdEl).innerText === '' );
         },
         getRowEnded: function getRowEnded(rowEl:any) {
             return !!rowEl.getAttribute('data-has-ended');
         },
-        setRowEnded: function setRowEnded(rowEl:any, isEnded:any) {
-            if (isEnded === void 0) { isEnded = true; }
+        setRowEnded: function setRowEnded(rowEl:any, isEnded = true) {
             rowEl.setAttribute('data-has-ended', isEnded ? '1' : '');
         },
         findFreeForParent: function findFreeForParent(parentId:any) {
             return rows.getRows()
-                .filter(function (rowEl) { return rowEl.getAttribute('data-parent-id') === parentId && rows.getRowEnded(rowEl); });
+                .filter(rowEl => rowEl.getAttribute('data-parent-id') === parentId && rows.getRowEnded(rowEl) );
         },
         getIdsVisible: function getIdsVisible() {
             return rows.getRows()
-                .map(function (rowEl) { return rowEl.getAttribute('data-id') || ''; })
-                .filter(function (id) { return !!id; });
+                .map( rowEl =>  rowEl.getAttribute('data-id') || '' )
+                .filter( id => !!id );
         },
         createAndInsertRow: function inserRow(sampleItem:any) {
-            var ids = rows.getIdsVisible();
-            var findRow = function (findId:any) {
+            let ids = rows.getIdsVisible();
+            let findRow = (findId:string) => {
                 var index = ids.indexOf(findId);
                 return index >= 0
                     ? tableEl.children[index]
                     : undefined;
             };
-            var findParent = function (findParentOfId:any) {
+            let findParent = function (findParentOfId:any) {
                 var children = ids
                     .filter(function (id) { return id.indexOf(findParentOfId + '-') === 0; });
                 var depths = children.map(function (id) { return id.split('-').length; });
@@ -187,18 +197,18 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable<rxmarbles.Sample
             }
         }
     };
-    var cols = {
+    let cols = {
         selectedColumn: -1,
         highlightColumn: function (columnIndex:any) {
-            var rows = Array.from(tableEl.children);
+            let rows = Array.from(tableEl.children);
             if (columnIndex === undefined || cols.selectedColumn !== columnIndex) {
-                var highlightColumnIndex_1 = columnIndex === undefined ? cols.selectedColumn : columnIndex;
-                var lastCellIndex = rows[0].lastChild.cellIndex;
+                let highlightColumnIndex_1 = columnIndex === undefined ? cols.selectedColumn : columnIndex;
+                let lastCellIndex = (<HTMLTableCellElement>rows[0].lastChild).cellIndex;
                 if (cols.selectedColumn >= 0 && cols.selectedColumn <= lastCellIndex) {
-                    rows.forEach(function (row) { return row.children[cols.selectedColumn].classList.remove('marble__sample-highlight'); });
+                    rows.forEach( row =>  row.children[cols.selectedColumn].classList.remove('marble__sample-highlight') );
                 }
                 if (highlightColumnIndex_1 >= 0 && highlightColumnIndex_1 <= lastCellIndex) {
-                    rows.forEach(function (row) { return row.children[highlightColumnIndex_1].classList.add('marble__sample-highlight'); });
+                    rows.forEach( row =>  row.children[highlightColumnIndex_1].classList.add('marble__sample-highlight') );
                 }
                 cols.selectedColumn = highlightColumnIndex_1;
             }
@@ -227,15 +237,15 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable<rxmarbles.Sample
         return sampleEl;
     }
     function sampleItemToTooltip(info:rxmarbles.Sample) {
-        if (rxmarbles.SamplerLogger.isValue(info))
+        if (rxmarbles.isValue(info))
             return "Value: " + toText(info.value);
-        if (rxmarbles.SamplerLogger.isError(info))
+        if (rxmarbles.isError(info))
             return "Error: " + toText(info.err);
-        if (rxmarbles.SamplerLogger.isStart(info))
+        if (rxmarbles.isStart(info))
             return ''; // `Subscribed`; // Disabled for easier colored line
-        if (rxmarbles.SamplerLogger.isComplete(info))
+        if (rxmarbles.isComplete(info))
             return "Completed";
-        if (rxmarbles.SamplerLogger.isStop(info))
+        if (rxmarbles.isStop(info))
             return "Unsubscribe";
         console.error('Unknown Sample Object', info);
         return '';
@@ -262,15 +272,15 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable<rxmarbles.Sample
                 return '───────'; // Multiple lines added for wide columns and clipped with CSS
             if (sample.length === 1) {
                 var info = sample[0];
-                if (rxmarbles.SamplerLogger.isValue(info))
+                if (rxmarbles.isValue(info))
                     return getValue(info.value);
-                if (rxmarbles.SamplerLogger.isStart(info))
+                if (rxmarbles.isStart(info))
                     return info.createdByValue ? '╰──────' : '───────'; // Multiple lines added for wide columns and clipped with CSS
-                if (rxmarbles.SamplerLogger.isError(info))
+                if (rxmarbles.isError(info))
                     return '✖';
-                if (rxmarbles.SamplerLogger.isComplete(info))
+                if (rxmarbles.isComplete(info))
                     return '┤';
-                if (rxmarbles.SamplerLogger.isStop(info))
+                if (rxmarbles.isStop(info))
                     return '╴';
                 console.error('Unknown Sample Object', info);
                 return '?';
@@ -279,12 +289,12 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable<rxmarbles.Sample
                 // Start and Stop
                 if (sample.length >= 2 &&
                     sample[0].id === sample[1].id &&
-                    !sample.some( (info:rxmarbles.SampleInfo) => rxmarbles.SamplerLogger.isValue(info) || rxmarbles.SamplerLogger.isError(info) ) &&
-                    sample.some( (info:rxmarbles.SampleInfo) => rxmarbles.SamplerLogger.isComplete(info))) {
+                    !sample.some( (info:rxmarbles.SampleInfo) => rxmarbles.isValue(info) || rxmarbles.isError(info) ) &&
+                    sample.some( (info:rxmarbles.SampleInfo) => rxmarbles.isComplete(info))) {
                     return '┤';
                 }
-                var valueInfos = sample.filter( (info:rxmarbles.SampleInfo) => rxmarbles.SamplerLogger.isValue(info) );
-                var errorInfos = sample.filter( (info:rxmarbles.SampleInfo) => rxmarbles.SamplerLogger.isError(info) );
+                var valueInfos = sample.filter( (info:rxmarbles.SampleInfo) => rxmarbles.isValue(info) );
+                var errorInfos = sample.filter( (info:rxmarbles.SampleInfo) => rxmarbles.isError(info) );
                 // If one Error and No Value
                 if (errorInfos.length === 1 && valueInfos.length === 0) return '✖';
                 if (errorInfos.length === 0 && valueInfos.length === 1) return getValue(valueInfos[0].value);
@@ -312,10 +322,10 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable<rxmarbles.Sample
                 rowEl.appendChild(sampleEl);
                 // Update Counters
                 if (!rowEl.getAttribute('data-parent-id')) {
-                    updateNbrOfValues(rowEl, sampleItems.filter( (info:rxmarbles.SampleInfo) => rxmarbles.SamplerLogger.isValue(info)).length);
+                    updateNbrOfValues(rowEl, sampleItems.filter( (info:rxmarbles.SampleInfo) => rxmarbles.isValue(info)).length);
                 }
                 // End Row
-                var shouldEndRow = sampleItems.some( (info:rxmarbles.SampleInfo) => rxmarbles.SamplerLogger.isStop(info) || rxmarbles.SamplerLogger.isComplete(info) || rxmarbles.SamplerLogger.isError(info) );
+                var shouldEndRow = sampleItems.some( (info:rxmarbles.SampleInfo) => rxmarbles.isStop(info) || rxmarbles.isComplete(info) || rxmarbles.isError(info) );
                 if (shouldEndRow)
                     rows.setRowEnded(rowEl, true);
             }
@@ -354,7 +364,7 @@ function showMarbles(div:Element, samples$:rxmarbles.Observable<rxmarbles.Sample
         sample
             .reverse() // So first parents are created
             .forEach((sampleItem) => {
-                if (rxmarbles.SamplerLogger.isStart(sampleItem)) {
+                if (rxmarbles.isStart(sampleItem)) {
                     // Add
                     if (!rows.getRow(sampleItem.id)) {
                         rows.createAndInsertRow(sampleItem);

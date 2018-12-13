@@ -42,6 +42,21 @@ export function onComplete( p:SampleComplete ) {
     window.dispatchEvent( new CustomEvent( "rxmarbles.complete", { detail:p } ));
 }
 
+export function isStart( info:SampleInfo  ) {
+    return info && info.type === SampleItemType.Start;
+}
+export function isValue(info:SampleInfo ) {
+    return info && info.type === SampleItemType.Value;
+};
+export function isError(info:SampleInfo ) {
+    return info && info.type === SampleItemType.Error;
+};
+export function isComplete(info:SampleInfo) {
+    return info && info.type === SampleItemType.Complete;
+};
+export function isStop(info:SampleInfo ) {
+    return info && info.type === SampleItemType.Stop;
+};
 
 export interface Sample extends SampleInfo, Partial<SampleStart>, Partial<SampleValue>, Partial<SampleError> {
 }
@@ -130,21 +145,6 @@ export class SamplerLogger {
         
     }
 
-    static isStart( info:SampleInfo  ) {
-        return info && info.type === SampleItemType.Start;
-    }
-    static isValue(info:SampleInfo ) {
-        return info && info.type === SampleItemType.Value;
-    };
-    static isError(info:SampleInfo ) {
-        return info && info.type === SampleItemType.Error;
-    };
-    static isComplete(info:SampleInfo) {
-        return info && info.type === SampleItemType.Complete;
-    };
-    static isStop(info:SampleInfo ) {
-        return info && info.type === SampleItemType.Stop;
-    };
 
     getSamples() {
         return new Observable((_a:Observer<Sample[]>) => {
