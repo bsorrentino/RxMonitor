@@ -260,12 +260,13 @@ export function showMarbles( div:HTMLElement, samples$:Observable<Sample[]>, opt
         console.error('Unknown Sample Object', info);
         return '';
     }
-    function sampleToTooltip(sample:Array<any>) {
+    function sampleToTooltip(sample:Array<Sample>) {
         if (!sample)
             return '';
         return sample.reverse().map( sampleItem => sampleItemToTooltip(sampleItem) ).join('\n');
     }
-    function getSampleInfo(sample:any) {
+    function getSampleInfo(sample:Array<Sample>) {
+
         function getValue(value:any):any {
             if (typeof value === 'string')
                 return value; // truncate?
@@ -274,12 +275,32 @@ export function showMarbles( div:HTMLElement, samples$:Observable<Sample[]>, opt
             if (typeof value === 'number')
                 return value.toString();
             if (Array.isArray(value))
-                return "[" + value.map(function (v) { return getValue(v); }).join(',') + "]";
+                return "[" + value.map( (v) => getValue(v) ).join(',') + "]";
             return '?';
         }
         function getText() {
             if (!sample || sample.length === 0)
                 return '───────'; // Multiple lines added for wide columns and clipped with CSS
+
+                return sample.map( e => _getText(e) ).join('');
+
+            function _getText( info:Sample ) {
+                
+                if (isValue(info))
+                    return getValue(info.value);
+                if (isStart(info))
+                    return info.createdByValue ? '╰──────' : '───────'; // Multiple lines added for wide columns and clipped with CSS
+                if (isError(info))
+                    return '✖';
+                if (isComplete(info))
+                    return '┤';
+                if (isStop(info))
+                    return '╴';
+                console.error('Unknown Sample Object', info);
+                return '?';
+
+            }
+            /*
             if (sample.length === 1) {
                 var info = sample[0];
                 if (isValue(info))
@@ -310,6 +331,7 @@ export function showMarbles( div:HTMLElement, samples$:Observable<Sample[]>, opt
                 if (errorInfos.length === 0 && valueInfos.length === 1) return getValue(valueInfos[0].value);
                 return '#'; // Multiple items
             }
+            */
         }
         return {
             text: getText(),
