@@ -1,5 +1,4 @@
-
-import { Observable, Observer } from './marble-core' ;
+import { Observable, Subscriber } from 'rxjs';
 
 export type SampleInfo = { 
     type: SampleItemType;
@@ -148,17 +147,17 @@ export class SamplerLogger {
 
 
     getSamples() {
-        return new Observable((_a:Observer<Sample[]>) => {
-            let next = _a.next, error = _a.error, complete = _a.complete;
+        return Observable.create((_a:Subscriber<Sample[]>) => {
+            
             return this.ticker.subscribe({
                 next: ( val:any ) => {
 
-                    next(this.lastSample);
+                    _a.next(this.lastSample);
 
                     this.lastSample = [];
                 },
-                error: error,
-                complete: complete
+                error: (err) => _a.error(err),
+                complete: () => _a.complete()
             });
         });
     };

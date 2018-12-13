@@ -1,6 +1,6 @@
 /** Simple Quick & Dirty marble visualizer, POJS no framework */
 
-import { Observable } from './marble-core';
+import { Observable } from 'rxjs';
 import { 
     Sample, 
     SampleInfo,
