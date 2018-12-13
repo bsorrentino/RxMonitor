@@ -3,12 +3,11 @@ import {interval, from, of } from 'rxjs';
 import { delay, concatMap, tap } from 'rxjs/operators';
 
 import * as rxmarbles from '../lib/marble-core';
-import { onStart, onValue, onStop, onComplete } from '../lib/marble-handler';
 
-var marbles:rxmarbles.RxMarbles;
 var currentExample:rxmarbles.ExampleState;
 
 window.addEventListener('load',  () => { 
+    let marbles = rxmarbles.create();
 
     let producerId = '1';
     let name = "test";
@@ -17,7 +16,7 @@ window.addEventListener('load',  () => {
         autoPlay: true,
         exec: () => {
 
-            onStart( {   
+            marbles.logger.onStart( {   
                 id:producerId, 
                 name:name, 
                 //parentId:parentProducerId, 
@@ -29,7 +28,7 @@ window.addEventListener('load',  () => {
             .pipe( delay(500), concatMap( e => of(e).pipe( delay(1000) )))
             .subscribe( val => {
 
-                onValue({   
+                marbles.logger.onValue({   
                     id:producerId, 
                     name:name, 
                     //parentId:parentProducerId, 
@@ -37,7 +36,7 @@ window.addEventListener('load',  () => {
                     });   
 
             }, err => {},
-            () => onComplete( { 
+            () => marbles.logger.onComplete( { 
                 id:producerId, 
                 name:name, 
                 //parentId:parentProducerId, 
@@ -49,7 +48,6 @@ window.addEventListener('load',  () => {
         
     };
  
-    marbles = rxmarbles.create();
 
     currentExample = marbles.startExample( shapes$ );
 

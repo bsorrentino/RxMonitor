@@ -4,11 +4,8 @@ import { Observable } from 'rxjs';
 import { 
     Sample, 
     SampleInfo,
-    isComplete, 
-    isError, 
-    isStart, 
-    isStop, 
-    isValue } from './marble-handler';
+    SamplerLogger
+ } from './marble-handler';
 
 export type MarblesOptions = {
     maxNbrOfSamples:number;
@@ -247,15 +244,15 @@ export function showMarbles( div:HTMLElement, samples$:Observable<Sample[]>, opt
         return sampleEl;
     }
     function sampleItemToTooltip(info:Sample) {
-        if (isValue(info))
+        if (SamplerLogger.isValue(info))
             return "Value: " + toText(info.value);
-        if (isError(info))
+        if (SamplerLogger.isError(info))
             return "Error: " + toText(info.err);
-        if (isStart(info))
+        if (SamplerLogger.isStart(info))
             return ''; // `Subscribed`; // Disabled for easier colored line
-        if (isComplete(info))
+        if (SamplerLogger.isComplete(info))
             return "Completed";
-        if (isStop(info))
+        if (SamplerLogger.isStop(info))
             return "Unsubscribe";
         console.error('Unknown Sample Object', info);
         return '';
@@ -286,15 +283,15 @@ export function showMarbles( div:HTMLElement, samples$:Observable<Sample[]>, opt
 
             function _getText( info:Sample ) {
                 
-                if (isValue(info))
+                if (SamplerLogger.isValue(info))
                     return getValue(info.value);
-                if (isStart(info))
+                if (SamplerLogger.isStart(info))
                     return info.createdByValue ? '╰──────' : '───────'; // Multiple lines added for wide columns and clipped with CSS
-                if (isError(info))
+                if (SamplerLogger.isError(info))
                     return '✖';
-                if (isComplete(info))
+                if (SamplerLogger.isComplete(info))
                     return '┤';
-                if (isStop(info))
+                if (SamplerLogger.isStop(info))
                     return '╴';
                 console.error('Unknown Sample Object', info);
                 return '?';
@@ -354,10 +351,10 @@ export function showMarbles( div:HTMLElement, samples$:Observable<Sample[]>, opt
                 rowEl.appendChild(sampleEl);
                 // Update Counters
                 if (!rowEl.getAttribute('data-parent-id')) {
-                    updateNbrOfValues(rowEl, sampleItems.filter( (info:SampleInfo) => isValue(info)).length);
+                    updateNbrOfValues(rowEl, sampleItems.filter( (info:SampleInfo) => SamplerLogger.isValue(info)).length);
                 }
                 // End Row
-                var shouldEndRow = sampleItems.some( (info:SampleInfo) => isStop(info) || isComplete(info) || isError(info) );
+                var shouldEndRow = sampleItems.some( (info:SampleInfo) => SamplerLogger.isStop(info) || SamplerLogger.isComplete(info) || SamplerLogger.isError(info) );
                 if (shouldEndRow)
                     rows.setRowEnded(rowEl, true);
             }
@@ -396,7 +393,7 @@ export function showMarbles( div:HTMLElement, samples$:Observable<Sample[]>, opt
         sample
             .reverse() // So first parents are created
             .forEach((sampleItem) => {
-                if (isStart(sampleItem)) {
+                if (SamplerLogger.isStart(sampleItem)) {
                     // Add
                     if (!rows.getRow(sampleItem.id)) {
                         rows.createAndInsertRow(sampleItem);

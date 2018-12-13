@@ -1,7 +1,5 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const rxjs_1 = require("rxjs");
-const operators_1 = require("rxjs/operators");
 const marble_handler_1 = require("./marble-handler");
 const marble_ui_1 = require("./marble-ui");
 // Time of one step
@@ -62,12 +60,10 @@ class RxMarbles {
     constructor(div, stepInMs) {
         this.stepInMs = stepInMs;
         this.isPaused = false;
-        // Sampler ticker
-        let ticker = rxjs_1.interval(stepInMs).pipe(operators_1.filter(() => !this.isPaused));
         // Sample items
-        this._logger = new marble_handler_1.SamplerLogger(ticker);
+        this._logger = new marble_handler_1.SamplerLogger();
         // Draw marble diagram
-        this._diagram = marble_ui_1.showMarbles(div, this._logger.getSamples());
+        this._diagram = marble_ui_1.showMarbles(div, this._logger.getSamples(() => !this.isPaused, 300));
     }
     get logger() {
         return this._logger;

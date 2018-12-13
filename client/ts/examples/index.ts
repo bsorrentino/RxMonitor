@@ -1,83 +1,8 @@
-
+import * as rxmarbles from '../lib/marble-core';
+import { examples } from './examples';
 
 var marbles:rxmarbles.RxMarbles;
 var currentExample:rxmarbles.ExampleState;
-
-function delayAsync(delayInMs:number, value:any):Promise<any> {
-    return new Promise( resolve => {
-        setTimeout( () => {
-            resolve(value);
-        }, delayInMs);
-    });
-}
-
-function filterTriangles(char:string, useAsync:boolean):boolean|Promise<boolean> {
-    var errorRate = 0;
-    if (Math.random() < errorRate)
-        throw new Error("Funny error in filter");
-    var delayResultAsync = (input:any) => {
-        var resolveWith = input[input.length - 1];
-        if (useAsync) {
-            return delayAsync(marbles.stepInMs * (input.length - 1), resolveWith === '✓');
-        }
-        else {
-            return resolveWith === '✓';
-        }
-    };
-    switch (char) {
-        case '□': return delayResultAsync('╰─────────✖');
-        case '△': return delayResultAsync('╰──────────────✓');
-        case '○': return delayResultAsync('╰──✖');
-        case '▷': return delayResultAsync('╰────✓');
-        case '☆': return delayResultAsync('╰──────✖');
-        case '■': return delayResultAsync('╰─────────✖');
-        case '▲': return delayResultAsync('╰──────✓');
-        case '●': return delayResultAsync('╰─────────────✖');
-        case '★': return delayResultAsync('╰─────✖');
-        case '▶': return delayResultAsync('╰─✓');
-        default: {
-            if (useAsync) {
-                return new Promise(function (_, reject) { return reject("Unknown char: " + char); });
-            }
-            else {
-                throw new Error("Unknown char: " + char);
-            }
-        }
-    }
-}
-
-function fill(char:string, useAsync:boolean):any|Promise<any> {
-    var delayResultAsync = (input:any) => {
-        var resolveWith = input[input.length - 1];
-        if (useAsync) {
-            return delayAsync(marbles.stepInMs * (input.length - 1), resolveWith);
-        }
-        else {
-            return resolveWith;
-        }
-    };
-    switch (char) {
-        case '□': return delayResultAsync('╰─────────■');
-        case '△': return delayResultAsync('╰──────────────▲');
-        case '○': return delayResultAsync('╰──●');
-        case '▷': return delayResultAsync('╰───▶');
-        case '☆': return delayResultAsync('╰───★');
-        case '■': return delayResultAsync('■');
-        case '▲': return delayResultAsync('▲');
-        case '●': return delayResultAsync('●');
-        case '★': return delayResultAsync('★');
-        case '▶': return delayResultAsync('▶');
-        default: {
-            if (useAsync) {
-                return new Promise(function (_, reject) { return reject("Unknown char: " + char); });
-            }
-            else {
-                throw new Error("Unknown char: " + char);
-            }
-        }
-    }
-}
-
 
 function selectExample(exampleCode = 'shapes') {
     console.log( "selectExample", exampleCode );

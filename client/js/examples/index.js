@@ -1,81 +1,19 @@
 "use strict";
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const rxmarbles = __importStar(require("../lib/marble-core"));
+const examples_1 = require("./examples");
 var marbles;
 var currentExample;
-function delayAsync(delayInMs, value) {
-    return new Promise(resolve => {
-        setTimeout(() => {
-            resolve(value);
-        }, delayInMs);
-    });
-}
-function filterTriangles(char, useAsync) {
-    var errorRate = 0;
-    if (Math.random() < errorRate)
-        throw new Error("Funny error in filter");
-    var delayResultAsync = (input) => {
-        var resolveWith = input[input.length - 1];
-        if (useAsync) {
-            return delayAsync(marbles.stepInMs * (input.length - 1), resolveWith === '✓');
-        }
-        else {
-            return resolveWith === '✓';
-        }
-    };
-    switch (char) {
-        case '□': return delayResultAsync('╰─────────✖');
-        case '△': return delayResultAsync('╰──────────────✓');
-        case '○': return delayResultAsync('╰──✖');
-        case '▷': return delayResultAsync('╰────✓');
-        case '☆': return delayResultAsync('╰──────✖');
-        case '■': return delayResultAsync('╰─────────✖');
-        case '▲': return delayResultAsync('╰──────✓');
-        case '●': return delayResultAsync('╰─────────────✖');
-        case '★': return delayResultAsync('╰─────✖');
-        case '▶': return delayResultAsync('╰─✓');
-        default: {
-            if (useAsync) {
-                return new Promise(function (_, reject) { return reject("Unknown char: " + char); });
-            }
-            else {
-                throw new Error("Unknown char: " + char);
-            }
-        }
-    }
-}
-function fill(char, useAsync) {
-    var delayResultAsync = (input) => {
-        var resolveWith = input[input.length - 1];
-        if (useAsync) {
-            return delayAsync(marbles.stepInMs * (input.length - 1), resolveWith);
-        }
-        else {
-            return resolveWith;
-        }
-    };
-    switch (char) {
-        case '□': return delayResultAsync('╰─────────■');
-        case '△': return delayResultAsync('╰──────────────▲');
-        case '○': return delayResultAsync('╰──●');
-        case '▷': return delayResultAsync('╰───▶');
-        case '☆': return delayResultAsync('╰───★');
-        case '■': return delayResultAsync('■');
-        case '▲': return delayResultAsync('▲');
-        case '●': return delayResultAsync('●');
-        case '★': return delayResultAsync('★');
-        case '▶': return delayResultAsync('▶');
-        default: {
-            if (useAsync) {
-                return new Promise(function (_, reject) { return reject("Unknown char: " + char); });
-            }
-            else {
-                throw new Error("Unknown char: " + char);
-            }
-        }
-    }
-}
 function selectExample(exampleCode = 'shapes') {
     console.log("selectExample", exampleCode);
-    var example = examples[exampleCode];
+    var example = examples_1.examples[exampleCode];
     if (!example)
         throw new Error("Unknown example: '" + exampleCode + "'");
     marbles.diagram.clear();
@@ -119,11 +57,11 @@ window.addEventListener('load', function () {
     marbles = rxmarbles.create();
     var groupEls = [];
     // Fill
-    Object.keys(examples).forEach(function (exampleCode) {
-        var example = examples[exampleCode];
+    Object.keys(examples_1.examples).forEach(function (exampleCode) {
+        var example = examples_1.examples[exampleCode];
         var optionsEl = document.createElement("option");
         optionsEl.value = exampleCode;
-        optionsEl.innerText = examples[exampleCode].name;
+        optionsEl.innerText = examples_1.examples[exampleCode].name;
         if (example.group) {
             var optGroupEl = groupEls.filter(function (g) { return g.label === example.group; })[0];
             if (!optGroupEl) {

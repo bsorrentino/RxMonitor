@@ -1,6 +1,87 @@
 "use strict";
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const rxexample = __importStar(require("./Observable"));
+function delayAsync(delayInMs, value) {
+    return new Promise(resolve => {
+        setTimeout(() => {
+            resolve(value);
+        }, delayInMs);
+    });
+}
+function filterTriangles(char, useAsync) {
+    var errorRate = 0;
+    if (Math.random() < errorRate)
+        throw new Error("Funny error in filter");
+    var delayResultAsync = (input) => {
+        var resolveWith = input[input.length - 1];
+        if (useAsync) {
+            return delayAsync(marbles.stepInMs * (input.length - 1), resolveWith === '✓');
+        }
+        else {
+            return resolveWith === '✓';
+        }
+    };
+    switch (char) {
+        case '□': return delayResultAsync('╰─────────✖');
+        case '△': return delayResultAsync('╰──────────────✓');
+        case '○': return delayResultAsync('╰──✖');
+        case '▷': return delayResultAsync('╰────✓');
+        case '☆': return delayResultAsync('╰──────✖');
+        case '■': return delayResultAsync('╰─────────✖');
+        case '▲': return delayResultAsync('╰──────✓');
+        case '●': return delayResultAsync('╰─────────────✖');
+        case '★': return delayResultAsync('╰─────✖');
+        case '▶': return delayResultAsync('╰─✓');
+        default: {
+            if (useAsync) {
+                return new Promise(function (_, reject) { return reject("Unknown char: " + char); });
+            }
+            else {
+                throw new Error("Unknown char: " + char);
+            }
+        }
+    }
+}
+function fill(char, useAsync) {
+    var delayResultAsync = (input) => {
+        var resolveWith = input[input.length - 1];
+        if (useAsync) {
+            return delayAsync(marbles.stepInMs * (input.length - 1), resolveWith);
+        }
+        else {
+            return resolveWith;
+        }
+    };
+    switch (char) {
+        case '□': return delayResultAsync('╰─────────■');
+        case '△': return delayResultAsync('╰──────────────▲');
+        case '○': return delayResultAsync('╰──●');
+        case '▷': return delayResultAsync('╰───▶');
+        case '☆': return delayResultAsync('╰───★');
+        case '■': return delayResultAsync('■');
+        case '▲': return delayResultAsync('▲');
+        case '●': return delayResultAsync('●');
+        case '★': return delayResultAsync('★');
+        case '▶': return delayResultAsync('▶');
+        default: {
+            if (useAsync) {
+                return new Promise(function (_, reject) { return reject("Unknown char: " + char); });
+            }
+            else {
+                throw new Error("Unknown char: " + char);
+            }
+        }
+    }
+}
 function randomStreamObservable(slowDownFactor = 1, name = 'shapes$', values = ['□', '△', '○', '▷', '☆']) {
-    return new example.Observable(randomStreamProducer(slowDownFactor, values), name);
+    return new rxexample.Observable(randomStreamProducer(slowDownFactor, values), name);
 }
 function randomStreamProducer(slowDownFactor = 1, values = ['□', '△', '○', '▷', '☆']) {
     // ['□', '△', '○', '▷', '☆', '■', '▲', '●', '▶', '★']
@@ -13,7 +94,7 @@ function randomStreamProducer(slowDownFactor = 1, values = ['□', '△', '○',
         var cancelationToken;
         function randomLoop() {
             var delayInMs = marbles.stepInMs * (Math.round(Math.random() * 10 * slowDownFactor) + 1);
-            cancelationToken = setTimeout(() => {
+            cancelationToken = window.setTimeout(() => {
                 if (!currentExample.isPaused)
                     observer.next(getRandomChar());
                 if (cancelationToken)
@@ -46,7 +127,7 @@ function combineShapeAndFill(fill, shape) {
 function getFilledShapeAsync(shape) {
     return delayAsync(marbles.stepInMs + 50 + Math.random() * 2300, fill(shape, false));
 }
-var examples = {
+exports.examples = {
     'shapes': {
         name: "shapes$",
         group: 'Sample streams',
@@ -59,7 +140,7 @@ var examples = {
         group: 'Sample streams',
         autoPlay: true,
         exec: function () {
-            return example.Observable.fromEvent(window, 'keyup')
+            return rxexample.Observable.fromEvent(window, 'keyup')
                 .map(function (e) { return String.fromCharCode(e.keyCode || e.which); })
                 .subscribe();
         },
@@ -70,7 +151,7 @@ var examples = {
         group: 'Sample streams',
         autoPlay: true,
         exec: function () {
-            return example.Observable.fromEvent(window, 'mousemove')
+            return rxexample.Observable.fromEvent(window, 'mousemove')
                 .map(function (e) { return e.pageX; })
                 .subscribe();
         },
@@ -82,14 +163,14 @@ var examples = {
     'never': {
         name: "never",
         group: 'Creating Observables',
-        exec: () => example.Observable.never().subscribe(),
+        exec: () => rxexample.Observable.never().subscribe(),
         infoHtml: "Creates an Observable that emits no items to the Observer.\n<pre>Observable.never())\n  .subscribe();</pre>"
     },
     'empty': {
         name: "empty",
         group: 'Creating Observables',
         exec: function (done) {
-            return example.Observable.empty()
+            return rxexample.Observable.empty()
                 .subscribe({ complete: done });
         },
         infoHtml: "Creates an Observable that emits no items to the Observer and immediately emits a complete notification.\n<pre>Observable.empty()\n  .subscribe();</pre>"
@@ -98,7 +179,7 @@ var examples = {
         name: "single",
         group: 'Creating Observables',
         exec: function (done) {
-            return example.Observable.single('☆')
+            return rxexample.Observable.single('☆')
                 .subscribe({ complete: done });
         },
         infoHtml: "Produce a single value and completes the stream.\n<pre>Observable.single('\u2606')\n  .subscribe();</pre>"
@@ -107,7 +188,7 @@ var examples = {
         name: "of",
         group: 'Creating Observables',
         exec: function (done) {
-            return example.Observable.of('☆', '○')
+            return rxexample.Observable.of('☆', '○')
                 .subscribe({ complete: done });
         },
         infoHtml: "Creates an Observable that emits some values you specify as arguments, immediately one after the other, and then emits a complete notification.\n<pre>Observable.of('\u2606', '\u25CB')\n  .subscribe();</pre>"
@@ -116,7 +197,7 @@ var examples = {
         name: "throw",
         group: 'Creating Observables',
         exec: function (done) {
-            return example.Observable.throw(new Error("Aauwch"))
+            return rxexample.Observable.throw(new Error("Aauwch"))
                 .subscribe({ complete: done });
         },
         infoHtml: "Creates an Observable that emits no items to the Observer and immediately emits an error notification.\n<pre>Observable.throw(new Error(\"Aauwch\"))\n  .subscribe();</pre>"
@@ -125,7 +206,7 @@ var examples = {
         name: "fromPromise",
         group: 'Creating Observables',
         exec: function (done) {
-            return example.Observable.fromPromise(getFilledShapeAsync('☆'))
+            return rxexample.Observable.fromPromise(getFilledShapeAsync('☆'))
                 .subscribe({ complete: done });
         },
         infoHtml: "Converts a Promise to an Observable.\n<pre>Observable.fromPromise(getFilledShapeAsync('\u2606'))\n  .subscribe();</pre>"
@@ -135,7 +216,7 @@ var examples = {
         name: "interval",
         group: 'Creating Observables',
         exec: function () {
-            return example.Observable.interval(1000)
+            return rxexample.Observable.interval(1000)
                 .subscribe();
         },
         infoHtml: "Creates an Observable that emits sequential numbers every specified interval of time\n<p>Example: Produce a value each second.</p>\n<pre>Observable.interval(1000)\n  .subscribe();</pre>",
@@ -169,7 +250,7 @@ var examples = {
         group: 'Filtering',
         exec: function (done) {
             return randomStreamObservable()
-                .takeUntil(example.Observable.interval(5000))
+                .takeUntil(rxexample.Observable.interval(5000))
                 .subscribe({ complete: done });
         },
         infoHtml: "Emits the values emitted by the source Observable until a notifier Observable emits a value.\n<p>Example: Start observable and stop it after 5 seconds:</p>\n<pre>shapes$\n  .takeUntil(Observable.interval(5000))\n  .subscribe();</pre>"
@@ -241,8 +322,8 @@ var examples = {
         name: "catch",
         group: 'Projections',
         exec: function (done) {
-            return example.Observable.throw(new Error("Aauwch"))
-                .catch(function () { return example.Observable.single('★'); })
+            return rxexample.Observable.throw(new Error("Aauwch"))
+                .catch(function () { return rxexample.Observable.single('★'); })
                 .subscribe({ complete: done });
         },
         infoHtml: "Catches errors on the observable to be handled by returning a new observable or throwing an error.\n<p>Example:Conver an error to a value.</p>\n<pre>Observable.throw(new Error(\"Aauwch\"))\n  .catch(() => Observable.single('\u2605'))\n  .subscribe();</pre>"
@@ -416,7 +497,7 @@ var examples = {
         group: 'Higher Order Observables',
         exec: function () {
             return randomStreamObservable()
-                .mergeMap(function (shape) { return example.Observable.fromPromise(getFilledShapeAsync(shape)); })
+                .mergeMap(function (shape) { return rxexample.Observable.fromPromise(getFilledShapeAsync(shape)); })
                 .subscribe();
         },
         infoHtml: "Projects each source value to an Observable which is merged in the output Observable.\n<p>Example: When a new shape is received, call and AJAX function to get a filled version:</p>\n<pre>shapes$\n  .mergeMap(shape => Observable.fromPromise(getFilledShapeAsync(shape)))\n  .subscribe();</pre>"
@@ -426,7 +507,7 @@ var examples = {
         group: 'Higher Order Observables',
         exec: function () {
             return randomStreamObservable(2)
-                .concatMap(function (shape) { return example.Observable.fromPromise(getFilledShapeAsync(shape)); })
+                .concatMap(function (shape) { return rxexample.Observable.fromPromise(getFilledShapeAsync(shape)); })
                 .subscribe();
         },
         infoHtml: "Projects each source value to an Observable which is merged in the output Observable, in a serialized fashion waiting for each one to complete before merging the next.\n<p>Example: When a new shape is received, call and AJAX function to get a filled version and ensure the order by starting the next Observable when the previous is completed.</p>\n<pre>shapes$\n  .concatMap(shape => Observable.fromPromise(getFilledShapeAsync(shape)))\n  .subscribe();</pre>"
@@ -436,7 +517,7 @@ var examples = {
         group: 'Higher Order Observables',
         exec: function () {
             return randomStreamObservable()
-                .switchMap(function (shape) { return example.Observable.fromPromise(getFilledShapeAsync(shape)); })
+                .switchMap(function (shape) { return rxexample.Observable.fromPromise(getFilledShapeAsync(shape)); })
                 .subscribe();
         },
         infoHtml: "Projects each source value to an Observable which is merged in the output Observable, emitting values only from the most recently projected Observable.\n<p>Example: When a new shape is received, call and AJAX function to get a filled version and ensure only the result of the last request is emitted.</p>\n<pre>shapes$\n  .switchMap(shape => Observable.fromPromise(getFilledShapeAsync(shape)))\n  .subscribe();</pre>"
@@ -446,7 +527,7 @@ var examples = {
         group: 'Higher Order Observables',
         exec: function () {
             return randomStreamObservable()
-                .exhaustMap(function (shape) { return example.Observable.fromPromise(getFilledShapeAsync(shape)); })
+                .exhaustMap(function (shape) { return rxexample.Observable.fromPromise(getFilledShapeAsync(shape)); })
                 .subscribe();
         },
         infoHtml: "Projects each source value to an Observable which is merged in the output Observable only if the previous projected Observable has completed.\n<p>Example: When a new shape is received, call and AJAX function to get a filled version and ignore new shapes if AJAX call not completed.</p>\n<pre>shapes$\n  .exhaustMap(shape => Observable.fromPromise(getFilledShapeAsync(shape)))\n  .subscribe();</pre>"
@@ -472,9 +553,9 @@ var examples = {
             var updateValue = (value) => {
                 valueEl.innerText = value.toString();
             };
-            return example.Observable.fromEvent(startEl, 'click')
+            return rxexample.Observable.fromEvent(startEl, 'click')
                 .scan(function (prev) { return updatePauseButton(!prev); }, false) // Toggle
-                .switchMap(function (isOn) { return isOn ? example.Observable.interval(1000) : example.Observable.never(); })
+                .switchMap(function (isOn) { return isOn ? rxexample.Observable.interval(1000) : rxexample.Observable.never(); })
                 .scan(function (prev) { return prev + 1; }, 0)
                 .subscribe(updateValue);
         },
@@ -494,13 +575,13 @@ var examples = {
             var updateValue = (value) => {
                 valueEl.innerText = value.toString();
             };
-            var stop$ = example.Observable.fromEvent(stopEl, 'click');
-            return example.Observable.fromEvent(startEl, 'click')
+            var stop$ = rxexample.Observable.fromEvent(stopEl, 'click');
+            return rxexample.Observable.fromEvent(startEl, 'click')
                 .exhaustMap(function () {
-                return example.Observable.interval(1000) // Don't start bnew when previous not completed
+                return rxexample.Observable.interval(1000) // Don't start bnew when previous not completed
                     .map(function (i) { return i + 1; })
                     .takeUntil(stop$)
-                    .concat(example.Observable.single(0));
+                    .concat(rxexample.Observable.single(0));
             })
                 .subscribe(updateValue);
         },
@@ -539,20 +620,20 @@ var examples = {
                 resultEl.style.color = 'red';
                 resultEl.innerText = err && err.message || 'Error';
             }
-            return example.Observable
+            return rxexample.Observable
                 .fromEvent(inputEl, 'keyup')
                 .map(function (e) { return e.currentTarget.value; })
                 .distinctUntilChanged()
                 .debounceTime(500)
-                .switchMap(value => example.Observable
+                .switchMap(value => rxexample.Observable
                 .fromPromise(getGitHubStars(value))
                 .catch(err => {
                 handleError(err);
-                return example.Observable.empty();
+                return rxexample.Observable.empty();
             }))
                 .subscribe(handelSucces);
         },
-        infoHtml: "Type a name and it will autocomplete to the first GitHub repo starting with this value:<br/><br/>\n        <input id='autocomplete' autofocus placeholder=\"Repo name?\"></input><div id='autocomplete-result'>&nbsp;</div>\n        <pre>Observable\n  .fromEvent<Event>(autoCompleteEl, 'keyup')\n  .map(e => e.currentTarget.value)\n  .distinctUntilChanged()\n  .debounceTime(500)\n  .switchMap(value => Observable\n    .fromPromise(searchGitHub(value))\n    .catch(err => {\n       handleError(err);\n       return example.Observable.empty();\n    })\n  )\n  .subscribe(handelSucces);</pre>"
+        infoHtml: "Type a name and it will autocomplete to the first GitHub repo starting with this value:<br/><br/>\n        <input id='autocomplete' autofocus placeholder=\"Repo name?\"></input><div id='autocomplete-result'>&nbsp;</div>\n        <pre>Observable\n  .fromEvent<Event>(autoCompleteEl, 'keyup')\n  .map(e => e.currentTarget.value)\n  .distinctUntilChanged()\n  .debounceTime(500)\n  .switchMap(value => Observable\n    .fromPromise(searchGitHub(value))\n    .catch(err => {\n       handleError(err);\n       return rxexample.Observable.empty();\n    })\n  )\n  .subscribe(handelSucces);</pre>"
     },
     'dragDrop': {
         name: "Drag & Drop",
@@ -561,12 +642,12 @@ var examples = {
         autoPlay: true,
         exec: function () {
             var blockDragEl = document.getElementById('block-drag');
-            var mouseDown$ = example.Observable.fromEvent(blockDragEl, 'mousedown').map(function (e) { return e.pageX; });
-            var mouseMove$ = example.Observable.fromEvent(window, 'mousemove').map(function (e) { return e.pageX; });
-            var mouseUp$ = example.Observable.fromEvent(window, 'mouseup');
-            var touchStart$ = example.Observable.fromEvent(blockDragEl, 'touchstart').map(function (e) { return Math.round(e.touches[0].pageX); });
-            var touchMove$ = example.Observable.fromEvent(window, 'touchmove').map(function (e) { return Math.round(e.touches[0].pageX); });
-            var touchEnd$ = example.Observable.fromEvent(window, 'touchend');
+            var mouseDown$ = rxexample.Observable.fromEvent(blockDragEl, 'mousedown').map(function (e) { return e.pageX; });
+            var mouseMove$ = rxexample.Observable.fromEvent(window, 'mousemove').map(function (e) { return e.pageX; });
+            var mouseUp$ = rxexample.Observable.fromEvent(window, 'mouseup');
+            var touchStart$ = rxexample.Observable.fromEvent(blockDragEl, 'touchstart').map(function (e) { return Math.round(e.touches[0].pageX); });
+            var touchMove$ = rxexample.Observable.fromEvent(window, 'touchmove').map(function (e) { return Math.round(e.touches[0].pageX); });
+            var touchEnd$ = rxexample.Observable.fromEvent(window, 'touchend');
             var start$ = mouseDown$.merge(touchStart$);
             var move$ = mouseMove$.merge(touchMove$);
             var end$ = mouseUp$.merge(touchEnd$);
@@ -588,7 +669,7 @@ var examples = {
                 return move$
                     .map(function (xMove) { return xMove - xStart; })
                     .takeUntil(end$)
-                    .concat(example.Observable.single(0));
+                    .concat(rxexample.Observable.single(0));
             } // reset at end
             )
                 .subscribe(function (x) { return moveBlock(x); });

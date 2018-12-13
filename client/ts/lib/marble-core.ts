@@ -9,6 +9,14 @@ import {
      showMarbles
  } from './marble-ui';
 
+export interface Example {
+    exec:( ( p?:(() => void)) => () => void );
+    name?:string;
+    group?:string;
+    autoPlay?:boolean;
+    infoHtml?:string;
+    onlyStop?:boolean;
+}
 
 export type ExampleCode = { code?:string } & Example;
 
@@ -16,7 +24,6 @@ export type ExampleCode = { code?:string } & Example;
 
 export class ExampleState {
     
-
     isPaused = false;
     private unsubscribe:() => void
 
@@ -92,12 +99,10 @@ export class RxMarbles {
      * @param stepInMs 
      */
     constructor( div:HTMLDivElement, public stepInMs:number ) {
-        // Sampler ticker
-        let ticker = interval(stepInMs).pipe( filter( () => !this.isPaused ) );
         // Sample items
-        this._logger = new SamplerLogger(ticker);
+        this._logger = new SamplerLogger();
         // Draw marble diagram
-        this._diagram   = showMarbles(div, this._logger.getSamples());
+        this._diagram   = showMarbles(div, this._logger.getSamples( () => !this.isPaused, 300 ));
 
     }
 
