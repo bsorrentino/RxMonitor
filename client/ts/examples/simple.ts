@@ -1,8 +1,9 @@
 
 import {interval, from, of } from 'rxjs';
-import { delay, concatMap, tap } from 'rxjs/operators';
+import { concatMap, delay, tap } from 'rxjs/operators';
 
 import * as rxmarbles from '../lib/marble-core';
+import { tapx } from '../lib/marble-rxjs';
 
 var currentExample:rxmarbles.ExampleState;
 
@@ -15,37 +16,24 @@ window.addEventListener('load',  () => {
     let shapes$:rxmarbles.ExampleCode = {
         autoPlay: true,
         exec: () => {
+            var i = 0;
 
-            marbles.logger.onStart( {   
-                id:producerId, 
-                name:name, 
-                //parentId:parentProducerId, 
-                createdByValue:true, 
-                isIntermediate:false
-            });
-
-            of( 'A', 'B', 'C', 'D', 'E', 'F' )
-            .pipe( delay(500), concatMap( e => of(e).pipe( delay(1000) )))
+            //of( 'A', 'B', 'C', 'D', 'E', 'F' )
+            interval( 1000 )
+            .pipe( tapx( 'interval(1000) ' , '$result') )
+            .pipe( concatMap( e =>  of(e).pipe( delay(1000) , tapx( 'delay(1000) '+(++i) , '$result') ) ) )
+            .pipe( tapx( '$result') )
             .subscribe( val => {
+                console.log(val);
+            }, 
+            err => {
 
-                marbles.logger.onValue({   
-                    id:producerId, 
-                    name:name, 
-                    //parentId:parentProducerId, 
-                    value:val, 
-                    });   
+            },
+            () => {  
 
-            }, err => {},
-            () => { 
-                marbles.logger.onComplete( { 
-                            id:producerId, 
-                            name:name, 
-                            //parentId:parentProducerId, 
-                            }) 
-                })                 
+            })                 
                 ;
             
-
             return () => {}
         }
         

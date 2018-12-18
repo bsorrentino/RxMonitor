@@ -53,6 +53,10 @@ export class SamplerLogger {
     };   
 
     constructor( ) {  
+
+        window.addEventListener( 'rxmarbles.event', (event:any) => {
+            this.samples.next( event.detail );
+        });
     }
 
     onStart( p:SampleStart ) {
