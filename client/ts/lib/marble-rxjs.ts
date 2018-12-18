@@ -1,19 +1,20 @@
-import {  Observable, PartialObserver, MonoTypeOperatorFunction, Observer } from 'rxjs';
-import {  tap } from 'rxjs/operators';
+import {  
+    Observable, 
+    PartialObserver, 
+    MonoTypeOperatorFunction, 
+    Observer 
+} from 'rxjs';
 import { 
     Sample, 
-    SampleInfo,
-    SamplerLogger,
     SampleItemType
  } from './marble-handler';
-import { ObserveOnOperator } from 'rxjs/internal/operators/observeOn';
 
 
-export function _p_observer<T>( id:string, parentId?:string ):MonoTypeOperatorFunction<T> {
+export function tapx<T>( id:string, parentId?:string ):MonoTypeOperatorFunction<T> {
 
     return (source:Observable<T>) => new Observable<T>( observer =>  {
 
-        return source.subscribe(_p_observer_internal( observer, id, parentId ) );
+        return source.subscribe(_observe( observer, id, parentId ) );
     })
 }
 
@@ -21,7 +22,7 @@ let _time = () => (performance) ? performance.now() : Date.now() ;
 
 
 
-function _p_observer_internal<T>( observer:Observer<T> , id:string, parentId?:string ):PartialObserver<T> 
+function _observe<T>( observer:Observer<T> , id:string, parentId?:string ):PartialObserver<T> 
 {
     const event:Sample = {
         type: SampleItemType.Start,
