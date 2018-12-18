@@ -1,13 +1,35 @@
 /** Simple Quick & Dirty marble visualizer, POJS no framework */
-function showMarbles(div, samples$, options) {
-    var _a = (options || {}).maxNbrOfSamples, maxNbrOfSamples = _a === void 0 ? 50 : _a;
+
+import { Observable } from 'rxjs';
+import { 
+    Sample, 
+    SampleInfo,
+    SamplerLogger
+ } from './marble-handler';
+
+export type MarblesOptions = {
+    maxNbrOfSamples:number;
+}
+
+/**
+ * 
+ * @param div 
+ * @param samples$ 
+ * @param options 
+ */
+export function showMarbles( div:HTMLElement, samples$:Observable<Sample[]>, options:MarblesOptions = { maxNbrOfSamples:50 }) {
+
+    const maxNbrOfSamples = options.maxNbrOfSamples;
+    
     var nbrOfSamplesReceived = 0;
+    
     function createTable() {
         var tableEl = document.createElement('table');
         tableEl.classList.add('marble');
         return tableEl;
     }
     ;
+    
     // Used Table to make sure vertical alignment stays OK when using special UTF8 symbols
     var tableEl = createTable();
     div.appendChild(tableEl);
@@ -18,11 +40,11 @@ function showMarbles(div, samples$, options) {
         nbrOfSamplesReceived = 0;
     }
     // Group row related functons
-    var rows = {
-        generateRowId: function generateRowId(id) {
+    let rows = {
+        generateRowId: function generateRowId(id:any) {
             return 'marble__row-' + id;
         },
-        createRow: function createRow(id, name, isIntermediate, childOrParentId) {
+        createRow: function createRow(id:any, name:any, isIntermediate:any, childOrParentId:any) {
             // Row
             var rowEl = document.createElement('tr');
             rowEl.classList.add('marble__row');
@@ -66,8 +88,8 @@ function showMarbles(div, samples$, options) {
             }
             return rowEl;
         },
-        highlightRows: function highlightRows(rowIds) {
-            var rowElIds = rowIds.map(function (id) { return rows.generateRowId(id); });
+        highlightRows: function highlightRows(rowIds:any) {
+            var rowElIds = rowIds.map(function (id:any) { return rows.generateRowId(id); });
             rows.getRows().forEach(function (rowEl) {
                 if (rowElIds.includes(rowEl.id)) {
                     rowEl.classList.add("marble__row-highlight");
@@ -77,8 +99,8 @@ function showMarbles(div, samples$, options) {
                 }
             });
         },
-        highlightParentRows: function highlightRows(rowIds) {
-            var rowElIds = rowIds.map(function (id) { return rows.generateRowId(id); });
+        highlightParentRows: function highlightRows(rowIds:any) {
+            var rowElIds = rowIds.map(function (id:any) { return rows.generateRowId(id); });
             rows.getRows().forEach(function (rowEl) {
                 if (rowElIds.includes(rowEl.id)) {
                     rowEl.classList.add("marble__row-parent");
@@ -88,44 +110,43 @@ function showMarbles(div, samples$, options) {
                 }
             });
         },
-        removeRow: function removeRow(rowEl) {
+        removeRow: function removeRow(rowEl:any) {
             tableEl.removeChild(rowEl);
         },
-        getRow: function getRow(id) {
-            return document.getElementById(rows.generateRowId(id));
+        getRow: function getRow(id:any) {
+            return document.getElementById(rows.generateRowId(id)) as HTMLTableRowElement;
         },
         getRows: function getRows() {
-            return Array.from(tableEl.children);
+            return Array.from(tableEl.children) as Array<HTMLTableRowElement>;
         },
-        isRowEmpty: function isRowEmpty(rowEl) {
+        isRowEmpty: function isRowEmpty(rowEl:HTMLElement) {
             // TODO: optimize
-            return Array.from(rowEl.children).slice(2).every(function (tdEl) { return tdEl.innerText === ''; });
+            return Array.from(rowEl.children).slice(2).every( tdEl => (<HTMLElement>tdEl).innerText === '' );
         },
-        getRowEnded: function getRowEnded(rowEl) {
+        getRowEnded: function getRowEnded(rowEl:any) {
             return !!rowEl.getAttribute('data-has-ended');
         },
-        setRowEnded: function setRowEnded(rowEl, isEnded) {
-            if (isEnded === void 0) { isEnded = true; }
+        setRowEnded: function setRowEnded(rowEl:any, isEnded = true) {
             rowEl.setAttribute('data-has-ended', isEnded ? '1' : '');
         },
-        findFreeForParent: function findFreeForParent(parentId) {
+        findFreeForParent: function findFreeForParent(parentId:any) {
             return rows.getRows()
-                .filter(function (rowEl) { return rowEl.getAttribute('data-parent-id') === parentId && rows.getRowEnded(rowEl); });
+                .filter(rowEl => rowEl.getAttribute('data-parent-id') === parentId && rows.getRowEnded(rowEl) );
         },
         getIdsVisible: function getIdsVisible() {
             return rows.getRows()
-                .map(function (rowEl) { return rowEl.getAttribute('data-id') || ''; })
-                .filter(function (id) { return !!id; });
+                .map( rowEl =>  rowEl.getAttribute('data-id') || '' )
+                .filter( id => !!id );
         },
-        createAndInsertRow: function inserRow(sampleItem) {
-            var ids = rows.getIdsVisible();
-            var findRow = function (findId) {
+        createAndInsertRow: function inserRow(sampleItem:any) {
+            let ids = rows.getIdsVisible();
+            let findRow = (findId:string) => {
                 var index = ids.indexOf(findId);
                 return index >= 0
                     ? tableEl.children[index]
                     : undefined;
             };
-            var findParent = function (findParentOfId) {
+            let findParent = function (findParentOfId:any) {
                 var children = ids
                     .filter(function (id) { return id.indexOf(findParentOfId + '-') === 0; });
                 var depths = children.map(function (id) { return id.split('-').length; });
@@ -183,24 +204,24 @@ function showMarbles(div, samples$, options) {
             }
         }
     };
-    var cols = {
+    let cols = {
         selectedColumn: -1,
-        highlightColumn: function (columnIndex) {
-            var rows = Array.from(tableEl.children);
+        highlightColumn: function (columnIndex:any) {
+            let rows = Array.from(tableEl.children);
             if (columnIndex === undefined || cols.selectedColumn !== columnIndex) {
-                var highlightColumnIndex_1 = columnIndex === undefined ? cols.selectedColumn : columnIndex;
-                var lastCellIndex = rows[0].lastChild.cellIndex;
+                let highlightColumnIndex_1 = columnIndex === undefined ? cols.selectedColumn : columnIndex;
+                let lastCellIndex = (<HTMLTableCellElement>rows[0].lastChild).cellIndex;
                 if (cols.selectedColumn >= 0 && cols.selectedColumn <= lastCellIndex) {
-                    rows.forEach(function (row) { return row.children[cols.selectedColumn].classList.remove('marble__sample-highlight'); });
+                    rows.forEach( row =>  row.children[cols.selectedColumn].classList.remove('marble__sample-highlight') );
                 }
                 if (highlightColumnIndex_1 >= 0 && highlightColumnIndex_1 <= lastCellIndex) {
-                    rows.forEach(function (row) { return row.children[highlightColumnIndex_1].classList.add('marble__sample-highlight'); });
+                    rows.forEach( row =>  row.children[highlightColumnIndex_1].classList.add('marble__sample-highlight') );
                 }
                 cols.selectedColumn = highlightColumnIndex_1;
             }
         }
     };
-    function toText(item) {
+    function toText(item:any) {
         if (item === null)
             return "<null>";
         if (item === undefined)
@@ -214,7 +235,7 @@ function showMarbles(div, samples$, options) {
         //if (Array.isArray(item)) return "<Array>";
         return item.toString();
     }
-    function createCell(text, details) {
+    function createCell(text:any, details?:any) {
         var sampleEl = document.createElement('td');
         sampleEl.classList.add('marble__sample');
         sampleEl.innerText = text;
@@ -222,27 +243,28 @@ function showMarbles(div, samples$, options) {
             sampleEl.title = details;
         return sampleEl;
     }
-    function sampleItemToTooltip(info) {
-        if (SamplerLogger.isValueSampleItem(info))
+    function sampleItemToTooltip(info:Sample) {
+        if (SamplerLogger.isValue(info))
             return "Value: " + toText(info.value);
-        if (SamplerLogger.isErrorSampleItem(info))
+        if (SamplerLogger.isError(info))
             return "Error: " + toText(info.err);
-        if (SamplerLogger.isStartSampleItem(info))
+        if (SamplerLogger.isStart(info))
             return ''; // `Subscribed`; // Disabled for easier colored line
-        if (SamplerLogger.isCompleteSampleItem(info))
+        if (SamplerLogger.isComplete(info))
             return "Completed";
-        if (SamplerLogger.isStopSampleItem(info))
+        if (SamplerLogger.isStop(info))
             return "Unsubscribe";
         console.error('Unknown Sample Object', info);
         return '';
     }
-    function sampleToTooltip(sample) {
+    function sampleToTooltip(sample:Array<Sample>) {
         if (!sample)
             return '';
-        return sample.reverse().map(function (sampleItem) { return sampleItemToTooltip(sampleItem); }).join('\n');
+        return sample.reverse().map( sampleItem => sampleItemToTooltip(sampleItem) ).join('\n');
     }
-    function getSampleInfo(sample) {
-        function getValue(value) {
+    function getSampleInfo(sample:Array<Sample>) {
+
+        function getValue(value:any):any {
             if (typeof value === 'string')
                 return value; // truncate?
             if (typeof value === 'boolean')
@@ -250,23 +272,43 @@ function showMarbles(div, samples$, options) {
             if (typeof value === 'number')
                 return value.toString();
             if (Array.isArray(value))
-                return "[" + value.map(function (v) { return getValue(v); }).join(',') + "]";
+                return "[" + value.map( (v) => getValue(v) ).join(',') + "]";
             return '?';
         }
         function getText() {
             if (!sample || sample.length === 0)
                 return '───────'; // Multiple lines added for wide columns and clipped with CSS
+
+                return sample.map( e => _getText(e) ).join('');
+
+            function _getText( info:Sample ) {
+                
+                if (SamplerLogger.isValue(info))
+                    return getValue(info.value);
+                if (SamplerLogger.isStart(info))
+                    return info.createdByValue ? '╰──────' : '───────'; // Multiple lines added for wide columns and clipped with CSS
+                if (SamplerLogger.isError(info))
+                    return '✖';
+                if (SamplerLogger.isComplete(info))
+                    return '┤';
+                if (SamplerLogger.isStop(info))
+                    return '╴';
+                console.error('Unknown Sample Object', info);
+                return '?';
+
+            }
+            /*
             if (sample.length === 1) {
                 var info = sample[0];
-                if (SamplerLogger.isValueSampleItem(info))
+                if (isValue(info))
                     return getValue(info.value);
-                if (SamplerLogger.isStartSampleItem(info))
+                if (isStart(info))
                     return info.createdByValue ? '╰──────' : '───────'; // Multiple lines added for wide columns and clipped with CSS
-                if (SamplerLogger.isErrorSampleItem(info))
+                if (isError(info))
                     return '✖';
-                if (SamplerLogger.isCompleteSampleItem(info))
+                if (isComplete(info))
                     return '┤';
-                if (SamplerLogger.isStopSampleItem(info))
+                if (isStop(info))
                     return '╴';
                 console.error('Unknown Sample Object', info);
                 return '?';
@@ -275,19 +317,18 @@ function showMarbles(div, samples$, options) {
                 // Start and Stop
                 if (sample.length >= 2 &&
                     sample[0].id === sample[1].id &&
-                    !sample.some(function (info) { return SamplerLogger.isValueSampleItem(info) || SamplerLogger.isErrorSampleItem(info); }) &&
-                    sample.some(function (info) { return SamplerLogger.isCompleteSampleItem(info); })) {
+                    !sample.some( (info:SampleInfo) => isValue(info) || isError(info) ) &&
+                    sample.some( (info:SampleInfo) => isComplete(info))) {
                     return '┤';
                 }
-                var valueInfos = sample.filter(function (info) { return SamplerLogger.isValueSampleItem(info); });
-                var errorInfos = sample.filter(function (info) { return SamplerLogger.isErrorSampleItem(info); });
+                var valueInfos = sample.filter( (info:SampleInfo) => isValue(info) );
+                var errorInfos = sample.filter( (info:SampleInfo) => isError(info) );
                 // If one Error and No Value
-                if (errorInfos.length === 1 && valueInfos.length === 0)
-                    return '✖';
-                if (errorInfos.length === 0 && valueInfos.length === 1)
-                    return getValue(valueInfos[0].value);
+                if (errorInfos.length === 1 && valueInfos.length === 0) return '✖';
+                if (errorInfos.length === 0 && valueInfos.length === 1) return getValue(valueInfos[0].value);
                 return '#'; // Multiple items
             }
+            */
         }
         return {
             text: getText(),
@@ -299,21 +340,21 @@ function showMarbles(div, samples$, options) {
         function removeOldestColumn() {
             const rowEls = tableEl.children;
         }*/
-    function addSampleForId(id, sample) {
+    function addSampleForId(id:any, sample:Array<any>) {
         var rowEl = rows.getRow(id);
         if (rowEl) {
             if (!rows.getRowEnded(rowEl)) {
                 // Add Cell
-                var sampleItems = sample.filter(function (g) { return g.id === id; });
+                var sampleItems = sample.filter( g => g.id === id );
                 var _a = getSampleInfo(sampleItems), text = _a.text, tooltip = _a.tooltip;
                 var sampleEl = createCell(text, tooltip);
                 rowEl.appendChild(sampleEl);
                 // Update Counters
                 if (!rowEl.getAttribute('data-parent-id')) {
-                    updateNbrOfValues(rowEl, sampleItems.filter(function (info) { return SamplerLogger.isValueSampleItem(info); }).length);
+                    updateNbrOfValues(rowEl, sampleItems.filter( (info:SampleInfo) => SamplerLogger.isValue(info)).length);
                 }
                 // End Row
-                var shouldEndRow = sampleItems.some(function (info) { return SamplerLogger.isStopSampleItem(info) || SamplerLogger.isCompleteSampleItem(info) || SamplerLogger.isErrorSampleItem(info); });
+                var shouldEndRow = sampleItems.some( (info:SampleInfo) => SamplerLogger.isStop(info) || SamplerLogger.isComplete(info) || SamplerLogger.isError(info) );
                 if (shouldEndRow)
                     rows.setRowEnded(rowEl, true);
             }
@@ -340,25 +381,25 @@ function showMarbles(div, samples$, options) {
             }
         }
     }
-    function updateNbrOfValues(rowEl, offset, reset) {
+    function updateNbrOfValues(rowEl:any, offset:any, reset?:any) {
         if (!reset && !offset)
             return;
         var cellEl = rowEl.firstChild.nextSibling;
         var value = reset ? 0 : parseInt(cellEl.innerText.substring(1), 10);
         cellEl.innerText = "#" + (value + offset);
     }
-    function addSample(sample) {
+    function addSample(sample:Array<any>) {
         // Create required rows
         sample
             .reverse() // So first parents are created
-            .forEach(function (sampleItem) {
-            if (SamplerLogger.isStartSampleItem(sampleItem)) {
-                // Add
-                if (!rows.getRow(sampleItem.id)) {
-                    rows.createAndInsertRow(sampleItem);
+            .forEach((sampleItem) => {
+                if (SamplerLogger.isStart(sampleItem)) {
+                    // Add
+                    if (!rows.getRow(sampleItem.id)) {
+                        rows.createAndInsertRow(sampleItem);
+                    }
                 }
-            }
-        });
+            });
         // Scroll effect
         ensureMaxWidth();
         // Process per id
@@ -373,15 +414,18 @@ function showMarbles(div, samples$, options) {
                 rows.removeRow(rowEl);
         });
     }
-    samples$.subscribe(function (sample) {
-        nbrOfSamplesReceived++;
-        addSample(sample);
+    samples$.subscribe( { 
+        next: (sample:any) => {
+            nbrOfSamplesReceived++;
+            addSample(sample);
+        }
     });
+
     // Hover effect on column
-    tableEl.addEventListener('mouseover', function (e) {
-        var el = e.target;
+    tableEl.addEventListener('mouseover', function (e:Event) {
+        var el = e.target as Element;
         if (el && el.classList) {
-            var rowEl = el.parentNode;
+            var rowEl = el.parentNode as Element;
             // Cell
             if (el.classList.contains('marble__sample')) {
                 var selectColumnIndex = Array.from(rowEl.children).indexOf(el);
@@ -408,7 +452,7 @@ function showMarbles(div, samples$, options) {
         }
     });
     tableEl.addEventListener('mouseout', function (e) {
-        var el = e.target;
+        var el = e.target as Element;
         if (el && el.classList) {
             if (el.classList.contains('marble__sample')) {
                 cols.highlightColumn(-1);
@@ -418,9 +462,7 @@ function showMarbles(div, samples$, options) {
         }
     });
     return {
-        clear: function () {
-            clear();
-        }
+        clear: () => clear()      
     };
 }
 //# sourceMappingURL=Marbles.js.map

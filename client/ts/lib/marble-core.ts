@@ -1,15 +1,29 @@
+import { Observable, interval } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
-declare function showMarbles(div:Element, samples$:Observable, options?:any):any;
+import { 
+    SamplerLogger, 
+ } from './marble-handler';
 
-namespace rxmarbles {
+ import {
+     showMarbles
+ } from './marble-ui';
 
-export type ExampleCode = { code:string } & Example;
+export interface Example {
+    exec:( ( p?:(() => void)) => () => void );
+    name?:string;
+    group?:string;
+    autoPlay?:boolean;
+    infoHtml?:string;
+    onlyStop?:boolean;
+}
+
+export type ExampleCode = { code?:string } & Example;
 
 // Time of one step
 
 export class ExampleState {
     
-
     isPaused = false;
     private unsubscribe:() => void
 
@@ -85,35 +99,27 @@ export class RxMarbles {
      * @param stepInMs 
      */
     constructor( div:HTMLDivElement, public stepInMs:number ) {
-        // Sampler ticker
-        let ticker = Observable.interval(stepInMs).filter( () => !this.isPaused );
         // Sample items
-        this._logger = new SamplerLogger(ticker);
+        this._logger = new SamplerLogger();
         // Draw marble diagram
-        this._diagram   = showMarbles(div, this._logger.getSamples());
+        this._diagram   = showMarbles(div, this._logger.getSamples( () => !this.isPaused, 300 ));
 
-        Observable.logger = this._logger;
     }
 
     /**
      * 
      * @param example 
      */
-    startExample( example:ExampleCode ):ExampleState {
+    startExample( example:ExampleCode, done?:(()=>void) ):ExampleState {
 
         if( !example ) throw new Error( "example argument in null!");
 
         this._diagram.clear();
 
-        // Add to history
-        window.history.pushState(example.code, example.name, "#" + example.code);
-
         const state = new ExampleState( this, example, () => {
             // Complete stops before sample is completed
             setTimeout( () => {
-                let startEl = document.getElementById('example__start') as HTMLInputElement;;
-                startEl.checked = false;
-
+                if( done ) done();
                 state.stop();
             }, this.stepInMs + 50);
         });
@@ -134,4 +140,3 @@ export function create( element = "marble", stepInMs:number = 200 ):RxMarbles {
 
 
 
-}
