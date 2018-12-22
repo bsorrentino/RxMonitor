@@ -18,8 +18,8 @@ window.addEventListener('load',  () => {
         exec: () => {
             var i = 0;
 
-            //of( 'A', 'B', 'C', 'D', 'E', 'F' )
-            interval( 1000 )
+            of( 'A', 'B', 'C', 'D', 'E', 'F', 'G' )
+            //interval( 1000 )
             .pipe( tapx( 'interval(1000) ' , '$result') )
             .pipe( concatMap( e =>  of(e).pipe( delay(1000) , tapx( 'delay(1000) '+(++i) , '$result') ) ) )
             .pipe( tapx( '$result') )

@@ -6,7 +6,8 @@ import {
 } from 'rxjs';
 import { 
     Sample, 
-    SampleItemType
+    SampleItemType,
+    eventTime
  } from './marble-handler';
 
 
@@ -18,15 +19,13 @@ export function tapx<T>( id:string, parentId?:string ):MonoTypeOperatorFunction<
     })
 }
 
-let _time = () => (performance) ? performance.now() : Date.now() ;
-
 
 
 function _observe<T>( observer:Observer<T> , id:string, parentId?:string ):PartialObserver<T> 
 {
     const event:Sample = {
         type: SampleItemType.Start,
-        time: _time(),
+        time: eventTime(),
         id:id,
         parentId:parentId,
         name:id,
@@ -39,7 +38,7 @@ function _observe<T>( observer:Observer<T> , id:string, parentId?:string ):Parti
         next: (v:any) => {
             const event:Sample = {
                 type: SampleItemType.Value,
-                time: _time(),
+                time: eventTime(),
                 id:id,
                 parentId:parentId,
                 name:id,
@@ -52,7 +51,7 @@ function _observe<T>( observer:Observer<T> , id:string, parentId?:string ):Parti
             console.log( id, parentId, name, err );
             const event:Sample = {
                 type: SampleItemType.Error,
-                time: _time(),
+                time: eventTime(),
                 id:id,
                 parentId:parentId,
                 name:id,
@@ -64,7 +63,7 @@ function _observe<T>( observer:Observer<T> , id:string, parentId?:string ):Parti
         complete: () => {
             const event:Sample = {
                 type: SampleItemType.Complete,
-                time: _time(),
+                time: eventTime(),
                 id:id,
                 parentId:parentId,
                 name:id
