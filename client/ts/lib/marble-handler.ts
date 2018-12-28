@@ -1,5 +1,5 @@
 import { Observable, Subscriber, Subject } from 'rxjs';
-import { bufferTime, map, tap, filter } from 'rxjs/operators';
+import { bufferTime, map, tap, filter, takeUntil,takeWhile } from 'rxjs/operators';
 
 export type SampleInfo = { 
     type: SampleItemType;
@@ -32,6 +32,12 @@ export interface SampleError extends SampleBase {
 export interface Sample extends SampleInfo, Partial<SampleStart>, Partial<SampleValue>, Partial<SampleError> {
 }
 
+//let eventTime = () => (performance) ? performance.now() : Date.now() ;
+
+var _eventSeq = 0;
+
+export let eventTime = () => ++_eventSeq;
+
 export class SamplerLogger {
     samples = new Subject<Sample>();  
 
@@ -60,19 +66,19 @@ export class SamplerLogger {
     }
 
     onStart( p:SampleStart ) {
-        this.samples.next( Object.assign( { type:SampleItemType.Start, time:Date.now() }, p ));
+        this.samples.next( Object.assign( { type:SampleItemType.Start, time:eventTime() }, p ));
     }
     onStop( p:SampleStop ) {
-        this.samples.next( Object.assign( { type:SampleItemType.Stop, time:Date.now()}, p ));
+        this.samples.next( Object.assign( { type:SampleItemType.Stop, time:eventTime()}, p ));
     }
     onValue( p:SampleValue ) {
-        this.samples.next( Object.assign( { type:SampleItemType.Value, time:Date.now()}, p ));
+        this.samples.next( Object.assign( { type:SampleItemType.Value, time:eventTime()}, p ));
     }
     onError( p:SampleError ) {
-        this.samples.next( Object.assign( { type:SampleItemType.Error, time:Date.now()}, p ));
+        this.samples.next( Object.assign( { type:SampleItemType.Error, time:eventTime()}, p ));
     }
     onComplete( p:SampleComplete ) {
-        this.samples.next( Object.assign( { type:SampleItemType.Complete, time:Date.now()}, p ));
+        this.samples.next( Object.assign( { type:SampleItemType.Complete, time:eventTime()}, p ));
     }
     
 
@@ -85,11 +91,10 @@ export class SamplerLogger {
 
         }
 
-        let _log = tap( (v) => console.log( 'value', v), err => {}, () => console.log( 'complete'));
         return this.samples
+                .pipe( takeWhile( sample => sample.type!=SampleItemType.Complete || sample.parentId!=undefined) )
                 .pipe( filter( sampleFilter)  )
                 .pipe( bufferTime( tickTime ), map( s => s.sort( sort ) ))
-                //.pipe( _log )
                 ;
     }
     

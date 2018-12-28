@@ -102,7 +102,7 @@ export class RxMarbles {
         // Sample items
         this._logger = new SamplerLogger();
         // Draw marble diagram
-        this._diagram   = showMarbles(div, this._logger.getSamples( () => !this.isPaused, 300 ));
+        this._diagram   = showMarbles(div, this._logger.getSamples( () => !this.isPaused, 500 ));
 
     }
 
