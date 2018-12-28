@@ -98,11 +98,11 @@ export class RxMarbles {
      * @param div 
      * @param stepInMs 
      */
-    constructor( div:HTMLDivElement, public stepInMs:number ) {
+    constructor( public stepInMs:number, div:HTMLDivElement ) {
         // Sample items
         this._logger = new SamplerLogger();
         // Draw marble diagram
-        this._diagram   = showMarbles(div, this._logger.getSamples( () => !this.isPaused, 500 ));
+        this._diagram   = showMarbles(div, this._logger.getSamples( () => !this.isPaused, stepInMs ));
 
     }
 
@@ -134,8 +134,8 @@ export class RxMarbles {
  * @param element 
  * @param stepInMs 
  */
-export function create( element = "marble", stepInMs:number = 200 ):RxMarbles {
-    return new RxMarbles( document.getElementById(element) as HTMLDivElement, stepInMs );
+export function create( stepInMs:number = 200, element = "marble" ):RxMarbles {
+    return new RxMarbles( stepInMs, document.getElementById(element) as HTMLDivElement );
 }
 
 
