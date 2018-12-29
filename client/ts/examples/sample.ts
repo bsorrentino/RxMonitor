@@ -5,7 +5,7 @@ import {
 } from 'rxjs/operators';
 
 import * as rxmarbles from '../lib/marble-core';
-import { tapx } from '../lib/marble-rxjs';
+import { tapx } from '../sdk/marble-rxjs';
 
 var currentExample:rxmarbles.ExampleState;
 

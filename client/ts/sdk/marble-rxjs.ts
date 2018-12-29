@@ -2,7 +2,8 @@ import {
     Observable, 
     MonoTypeOperatorFunction
 } from 'rxjs';
-import { observeAndNotify } from './marble-handler';
+
+import { observeAndNotify } from '../lib/marble-handler';
 
 
 export function tapx<T>( id:string, parentId?:string ):MonoTypeOperatorFunction<T> {
