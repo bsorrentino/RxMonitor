@@ -1,78 +1,20 @@
 import {  
     Observable, 
-    PartialObserver, 
-    MonoTypeOperatorFunction, 
-    Observer 
+    MonoTypeOperatorFunction
 } from 'rxjs';
-import { 
-    Sample, 
-    SampleItemType,
-    eventTime
- } from './marble-handler';
+import { observeAndNotify } from './marble-handler';
 
 
 export function tapx<T>( id:string, parentId?:string ):MonoTypeOperatorFunction<T> {
 
     return (source:Observable<T>) => new Observable<T>( observer =>  {
 
-        return source.subscribe(_observe( observer, id, parentId ) );
+        return source.subscribe(observeAndNotify( observer, id, parentId ) );
     })
 }
 
 
 
-function _observe<T>( observer:Observer<T> , id:string, parentId?:string ):PartialObserver<T> 
-{
-    const event:Sample = {
-        type: SampleItemType.Start,
-        time: eventTime(),
-        id:id,
-        parentId:parentId,
-        name:id,
-        createdByValue: true,
-        isIntermediate:false
-    };
-    window.dispatchEvent( new CustomEvent('rxmarbles.event', { detail: event } ));
-
-    return {
-        next: (v:any) => {
-            const event:Sample = {
-                type: SampleItemType.Value,
-                time: eventTime(),
-                id:id,
-                parentId:parentId,
-                name:id,
-                value: v
-            };
-            window.dispatchEvent( new CustomEvent('rxmarbles.event', { detail: event } ));
-            observer.next(v);
-        },
-        error: (err:any) => {
-            console.log( id, parentId, name, err );
-            const event:Sample = {
-                type: SampleItemType.Error,
-                time: eventTime(),
-                id:id,
-                parentId:parentId,
-                name:id,
-                err:err
-            };
-            window.dispatchEvent( new CustomEvent('rxmarbles.event', { detail: event } ));
-            observer.error(err);
-        },
-        complete: () => {
-            const event:Sample = {
-                type: SampleItemType.Complete,
-                time: eventTime(),
-                id:id,
-                parentId:parentId,
-                name:id
-            };
-            window.dispatchEvent( new CustomEvent('rxmarbles.event', { detail: event } ));
-            observer.complete();
-        }
-    }
-};
 
 
 /// JS PROXY 
