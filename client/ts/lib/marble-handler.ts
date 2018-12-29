@@ -32,6 +32,9 @@ export interface SampleError extends SampleBase {
 export interface Sample extends SampleInfo, Partial<SampleStart>, Partial<SampleValue>, Partial<SampleError> {
 }
 
+const noneFilledShapes  = ['□', '△', '○', '▷', '☆'];
+const filledShapes      = ['■', '▲', '●', '▶', '★'];
+
 //let eventTime = () => (performance) ? performance.now() : Date.now() ;
 
 var _eventSeq = 0;
@@ -64,23 +67,6 @@ export class SamplerLogger {
             this.samples.next( event.detail );
         });
     }
-
-    onStart( p:SampleStart ) {
-        this.samples.next( Object.assign( { type:SampleItemType.Start, time:eventTime() }, p ));
-    }
-    onStop( p:SampleStop ) {
-        this.samples.next( Object.assign( { type:SampleItemType.Stop, time:eventTime()}, p ));
-    }
-    onValue( p:SampleValue ) {
-        this.samples.next( Object.assign( { type:SampleItemType.Value, time:eventTime()}, p ));
-    }
-    onError( p:SampleError ) {
-        this.samples.next( Object.assign( { type:SampleItemType.Error, time:eventTime()}, p ));
-    }
-    onComplete( p:SampleComplete ) {
-        this.samples.next( Object.assign( { type:SampleItemType.Complete, time:eventTime()}, p ));
-    }
-    
 
     getSamples( sampleFilter:( (s:Sample) => boolean), tickTime:number = 1000 ):Observable<Sample[]> {
 
