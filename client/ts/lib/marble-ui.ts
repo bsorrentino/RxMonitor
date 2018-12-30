@@ -11,6 +11,28 @@ export type MarblesOptions = {
     maxNbrOfSamples:number;
 }
 
+// @see https://dev.to/aspittel/building-web-components-with-vanilla-javascript--jho
+class RXMarble extends HTMLElement {
+
+    connectedCallback () {
+
+        this.render();
+    }
+
+    private render() {
+
+    }
+}
+
+try {
+    customElements.define('rxmarble-diagram', RXMarble);
+
+} catch (err) {
+const h3 = document.createElement('h3')
+h3.innerHTML = "This site uses webcomponents which don't work in all browsers! Try this site in a browser that supports them!"
+document.body.appendChild(h3)
+}
+
 /**
  * 
  * @param div 
