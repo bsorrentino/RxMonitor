@@ -5,20 +5,20 @@ import {
 } from 'rxjs/operators';
 
 import * as rxmarbles from '../lib/marble-core';
-import { tapx } from '../sdk/marble-rxjs';
+import { watch } from '../sdk/marble-rxjs';
 
 var currentExample:rxmarbles.ExampleState;
 
 let combineLatest$ = () => {
     //timerOne emits first value at 1s, then once every 4s
-const timerOne = timer(1000, 4000).pipe( tapx('timerOne', 'combineLatest'));
+const timerOne = timer(1000, 4000).pipe( watch('timerOne', 'combineLatest'));
 //timerTwo emits first value at 2s, then once every 4s
-const timerTwo = timer(2000, 4000).pipe( tapx('timerTwo', 'combineLatest'));
+const timerTwo = timer(2000, 4000).pipe( watch('timerTwo', 'combineLatest'));
 //timerThree emits first value at 3s, then once every 4s
-const timerThree = timer(3000, 4000).pipe( take(2), tapx('timerThree', 'combineLatest'));
+const timerThree = timer(3000, 4000).pipe( take(2), watch('timerThree', 'combineLatest'));
 
 //when one timer emits, emit the latest values from each timer as an array
-const combined = combineLatest(timerOne, timerTwo, timerThree).pipe( take(8), tapx('combineLatest'));
+const combined = combineLatest(timerOne, timerTwo, timerThree).pipe( take(8), watch('combineLatest'));
 
 const subscribe = combined.subscribe(
   ([timerValOne, timerValTwo, timerValThree]) => {
@@ -44,8 +44,8 @@ let combineAll$ = () => {
 const source = interval(1000).pipe(take(2));
 //map each emitted value from source to interval observable that takes 5 values
 const example = source.pipe(
-  tapx( 'source' , 'combineAll'),
-  map(val => interval(1000).pipe(map(i => `${val},${i}`), take(5), tapx( 'example' , 'source')))
+  watch( 'source' , 'combineAll'),
+  map(val => interval(1000).pipe(map(i => `${val},${i}`), take(5), watch( 'example' , 'source')))
   
 );
 /*
@@ -53,7 +53,7 @@ const example = source.pipe(
   combineAll uses combineLatest strategy, emitting the last value from each
   whenever either observable emits a value
 */
-const combined = example.pipe(combineAll(), tapx( 'combineAll' ));
+const combined = example.pipe(combineAll(), watch( 'combineAll' ));
 
 const subscribe = combined.subscribe(val => console.log(val));
 
@@ -62,9 +62,9 @@ const subscribe = combined.subscribe(val => console.log(val));
 let sample1$ = () => {
 
     //of( 'A', 'B', 'C', 'D', 'E', 'F' )
-    interval( 1000 ).pipe(take(20), tapx( 'interval()' , '$result') )
-    .pipe( concatMap( e =>  of(e).pipe( delay(1000) , tapx( 'delay()' , '$result') ) ) )
-    .pipe( tapx( '$result') )
+    interval( 1000 ).pipe(take(20), watch( 'interval()' , '$result') )
+    .pipe( concatMap( e =>  of(e).pipe( delay(1000) , watch( 'delay()' , '$result') ) ) )
+    .pipe( watch( '$result') )
     .subscribe( 
         val => console.log(val), 
         err => {},
@@ -77,10 +77,8 @@ let sample1$ = () => {
  * 
  */
 window.addEventListener('load',  () => { 
-    let marbles = rxmarbles.create( 350 );
-
-    let producerId = '1';
-    let name = "test";
+  
+    let marbles = rxmarbles.create( 'diagram1' );
 
     let shapes$:rxmarbles.ExampleCode = {
         autoPlay: true,
@@ -91,7 +89,6 @@ window.addEventListener('load',  () => {
 
     };
  
-
     currentExample = marbles.startExample( shapes$ );
-
+    
 });

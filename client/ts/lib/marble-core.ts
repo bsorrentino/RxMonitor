@@ -1,13 +1,9 @@
 import { Observable, interval } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
-import { 
-    SamplerLogger, 
- } from './marble-handler';
+import { SamplerLogger } from './marble-handler';
 
- import {
-     showMarbles
- } from './marble-ui';
+ import { RXMarbleDiagramElement} from  './marble-element';
 
 export interface Example {
     exec:( ( p?:(() => void)) => () => void );
@@ -83,6 +79,8 @@ export type Diagram = any;
 export class RxMarbles {
     private _logger: SamplerLogger;
     private _diagram: Diagram;
+    private stepInMs:number;
+    
     isPaused = false;
 
     get logger() {
@@ -98,12 +96,13 @@ export class RxMarbles {
      * @param div 
      * @param stepInMs 
      */
-    constructor( public stepInMs:number, div:HTMLDivElement ) {
+    constructor( diagram:RXMarbleDiagramElement ) {
         // Sample items
         this._logger = new SamplerLogger();
         // Draw marble diagram
-        this._diagram   = showMarbles(div, this._logger.getSamples( () => !this.isPaused, stepInMs ));
+        this._diagram   = diagram.render( this._logger.getSamples( () => !this.isPaused ));
 
+        this.stepInMs = diagram.maxNbrOfSamples;
     }
 
     /**
@@ -134,8 +133,8 @@ export class RxMarbles {
  * @param element 
  * @param stepInMs 
  */
-export function create( stepInMs:number = 200, element = "marble" ):RxMarbles {
-    return new RxMarbles( stepInMs, document.getElementById(element) as HTMLDivElement );
+export function create( elementId:string ):RxMarbles {
+    return new RxMarbles( document.getElementById(elementId) as RXMarbleDiagramElement );
 }
 
 
