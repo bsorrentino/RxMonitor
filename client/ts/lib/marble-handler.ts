@@ -1,5 +1,5 @@
-import { Observable, Subscriber, Subject } from 'rxjs';
-import { bufferTime, map, tap, filter, takeUntil,takeWhile } from 'rxjs/operators';
+import { Observable, Subject, Observer, PartialObserver  } from 'rxjs';
+import { bufferTime, map, tap, filter, takeWhile } from 'rxjs/operators';
 
 export type SampleInfo = { 
     type: SampleItemType;
@@ -32,11 +32,91 @@ export interface SampleError extends SampleBase {
 export interface Sample extends SampleInfo, Partial<SampleStart>, Partial<SampleValue>, Partial<SampleError> {
 }
 
+const noneFilledShapes  = ['□', '△', '○', '▷', '☆'];
+const filledShapes      = ['■', '▲', '●', '▶', '★'];
+
 //let eventTime = () => (performance) ? performance.now() : Date.now() ;
+class StreamsInfo {
+    [ id:string ]:number;
+
+}
+
+let _ids:StreamsInfo = {}
 
 var _eventSeq = 0;
 
-export let eventTime = () => ++_eventSeq;
+//let eventTime = () => (performance) ? performance.now() : Date.now() ;
+
+let eventTime = () => ++_eventSeq;
+
+/**
+ * 
+ * @param observer 
+ * @param id 
+ * @param parentId 
+ */
+export function observeAndNotify<T>( observer:Observer<T> , id:string, parentId?:string ):PartialObserver<T> 
+{
+
+    const _id =  (() => {
+        if( _ids[id]===undefined ) {
+            _ids[id] = 0;
+            return id;
+        }
+        return id + String(++_ids[id]);
+    })();
+
+    const event:Sample = {
+        type: SampleItemType.Start,
+        time: eventTime(),
+        id:_id,
+        parentId:parentId,
+        name:_id,
+        createdByValue: true,
+        isIntermediate:false
+    };
+    window.dispatchEvent( new CustomEvent('rxmarbles.event', { detail: event } ));
+
+    return {
+        next: (v:any) => {
+            const event:Sample = {
+                type: SampleItemType.Value,
+                time: eventTime(),
+                id:_id,
+                parentId:parentId,
+                name:_id,
+                value: v
+            };
+            window.dispatchEvent( new CustomEvent('rxmarbles.event', { detail: event } ));
+            observer.next(v);
+        },
+        error: (err:any) => {
+            console.log( id, parentId, name, err );
+            const event:Sample = {
+                type: SampleItemType.Error,
+                time: eventTime(),
+                id:_id,
+                parentId:parentId,
+                name:_id,
+                err:err
+            };
+            window.dispatchEvent( new CustomEvent('rxmarbles.event', { detail: event } ));
+            observer.error(err);
+        },
+        complete: () => {
+            const event:Sample = {
+                type: SampleItemType.Complete,
+                time: eventTime(),
+                id:_id,
+                parentId:parentId,
+                name:_id
+            };
+            window.dispatchEvent( new CustomEvent('rxmarbles.event', { detail: event } ));
+            observer.complete();
+        }
+    }
+};
+
 
 export class SamplerLogger {
     samples = new Subject<Sample>();  
@@ -64,23 +144,6 @@ export class SamplerLogger {
             this.samples.next( event.detail );
         });
     }
-
-    onStart( p:SampleStart ) {
-        this.samples.next( Object.assign( { type:SampleItemType.Start, time:eventTime() }, p ));
-    }
-    onStop( p:SampleStop ) {
-        this.samples.next( Object.assign( { type:SampleItemType.Stop, time:eventTime()}, p ));
-    }
-    onValue( p:SampleValue ) {
-        this.samples.next( Object.assign( { type:SampleItemType.Value, time:eventTime()}, p ));
-    }
-    onError( p:SampleError ) {
-        this.samples.next( Object.assign( { type:SampleItemType.Error, time:eventTime()}, p ));
-    }
-    onComplete( p:SampleComplete ) {
-        this.samples.next( Object.assign( { type:SampleItemType.Complete, time:eventTime()}, p ));
-    }
-    
 
     getSamples( sampleFilter:( (s:Sample) => boolean), tickTime:number = 1000 ):Observable<Sample[]> {
 
