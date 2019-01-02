@@ -14,7 +14,8 @@ import {
 export class RXMarbleDiagramElement extends HTMLElement {
 
     
-    div:HTMLElement;
+    tableEl:HTMLTableElement;
+    nbrOfSamplesReceived = 0;
 
     get maxNbrOfSamples() {
         return Number(this.getAttribute("max-samples") || 50 );
@@ -31,9 +32,14 @@ export class RXMarbleDiagramElement extends HTMLElement {
 
         if( USE_SHADOW_DOM ) shadowRoot.appendChild( this.getStyle() );
 
-        this.div = document.createElement( 'div');
+        let createTable = () => {
+            const tableEl = document.createElement('table');
+            tableEl.classList.add('marble');
+            return tableEl;
+        }
 
-        shadowRoot.appendChild( this.div );
+        this.tableEl = createTable();
+        shadowRoot.appendChild( this.tableEl );
 
     }
 
@@ -99,34 +105,26 @@ export class RXMarbleDiagramElement extends HTMLElement {
 
     /**
      * 
+     */
+    public clear() {
+        while (this.tableEl.firstChild) {
+            this.tableEl.removeChild(this.tableEl.firstChild);
+        }
+        this.nbrOfSamplesReceived = 0;
+    }
+
+    /**
+     * 
      * @param samples$ 
      */
-    public render( samples$:Observable<Sample[]> ) {
+    public start( samples$:Observable<Sample[]> ) {
         
-        const div = this.div;
         const shadowRoot = (USE_SHADOW_DOM) ?  this.shadowRoot : document;
 
         const maxNbrOfSamples =  this.maxNbrOfSamples; 
 
-        var nbrOfSamplesReceived = 0;
-    
-        function createTable() {
-            var tableEl = document.createElement('table');
-            tableEl.classList.add('marble');
-            return tableEl;
-        }
-        ;
-        
-        // Used Table to make sure vertical alignment stays OK when using special UTF8 symbols
-        const tableEl = createTable();
-        div.appendChild(tableEl);
+        const tableEl = this.tableEl;
 
-        function clear() {
-            while (tableEl.firstChild) {
-                tableEl.removeChild(tableEl.firstChild);
-            }
-            nbrOfSamplesReceived = 0;
-        }
         // Group row related functons
         const rows = {
             generateRowId: (id:any) => 'marble__row-' + id,
@@ -160,7 +158,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
                 }
                 rowEl.appendChild(nbrOfValuesEl);
                 // Add Blanks to current location
-                for (var i = 0; i < Math.min(nbrOfSamplesReceived, maxNbrOfSamples); i++) {
+                for (var i = 0; i < Math.min(this.nbrOfSamplesReceived, maxNbrOfSamples); i++) {
                     let cellEl = createCell('');
                     // HightLight?
                     if (cols.selectedColumn >= 0 && i + 2 === cols.selectedColumn) {
@@ -457,18 +455,21 @@ export class RXMarbleDiagramElement extends HTMLElement {
                     rows.removeRow(rowEl);
             });
         }
+
+        this.clear();
+        
         samples$.subscribe( { 
             next: (sample:any) => {
-                nbrOfSamplesReceived++;
+                this.nbrOfSamplesReceived++;
                 addSample(sample);
             }
         });
     
         // Hover effect on column
         tableEl.addEventListener('mouseover',  (e:Event) => {
-            var el = e.target as Element;
+            let el = e.target as Element;
             if (el && el.classList) {
-                var rowEl = el.parentNode as Element;
+                let rowEl = el.parentNode as Element;
                 // Cell
                 if (el.classList.contains('marble__sample')) {
                     var selectColumnIndex = Array.from(rowEl.children).indexOf(el);
@@ -476,8 +477,8 @@ export class RXMarbleDiagramElement extends HTMLElement {
                         cols.highlightColumn(selectColumnIndex);
                     }
                 }
-                var id_1 = rowEl.getAttribute('data-id') || '';
-                var parentId = rowEl.getAttribute('data-parent-id') || '';
+                let id_1 = rowEl.getAttribute('data-id') || '';
+                let parentId = rowEl.getAttribute('data-parent-id') || '';
                 if (parentId) {
                     rows.highlightRows([id_1]);
                     rows.highlightParentRows([parentId]);
@@ -496,7 +497,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
             }
         });
         tableEl.addEventListener('mouseout',  (e) => {
-            var el = e.target as Element;
+            let el = e.target as Element;
             if (el && el.classList) {
                 if (el.classList.contains('marble__sample')) {
                     cols.highlightColumn(-1);
@@ -505,9 +506,6 @@ export class RXMarbleDiagramElement extends HTMLElement {
                 rows.highlightRows([]);
             }
         });
-        return {
-            clear: () => clear()      
-        };
     
     }
 }
