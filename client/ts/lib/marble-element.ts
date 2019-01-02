@@ -62,7 +62,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
         
         .marble__sample {
             padding: 0; 
-            text-align: center;
+            text-align: left;
             cursor: default;
             min-width: 1em;
         }
