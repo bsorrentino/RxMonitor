@@ -78,7 +78,7 @@ export type Diagram = any;
 
 export class RxMarbles {
     private _logger: SamplerLogger;
-    private _diagram: Diagram;
+    
     private stepInMs:number;
     
     isPaused = false;
@@ -96,13 +96,10 @@ export class RxMarbles {
      * @param div 
      * @param stepInMs 
      */
-    constructor( diagram:RXMarbleDiagramElement ) {
-        // Sample items
+    constructor( private _diagram:RXMarbleDiagramElement ) {
         this._logger = new SamplerLogger();
-        // Draw marble diagram
-        this._diagram   = diagram.render( this._logger.getSamples( () => !this.isPaused ));
 
-        this.stepInMs = diagram.maxNbrOfSamples;
+        this.stepInMs = _diagram.maxNbrOfSamples;
     }
 
     /**
@@ -113,7 +110,8 @@ export class RxMarbles {
 
         if( !example ) throw new Error( "example argument in null!");
 
-        this._diagram.clear();
+        // Draw marble diagram
+        this._diagram.start( this._logger.getSamples( () => !this.isPaused ));
 
         const state = new ExampleState( this, example, () => {
             // Complete stops before sample is completed
