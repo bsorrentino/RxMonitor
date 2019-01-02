@@ -97,6 +97,10 @@ export class RXMarbleDiagramElement extends HTMLElement {
      
     }
 
+    /**
+     * 
+     * @param samples$ 
+     */
     public render( samples$:Observable<Sample[]> ) {
         
         const div = this.div;

@@ -1,13 +1,16 @@
 
-import {interval, from, of, timer, combineLatest } from 'rxjs';
+import {interval, from, of, timer, combineLatest,forkJoin,  } from 'rxjs';
 import { 
-    concatMap, delay, tap, take, combineAll, map
+    concatMap, delay, tap, take, combineAll, map, mergeMap
 } from 'rxjs/operators';
 
 import * as rxmarbles from '../lib/marble-core';
 import { watch } from '../sdk/marble-rxjs';
 
-var currentExample:rxmarbles.ExampleState;
+function generateRandomNumber(min:number , max:number) {
+  let random_number = Math.random() * (max-min) + min;
+   return Math.floor(random_number);
+}
 
 let combineLatest$ = () => {
     //timerOne emits first value at 1s, then once every 4s
@@ -37,6 +40,29 @@ const subscribe = combined.subscribe(
 );
 
 }
+
+let forkJoin$ = () => {
+
+  const myPromise = (val:any) =>
+    from( 
+    new Promise(resolve => {
+  
+      let t = generateRandomNumber( 2500, 5000);
+      setTimeout(() => resolve(`res: ${val}`), t )
+
+    })).pipe( watch("promise", 'forkJoin'))
+
+
+    
+const source = of([1, 2, 3, 4, 5]).pipe( watch( 'of', 'forkJoin'));
+
+//emit array of all 5 results
+const example = source.pipe( mergeMap(q => forkJoin(...q.map(myPromise))), watch('forkJoin') );
+
+const subscribe = example.subscribe(val => console.log(val));
+
+}
+
 
 let combineAll$ = () => {
 
@@ -73,6 +99,8 @@ let sample1$ = () => {
    
 };
 
+var currentExample:rxmarbles.ExampleState;
+
 /**
  * 
  */
@@ -83,7 +111,8 @@ window.addEventListener('load',  () => {
     let shapes$:rxmarbles.ExampleCode = {
         autoPlay: true,
         exec: () =>  {
-            combineLatest$()  
+            //combineLatest$();  
+            forkJoin$();
             return () => {}
         }
 
