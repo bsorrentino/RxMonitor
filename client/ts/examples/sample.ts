@@ -12,13 +12,18 @@ function generateRandomNumber(min:number , max:number) {
    return Math.floor(random_number);
 }
 
+
 let combineLatest$ = () => {
-    //timerOne emits first value at 1s, then once every 4s
-const timerOne = timer(1000, 4000).pipe( watch('timerOne', 'combineLatest'));
+
+let watchChild = <T>( id:string ) => watch<T>(id, 'combineLatest');
+
+
+  //timerOne emits first value at 1s, then once every 4s
+const timerOne = timer(1000, 4000).pipe( watchChild('timerOne') );
 //timerTwo emits first value at 2s, then once every 4s
-const timerTwo = timer(2000, 4000).pipe( watch('timerTwo', 'combineLatest'));
+const timerTwo = timer(2000, 4000).pipe( watchChild('timerTwo') );
 //timerThree emits first value at 3s, then once every 4s
-const timerThree = timer(3000, 4000).pipe( take(2), watch('timerThree', 'combineLatest'));
+const timerThree = timer(3000, 4000).pipe( take(2), watchChild('timerThree'));
 
 //when one timer emits, emit the latest values from each timer as an array
 const combined = combineLatest(timerOne, timerTwo, timerThree).pipe( take(10), watch('combineLatest'));
@@ -43,6 +48,10 @@ return combined.subscribe(
 
 let forkJoin$ = () => {
 
+
+  let watchResult = <T>() => watch<T>('forkJoin');
+  let watchStream = <T>( id:string ) => watch<T>(id, 'forkJoin');
+
   const myPromise = (val:any) =>
     from( 
     new Promise(resolve => {
@@ -50,15 +59,15 @@ let forkJoin$ = () => {
       let t = generateRandomNumber( 5000, 10000);
       setTimeout(() => resolve(`res: ${val}`), t )
 
-    })).pipe( watch("promise", 'forkJoin'))
+    })).pipe( watchStream("promise"))
 
 
     
-const source = of([1, 2, 3, 4, 5, 6, 7, 8]).pipe( watch( 'of', 'forkJoin'));
+const source = of([1, 2, 3, 4, 5, 6, 7, 8]).pipe( watchStream( 'of' ));
 
 //emit array of all 5 results
 
-const example = source.pipe( mergeMap(q => forkJoin(...q.map(myPromise))), watch('forkJoin') );
+const example = source.pipe( mergeMap(q => forkJoin(...q.map(myPromise))), watchResult() );
 
 return example.subscribe(val => console.log(val));
 
@@ -110,11 +119,9 @@ window.addEventListener('load',  () => {
       () => combineAll$()
     ];
 
-    
-    
 
     document.addEventListener( "click", ()=> {
-      let currentExample = startExample( 'diagram1',  shapes$[1] );
+      let currentExample = startExample( 'diagram1',  shapes$[2] );
       currentExample.start();
     })
 });
