@@ -1,10 +1,10 @@
-import { Observable, interval } from 'rxjs';
+import { Observable, interval, Subscription } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
 import { RXMarbleDiagramElement} from  './marble-element';
 
 export interface Example {
-    exec:( ( p?:(() => void)) => () => void );
+    exec:( ( p?:(() => void)) => Subscription );
     name?:string;
     group?:string;
     autoPlay?:boolean;
@@ -19,7 +19,7 @@ export type ExampleCode = { code?:string } & Example;
 export class ExampleState {
     
     isPaused = false;
-    private unsubscribe:() => void
+    private unsubscribe:Subscription;
 
     get example() {
         return this._example;
@@ -28,16 +28,16 @@ export class ExampleState {
     constructor( private marbles:RxMarbles, private _example:ExampleCode, private done:()=>void) {
         if( !_example ) throw new Error( "example in null!");
 
-        marbles.isPaused = this.isPaused = !_example.autoPlay
+        marbles.diagram.pause = this.isPaused = !_example.autoPlay
 
     }
 
     get isStopped() {
-        return !this.unsubscribe;        
+        return !this.unsubscribe || this.unsubscribe.closed;        
     }
 
     start() {
-        this.marbles.isPaused = this.isPaused = false;
+        this.marbles.diagram.pause = this.isPaused = false;
         this.unsubscribe = this._example.exec( this.done );
         return this;        
     }
@@ -48,37 +48,30 @@ export class ExampleState {
     stop( ) {
         if( !this.isStopped ) {
 
-            if (this.unsubscribe) {
-                this.unsubscribe();
-                this.unsubscribe = undefined;
-            }
-            this.marbles.isPaused = this.isPaused = true;    
+            this.unsubscribe.unsubscribe();
+            this.marbles.diagram.pause = this.isPaused = true;    
             console.log( "stop", this._example.name );
         }
         return this;
     }
 
     pause() {
-        this.marbles.isPaused = this.isPaused = true;
+        this.marbles.diagram.pause = this.isPaused = true;
         return this;
     }
 
     resume() {
         if (this.isStopped) return this.start();
 
-        this.marbles.isPaused = this.isPaused = false;
+        this.marbles.diagram.pause = this.isPaused = false;
         return this;
     }
 
 }
 
-export type Diagram = any;
-
 export class RxMarbles {
     
     private stepInMs:number;
-    
-    isPaused = false;
 
     get diagram() {
         return this._diagram;
@@ -103,7 +96,7 @@ export class RxMarbles {
         if( !example ) throw new Error( "example argument in null!");
 
         // Draw marble diagram
-        this._diagram.start( () => !this.isPaused );
+        this._diagram.start();
 
         const state = new ExampleState( this, example, () => {
             // Complete stops before sample is completed

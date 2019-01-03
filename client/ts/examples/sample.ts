@@ -23,7 +23,7 @@ const timerThree = timer(3000, 4000).pipe( take(2), watch('timerThree', 'combine
 //when one timer emits, emit the latest values from each timer as an array
 const combined = combineLatest(timerOne, timerTwo, timerThree).pipe( take(10), watch('combineLatest'));
 
-const subscribe = combined.subscribe(
+return combined.subscribe(
   ([timerValOne, timerValTwo, timerValThree]) => {
     /*
       Example:
@@ -60,7 +60,7 @@ const source = of([1, 2, 3, 4, 5, 6, 7, 8]).pipe( watch( 'of', 'forkJoin'));
 
 const example = source.pipe( mergeMap(q => forkJoin(...q.map(myPromise))), watch('forkJoin') );
 
-const subscribe = example.subscribe(val => console.log(val));
+return example.subscribe(val => console.log(val));
 
 }
 
@@ -82,12 +82,13 @@ const example = source.pipe(
 */
 const combined = example.pipe(combineAll(), watch( 'combineAll' ));
 
-const subscribe = combined.subscribe(val => console.log(val));
+return combined.subscribe(val => console.log(val));
 
 }
 
 let sample1$ = () => {
 
+    return 
     //of( 'A', 'B', 'C', 'D', 'E', 'F' )
     interval( 1000 ).pipe(take(20), watch( 'interval()' , '$result') )
     .pipe( concatMap( e =>  of(e).pipe( delay(1000) , watch( 'delay()' , '$result') ) ) )
@@ -111,14 +112,10 @@ window.addEventListener('load',  () => {
 
     let shapes$:rxmarbles.ExampleCode = {
         autoPlay: true,
-        exec: () =>  {
-            combineLatest$();  
-            //forkJoin$();
-            return () => {}
-        }
+        exec: () => combineLatest$()  
+        //exec: () => forkJoin$()
+    }
 
-    };
- 
     currentExample = marbles.startExample( shapes$ );
     
 });

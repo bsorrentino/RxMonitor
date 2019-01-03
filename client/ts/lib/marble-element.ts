@@ -39,7 +39,6 @@ interface Sample extends SampleInfo, Partial<SampleStart>, Partial<SampleValue>,
 const noneFilledShapes  = ['□', '△', '○', '▷', '☆'];
 const filledShapes      = ['■', '▲', '●', '▶', '★'];
 
-const USE_SHADOW_DOM = true;
 
 function isStart( info:SampleInfo  ) {
     return info && info.type === SampleItemType.Start;
@@ -57,6 +56,9 @@ function isStop(info:SampleInfo ) {
     return info && info.type === SampleItemType.Stop;
 };   
 
+const USE_SHADOW_DOM = true;
+const PAUSE_ATTR = 'pause';
+
 // @see
 // https://dev.to/aspittel/building-web-components-with-vanilla-javascript--jho
 // https://www.codementor.io/ayushgupta/vanilla-js-web-components-chguq8goz
@@ -68,7 +70,17 @@ export class RXMarbleDiagramElement extends HTMLElement {
     private nbrOfSamplesReceived = 0;
 
     get maxNbrOfSamples() {
-        return Number(this.getAttribute("max-samples") || 50 );
+        return Number(this.getAttribute('max-samples') || 50 );
+    }
+
+    get pause() {
+        //console.log( "get pause", this.getAttribute(PAUSE_ATTR) );
+        return this.getAttribute(PAUSE_ATTR)==='true';
+    }
+
+    set pause( v:boolean ) {
+       //console.log( "set pause", String(v) );
+       this.setAttribute(PAUSE_ATTR, String(v) );
     }
 
     constructor() {
@@ -94,9 +106,17 @@ export class RXMarbleDiagramElement extends HTMLElement {
         window.addEventListener( 'rxmarbles.event', (event:any) => {
             this.samples.next( event.detail );
         });
-
-
     }
+
+    attributesChangedCallback(attribute:string, oldval:any, newval:any) {
+
+        if( attribute === PAUSE_ATTR ) {
+            console.log( "update pause", oldval, newval );
+        }
+    }
+    
+    static get observedAttributes() { return [PAUSE_ATTR]; }
+
 
     private getStyle() {
         const styleTag = document.createElement('style')
@@ -173,7 +193,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
      * @param sampleFilter 
      * @param tickTime 
      */
-    private getSamples( sampleFilter:( (s:Sample) => boolean), tickTime:number = 1000 ):Observable<Sample[]> {
+    private getSamples( tickTime:number = 1000 ):Observable<Sample[]> {
 
         let sort = (a:SampleInfo,b:SampleInfo) => {
             let timeDiff = b.time - a.time ;
@@ -183,8 +203,8 @@ export class RXMarbleDiagramElement extends HTMLElement {
         }
 
         return this.samples
-                .pipe( takeWhile( sample => sample.type!=SampleItemType.Complete || sample.parentId!=undefined) )
-                .pipe( filter( sampleFilter)  )
+                .pipe( takeWhile( sample => sample.type!=SampleItemType.Complete || sample.parentId!=undefined ) )
+                .pipe( tap( sample => console.log( "filter", this.pause  )), filter( sample => this.pause===false ) )
                 .pipe( bufferTime( tickTime ), map( s => s.sort( sort ) ))
                 ;
     }
@@ -193,7 +213,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
      * 
      * @param samples$ 
      */
-    public start( sampleFilter:( (s:Sample) => boolean), tickTime:number = 1000 ) {
+    public start(  tickTime:number = 1000 ) {
         
         const shadowRoot = (USE_SHADOW_DOM) ?  this.shadowRoot : document;
 
@@ -534,7 +554,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
 
         this.clear();
         
-        this.getSamples( sampleFilter, tickTime )
+        this.getSamples( tickTime )
                 .subscribe( { 
                     next: (sample:any) => {
                         this.nbrOfSamplesReceived++;

@@ -1,44 +1,61 @@
-/** Simple Quick & Dirty marble visualizer, POJS no framework */
-declare type SampleInfo = {
-    type: SampleItemType;
-    time: number;
-};
 declare const enum SampleItemType {
-    Start = 0,
-    Value = 1,
-    Error = 2,
-    Complete = 3,
-    Stop = 4
+    Start, Value, Error, Complete, Stop
 }
-interface SampleBase {
-    id: string;
-    parentId?: string;
-    name: string;
+
+declare type SampleInfo = { 
+    type: SampleItemType;
+    time:number;
 }
-interface SampleStart extends SampleBase {
-    createdByValue: boolean;
-    isIntermediate: boolean;
+
+declare interface SampleBase {
+    id: string,
+    parentId?: string,
+    name: string,
+}
+declare interface SampleStart extends SampleBase {
+    createdByValue: boolean,
+    isIntermediate: boolean,
+
 }
 declare type SampleStop = SampleBase;
-declare type SampleComplete = SampleBase;
-interface SampleValue extends SampleBase {
-    value: any;
-}
-interface SampleError extends SampleBase {
-    err: any;
-}
-interface Sample extends SampleInfo, Partial<SampleStart>, Partial<SampleValue>, Partial<SampleError> {
-}
-declare class RXMarbleDiagramElement extends HTMLElement {
-    readonly maxNbrOfSamples: number;
 
+declare type SampleComplete = SampleBase;
+
+declare interface SampleValue extends SampleBase {
+    value:any
+}
+declare interface SampleError extends SampleBase {
+    err:any
+}
+
+declare interface Sample extends SampleInfo, Partial<SampleStart>, Partial<SampleValue>, Partial<SampleError> {
+}
+
+/** Simple Quick & Dirty marble visualizer, POJS no framework */
+declare class RXMarbleDiagramElement extends HTMLElement {
+    private samples;
+    private tableEl;
+    private nbrOfSamplesReceived;
+    readonly maxNbrOfSamples: number;
+    pause: boolean;
+    constructor();
+    connectedCallback(): void;
+    attributesChangedCallback(attribute: string, oldval: any, newval: any): void;
+    static readonly observedAttributes: string[];
+    private getStyle;
     /**
      *
      */
     clear(): void;
     /**
      *
+     * @param sampleFilter
+     * @param tickTime
+     */
+    private getSamples;
+    /**
+     *
      * @param samples$
      */
-    start(sampleFilter: ((s: Sample) => boolean), tickTime?: number): void;
+    start(tickTime?: number): void;
 }
