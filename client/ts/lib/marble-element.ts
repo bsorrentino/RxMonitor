@@ -1,24 +1,99 @@
 /** Simple Quick & Dirty marble visualizer, POJS no framework */
 
-import { Observable } from 'rxjs';
-import { 
-    Sample, 
-    SampleInfo,
-    SamplerLogger
- } from './marble-handler';
+import { Observable, Subject } from 'rxjs';
+import { bufferTime, map, tap, filter, takeWhile } from 'rxjs/operators';
 
- const USE_SHADOW_DOM = true;
+const enum SampleItemType {
+    Start, Value, Error, Complete, Stop
+}
+
+type SampleInfo = { 
+    type: SampleItemType;
+    time:number;
+}
+
+interface SampleBase {
+    id: string,
+    parentId?: string,
+    name: string,
+}
+interface SampleStart extends SampleBase {
+    createdByValue: boolean,
+    isIntermediate: boolean,
+
+}
+type SampleStop = SampleBase;
+
+type SampleComplete = SampleBase;
+
+interface SampleValue extends SampleBase {
+    value:any
+}
+interface SampleError extends SampleBase {
+    err:any
+}
+
+interface Sample extends SampleInfo, Partial<SampleStart>, Partial<SampleValue>, Partial<SampleError> {
+}
+
+const noneFilledShapes  = ['□', '△', '○', '▷', '☆'];
+const filledShapes      = ['■', '▲', '●', '▶', '★'];
+
+
+function isStart( info:SampleInfo  ) {
+    return info && info.type === SampleItemType.Start;
+}
+function isValue(info:SampleInfo ) {
+    return info && info.type === SampleItemType.Value;
+};
+function isError(info:SampleInfo ) {
+    return info && info.type === SampleItemType.Error;
+};
+function isComplete(info:SampleInfo) {
+    return info && info.type === SampleItemType.Complete;
+};
+function isStop(info:SampleInfo ) {
+    return info && info.type === SampleItemType.Stop;
+};   
+
+const USE_SHADOW_DOM    = true;
+const MAX_SAMPLES       = 'max-samples';
+const PAUSE_ATTR        = 'pause';
+const TICKTIME_ATTR     = 'tick-time';
+
 // @see
 // https://dev.to/aspittel/building-web-components-with-vanilla-javascript--jho
 // https://www.codementor.io/ayushgupta/vanilla-js-web-components-chguq8goz
 export class RXMarbleDiagramElement extends HTMLElement {
 
-    
-    div:HTMLElement;
+    private samples = new Subject<Sample>();  
+
+    private tableEl:HTMLTableElement;
+    private nbrOfSamplesReceived = 0;
 
     get maxNbrOfSamples() {
-        return Number(this.getAttribute("max-samples") || 50 );
+        return Number(this.getAttribute(MAX_SAMPLES) || 50 );
     }
+    
+    get tickTime() {
+        return Number(this.getAttribute(TICKTIME_ATTR) || 1000);
+    }
+
+    set tickTime( v:number ) {
+       this.setAttribute(TICKTIME_ATTR, String(v) );
+    }
+
+    get pause() {
+        //console.log( "get pause", this.getAttribute(PAUSE_ATTR) );
+        return this.getAttribute(PAUSE_ATTR)==='true';
+    }
+
+    set pause( v:boolean ) {
+       //console.log( "set pause", String(v) );
+       this.setAttribute(PAUSE_ATTR, String(v) );
+    }
+    
+    static get observedAttributes() { return [PAUSE_ATTR, TICKTIME_ATTR]; }
 
     constructor() {
         super();
@@ -31,11 +106,25 @@ export class RXMarbleDiagramElement extends HTMLElement {
 
         if( USE_SHADOW_DOM ) shadowRoot.appendChild( this.getStyle() );
 
-        this.div = document.createElement( 'div');
+        let createTable = () => {
+            const tableEl = document.createElement('table');
+            tableEl.classList.add('marble');
+            return tableEl;
+        }
 
-        shadowRoot.appendChild( this.div );
+        this.tableEl = createTable();
+        shadowRoot.appendChild( this.tableEl );
 
+        window.addEventListener( 'rxmarbles.event', (event:any) => {
+            this.samples.next( event.detail );
+        });
     }
+
+    attributesChangedCallback(attribute:string, oldval:any, newval:any) {
+
+        console.log( "update ${attribute}", oldval, newval );
+    }
+
 
     private getStyle() {
         const styleTag = document.createElement('style')
@@ -43,7 +132,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
         `
         .marble {
             font-family: monospace;
-            font-size: 18px;
+            font-size: 15px;
             border-collapse: collapse;
             border-spacing: 0;
             margin: 1em 0 0 1em;
@@ -62,7 +151,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
         
         .marble__sample {
             padding: 0; 
-            text-align: center;
+            text-align: left;
             cursor: default;
             min-width: 1em;
         }
@@ -97,32 +186,49 @@ export class RXMarbleDiagramElement extends HTMLElement {
      
     }
 
-    public render( samples$:Observable<Sample[]> ) {
+    /**
+     * 
+     */
+    public clear() {
+        while (this.tableEl.firstChild) {
+            this.tableEl.removeChild(this.tableEl.firstChild);
+        }
+        this.nbrOfSamplesReceived = 0;
+    }
+
+    /**
+     * 
+     * @param sampleFilter 
+     * @param tickTime 
+     */
+    private getSamples():Observable<Sample[]> {
+
+        let sort = (a:SampleInfo,b:SampleInfo) => {
+            let timeDiff = b.time - a.time ;
+            if( timeDiff !== 0 ) return timeDiff;
+            return b.type - a.type; 
+
+        }
+
+        return this.samples
+                .pipe( takeWhile( sample => sample.type!=SampleItemType.Complete || sample.parentId!=undefined ) )
+                .pipe( filter( sample => this.pause===false ) )
+                .pipe( bufferTime( this.tickTime ), map( s => s.sort( sort ) ))
+                ;
+    }
+
+    /**
+     * 
+     * @param tickTime 
+     */
+    public start() {
         
-        const div = this.div;
         const shadowRoot = (USE_SHADOW_DOM) ?  this.shadowRoot : document;
 
         const maxNbrOfSamples =  this.maxNbrOfSamples; 
 
-        var nbrOfSamplesReceived = 0;
-    
-        function createTable() {
-            var tableEl = document.createElement('table');
-            tableEl.classList.add('marble');
-            return tableEl;
-        }
-        ;
-        
-        // Used Table to make sure vertical alignment stays OK when using special UTF8 symbols
-        const tableEl = createTable();
-        div.appendChild(tableEl);
+        const tableEl = this.tableEl;
 
-        function clear() {
-            while (tableEl.firstChild) {
-                tableEl.removeChild(tableEl.firstChild);
-            }
-            nbrOfSamplesReceived = 0;
-        }
         // Group row related functons
         const rows = {
             generateRowId: (id:any) => 'marble__row-' + id,
@@ -156,7 +262,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
                 }
                 rowEl.appendChild(nbrOfValuesEl);
                 // Add Blanks to current location
-                for (var i = 0; i < Math.min(nbrOfSamplesReceived, maxNbrOfSamples); i++) {
+                for (var i = 0; i < Math.min(this.nbrOfSamplesReceived, maxNbrOfSamples); i++) {
                     let cellEl = createCell('');
                     // HightLight?
                     if (cols.selectedColumn >= 0 && i + 2 === cols.selectedColumn) {
@@ -319,15 +425,15 @@ export class RXMarbleDiagramElement extends HTMLElement {
             return sampleEl;
         }
         function sampleItemToTooltip(info:Sample) {
-            if (SamplerLogger.isValue(info))
+            if (isValue(info))
                 return "Value: " + toText(info.value);
-            if (SamplerLogger.isError(info))
+            if (isError(info))
                 return "Error: " + toText(info.err);
-            if (SamplerLogger.isStart(info))
+            if (isStart(info))
                 return ''; // `Subscribed`; // Disabled for easier colored line
-            if (SamplerLogger.isComplete(info))
+            if (isComplete(info))
                 return "Completed";
-            if (SamplerLogger.isStop(info))
+            if (isStop(info))
                 return "Unsubscribe";
             console.error('Unknown Sample Object', info);
             return '';
@@ -358,15 +464,15 @@ export class RXMarbleDiagramElement extends HTMLElement {
     
                 function _getText( info:Sample ) {
                     
-                    if (SamplerLogger.isValue(info))
+                    if (isValue(info))
                         return getValue(info.value);
-                    if (SamplerLogger.isStart(info))
+                    if (isStart(info))
                         return info.createdByValue ? '╰──────' : '───────'; // Multiple lines added for wide columns and clipped with CSS
-                    if (SamplerLogger.isError(info))
+                    if (isError(info))
                         return '✖';
-                    if (SamplerLogger.isComplete(info))
+                    if (isComplete(info))
                         return '┤';
-                    if (SamplerLogger.isStop(info))
+                    if (isStop(info))
                         return '╴';
                     console.error('Unknown Sample Object', info);
                     return '?';
@@ -390,10 +496,10 @@ export class RXMarbleDiagramElement extends HTMLElement {
                     rowEl.appendChild(sampleEl);
                     // Update Counters
                     if (!rowEl.getAttribute('data-parent-id')) {
-                        updateNbrOfValues(rowEl, sampleItems.filter( (info:SampleInfo) => SamplerLogger.isValue(info)).length);
+                        updateNbrOfValues(rowEl, sampleItems.filter( (info:SampleInfo) => isValue(info)).length);
                     }
                     // End Row
-                    var shouldEndRow = sampleItems.some( (info:SampleInfo) => SamplerLogger.isStop(info) || SamplerLogger.isComplete(info) || SamplerLogger.isError(info) );
+                    var shouldEndRow = sampleItems.some( (info:SampleInfo) => isStop(info) || isComplete(info) || isError(info) );
                     if (shouldEndRow)
                         rows.setRowEnded(rowEl, true);
                 }
@@ -432,7 +538,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
             sample
                 .reverse() // So first parents are created
                 .forEach((sampleItem) => {
-                    if (SamplerLogger.isStart(sampleItem)) {
+                    if (isStart(sampleItem)) {
                         // Add
                         if (!rows.getRow(sampleItem.id)) {
                             rows.createAndInsertRow(sampleItem);
@@ -453,18 +559,22 @@ export class RXMarbleDiagramElement extends HTMLElement {
                     rows.removeRow(rowEl);
             });
         }
-        samples$.subscribe( { 
-            next: (sample:any) => {
-                nbrOfSamplesReceived++;
-                addSample(sample);
-            }
-        });
+
+        this.clear();
+        
+        this.getSamples()
+                .subscribe( { 
+                    next: (sample:any) => {
+                        this.nbrOfSamplesReceived++;
+                        addSample(sample);
+                    }
+                });
     
         // Hover effect on column
         tableEl.addEventListener('mouseover',  (e:Event) => {
-            var el = e.target as Element;
+            let el = e.target as Element;
             if (el && el.classList) {
-                var rowEl = el.parentNode as Element;
+                let rowEl = el.parentNode as Element;
                 // Cell
                 if (el.classList.contains('marble__sample')) {
                     var selectColumnIndex = Array.from(rowEl.children).indexOf(el);
@@ -472,8 +582,8 @@ export class RXMarbleDiagramElement extends HTMLElement {
                         cols.highlightColumn(selectColumnIndex);
                     }
                 }
-                var id_1 = rowEl.getAttribute('data-id') || '';
-                var parentId = rowEl.getAttribute('data-parent-id') || '';
+                let id_1 = rowEl.getAttribute('data-id') || '';
+                let parentId = rowEl.getAttribute('data-parent-id') || '';
                 if (parentId) {
                     rows.highlightRows([id_1]);
                     rows.highlightParentRows([parentId]);
@@ -492,7 +602,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
             }
         });
         tableEl.addEventListener('mouseout',  (e) => {
-            var el = e.target as Element;
+            let el = e.target as Element;
             if (el && el.classList) {
                 if (el.classList.contains('marble__sample')) {
                     cols.highlightColumn(-1);
@@ -501,22 +611,16 @@ export class RXMarbleDiagramElement extends HTMLElement {
                 rows.highlightRows([]);
             }
         });
-        return {
-            clear: () => clear()      
-        };
     
     }
 }
-
 
 try {
 
     customElements.define('rxmarble-diagram', RXMarbleDiagramElement);
 
 } catch (err) {
-const h3 = document.createElement('h3')
-h3.innerHTML = "This site uses webcomponents which don't work in all browsers! Try this site in a browser that supports them!"
-document.body.appendChild(h3)
+    console.error( err );
 }
     
 

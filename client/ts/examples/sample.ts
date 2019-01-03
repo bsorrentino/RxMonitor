@@ -1,26 +1,34 @@
 
-import {interval, from, of, timer, combineLatest } from 'rxjs';
+import {interval, from, of, timer, combineLatest,forkJoin,  } from 'rxjs';
 import { 
-    concatMap, delay, tap, take, combineAll, map
+    concatMap, delay, tap, take, combineAll, map, mergeMap
 } from 'rxjs/operators';
 
-import * as rxmarbles from '../lib/marble-core';
+import { ExampleState, startExample} from '../lib/marble-core';
 import { watch } from '../sdk/marble-rxjs';
 
-var currentExample:rxmarbles.ExampleState;
+function generateRandomNumber(min:number , max:number) {
+  let random_number = Math.random() * (max-min) + min;
+   return Math.floor(random_number);
+}
+
 
 let combineLatest$ = () => {
-    //timerOne emits first value at 1s, then once every 4s
-const timerOne = timer(1000, 4000).pipe( watch('timerOne', 'combineLatest'));
+
+let watchChild = <T>( id:string ) => watch<T>(id, 'combineLatest');
+
+
+  //timerOne emits first value at 1s, then once every 4s
+const timerOne = timer(1000, 4000).pipe( watchChild('timerOne') );
 //timerTwo emits first value at 2s, then once every 4s
-const timerTwo = timer(2000, 4000).pipe( watch('timerTwo', 'combineLatest'));
+const timerTwo = timer(2000, 4000).pipe( watchChild('timerTwo') );
 //timerThree emits first value at 3s, then once every 4s
-const timerThree = timer(3000, 4000).pipe( take(2), watch('timerThree', 'combineLatest'));
+const timerThree = timer(3000, 4000).pipe( take(2), watchChild('timerThree'));
 
 //when one timer emits, emit the latest values from each timer as an array
-const combined = combineLatest(timerOne, timerTwo, timerThree).pipe( take(8), watch('combineLatest'));
+const combined = combineLatest(timerOne, timerTwo, timerThree).pipe( take(10), watch('combineLatest'));
 
-const subscribe = combined.subscribe(
+return combined.subscribe(
   ([timerValOne, timerValTwo, timerValThree]) => {
     /*
       Example:
@@ -37,6 +45,34 @@ const subscribe = combined.subscribe(
 );
 
 }
+
+let forkJoin$ = () => {
+
+
+  let watchResult = <T>() => watch<T>('forkJoin');
+  let watchStream = <T>( id:string ) => watch<T>(id, 'forkJoin');
+
+  const myPromise = (val:any) =>
+    from( 
+    new Promise(resolve => {
+  
+      let t = generateRandomNumber( 5000, 10000);
+      setTimeout(() => resolve(`res: ${val}`), t )
+
+    })).pipe( watchStream("promise"))
+
+
+    
+const source = of([1, 2, 3, 4, 5, 6, 7, 8]).pipe( watchStream( 'of' ));
+
+//emit array of all 5 results
+
+const example = source.pipe( mergeMap(q => forkJoin(...q.map(myPromise))), watchResult() );
+
+return example.subscribe(val => console.log(val));
+
+}
+
 
 let combineAll$ = () => {
 
@@ -55,21 +91,19 @@ const example = source.pipe(
 */
 const combined = example.pipe(combineAll(), watch( 'combineAll' ));
 
-const subscribe = combined.subscribe(val => console.log(val));
+return combined.subscribe(val => console.log(val));
 
 }
 
-let sample1$ = () => {
-
-    //of( 'A', 'B', 'C', 'D', 'E', 'F' )
-    interval( 1000 ).pipe(take(20), watch( 'interval()' , '$result') )
-    .pipe( concatMap( e =>  of(e).pipe( delay(1000) , watch( 'delay()' , '$result') ) ) )
-    .pipe( watch( '$result') )
-    .subscribe( 
-        val => console.log(val), 
-        err => {},
-        () => {}
-        )
+let deplay$ = () => {
+   
+    let source = 
+      interval( 1000 ).pipe(take(20), watch( 'interval()' , '$result') )
+      .pipe( concatMap( e =>  of(e).pipe( delay(1000) , watch( 'delay()' , '$result') ) ) )
+      .pipe( watch( '$result') )
+    
+    
+    return source.subscribe( val => console.log(val));
    
 };
 
@@ -78,17 +112,16 @@ let sample1$ = () => {
  */
 window.addEventListener('load',  () => { 
   
-    let marbles = rxmarbles.create( 'diagram1' );
+    let shapes$ = [
+      () => deplay$(),
+      () => combineLatest$(),  
+      () => forkJoin$(),
+      () => combineAll$()
+    ];
 
-    let shapes$:rxmarbles.ExampleCode = {
-        autoPlay: true,
-        exec: () =>  {
-            combineLatest$()  
-            return () => {}
-        }
 
-    };
- 
-    currentExample = marbles.startExample( shapes$ );
-    
+    document.addEventListener( "click", ()=> {
+      let currentExample = startExample( 'diagram1',  shapes$[2] );
+      currentExample.start();
+    })
 });
