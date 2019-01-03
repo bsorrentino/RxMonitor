@@ -18,5 +18,27 @@ The plan is to create such operators to monitor application based on :
 [rxmarbles](https://stackblitz.com/edit/rxmarbles) | Angular project for live RxMarbles
 
 
+## Examples
+
+### forkJoin
+
+```javascript
+let forkJoin$ = () => {
+
+  const myPromise = (val:any) =>
+    from(
+    new Promise(resolve => {
+      let t = generateRandomNumber( 5000, 10000);
+      setTimeout(() => resolve(`res: ${val}`), t )
+    }))
+
+const source = of([1, 2, 3, 4, 5, 6, 7, 8]);
+
+const example = source.pipe( mergeMap(q => forkJoin(...q.map(myPromise))) );
+
+return example.subscribe(val => console.log(val));
+
+}
+```
 
 ![ForkJoin Example](forkjoin.gif)
