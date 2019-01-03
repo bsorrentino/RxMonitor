@@ -56,8 +56,10 @@ function isStop(info:SampleInfo ) {
     return info && info.type === SampleItemType.Stop;
 };   
 
-const USE_SHADOW_DOM = true;
-const PAUSE_ATTR = 'pause';
+const USE_SHADOW_DOM    = true;
+const MAX_SAMPLES       = 'max-samples';
+const PAUSE_ATTR        = 'pause';
+const TICKTIME_ATTR     = 'tick-time';
 
 // @see
 // https://dev.to/aspittel/building-web-components-with-vanilla-javascript--jho
@@ -70,7 +72,15 @@ export class RXMarbleDiagramElement extends HTMLElement {
     private nbrOfSamplesReceived = 0;
 
     get maxNbrOfSamples() {
-        return Number(this.getAttribute('max-samples') || 50 );
+        return Number(this.getAttribute(MAX_SAMPLES) || 50 );
+    }
+    
+    get tickTime() {
+        return Number(this.getAttribute(TICKTIME_ATTR) || 1000);
+    }
+
+    set tickTime( v:number ) {
+       this.setAttribute(TICKTIME_ATTR, String(v) );
     }
 
     get pause() {
@@ -110,12 +120,10 @@ export class RXMarbleDiagramElement extends HTMLElement {
 
     attributesChangedCallback(attribute:string, oldval:any, newval:any) {
 
-        if( attribute === PAUSE_ATTR ) {
-            console.log( "update pause", oldval, newval );
-        }
+        console.log( "update ${attribute}", oldval, newval );
     }
     
-    static get observedAttributes() { return [PAUSE_ATTR]; }
+    static get observedAttributes() { return [PAUSE_ATTR, TICKTIME_ATTR]; }
 
 
     private getStyle() {
@@ -193,7 +201,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
      * @param sampleFilter 
      * @param tickTime 
      */
-    private getSamples( tickTime:number = 1000 ):Observable<Sample[]> {
+    private getSamples():Observable<Sample[]> {
 
         let sort = (a:SampleInfo,b:SampleInfo) => {
             let timeDiff = b.time - a.time ;
@@ -205,15 +213,15 @@ export class RXMarbleDiagramElement extends HTMLElement {
         return this.samples
                 .pipe( takeWhile( sample => sample.type!=SampleItemType.Complete || sample.parentId!=undefined ) )
                 .pipe( tap( sample => console.log( "filter", this.pause  )), filter( sample => this.pause===false ) )
-                .pipe( bufferTime( tickTime ), map( s => s.sort( sort ) ))
+                .pipe( bufferTime( this.tickTime ), map( s => s.sort( sort ) ))
                 ;
     }
 
     /**
      * 
-     * @param samples$ 
+     * @param tickTime 
      */
-    public start(  tickTime:number = 1000 ) {
+    public start() {
         
         const shadowRoot = (USE_SHADOW_DOM) ?  this.shadowRoot : document;
 
@@ -554,7 +562,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
 
         this.clear();
         
-        this.getSamples( tickTime )
+        this.getSamples()
                 .subscribe( { 
                     next: (sample:any) => {
                         this.nbrOfSamplesReceived++;

@@ -38,6 +38,7 @@ declare class RXMarbleDiagramElement extends HTMLElement {
     private nbrOfSamplesReceived;
     readonly maxNbrOfSamples: number;
     pause: boolean;
+    tickTime: number;
     constructor();
     connectedCallback(): void;
     attributesChangedCallback(attribute: string, oldval: any, newval: any): void;

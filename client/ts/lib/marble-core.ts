@@ -25,10 +25,10 @@ export class ExampleState {
         return this._example;
     }
 
-    constructor( private marbles:RxMarbles, private _example:ExampleCode, private done:()=>void) {
+    constructor( private diagram:RXMarbleDiagramElement, private _example:ExampleCode, private done:()=>void) {
         if( !_example ) throw new Error( "example in null!");
 
-        marbles.diagram.pause = this.isPaused = !_example.autoPlay
+        diagram.pause = this.isPaused = !_example.autoPlay
 
     }
 
@@ -37,7 +37,7 @@ export class ExampleState {
     }
 
     start() {
-        this.marbles.diagram.pause = this.isPaused = false;
+        this.diagram.pause = this.isPaused = false;
         this.unsubscribe = this._example.exec( this.done );
         return this;        
     }
@@ -49,21 +49,21 @@ export class ExampleState {
         if( !this.isStopped ) {
 
             this.unsubscribe.unsubscribe();
-            this.marbles.diagram.pause = this.isPaused = true;    
+            this.diagram.pause = this.isPaused = true;    
             console.log( "stop", this._example.name );
         }
         return this;
     }
 
     pause() {
-        this.marbles.diagram.pause = this.isPaused = true;
+        this.diagram.pause = this.isPaused = true;
         return this;
     }
 
     resume() {
         if (this.isStopped) return this.start();
 
-        this.marbles.diagram.pause = this.isPaused = false;
+        this.diagram.pause = this.isPaused = false;
         return this;
     }
 
@@ -98,7 +98,7 @@ export class RxMarbles {
         // Draw marble diagram
         this._diagram.start();
 
-        const state = new ExampleState( this, example, () => {
+        const state = new ExampleState( this._diagram, example, () => {
             // Complete stops before sample is completed
             setTimeout( () => {
                 if( done ) done();
@@ -111,6 +111,27 @@ export class RxMarbles {
 
 }
 
+export function startExample( elementId:string, example:ExampleCode, done?:(()=>void) ):ExampleState {
+
+    if( !example ) throw new Error( "example argument in null!");
+
+    let diagram = document.getElementById(elementId) as RXMarbleDiagramElement
+
+    if( !diagram ) throw new Error( "element ${elementId} not found!");
+    
+    // Draw marble diagram
+    diagram.start();
+
+    const state = new ExampleState( diagram, example, () => {
+        // Complete stops before sample is completed
+        setTimeout( () => {
+            if( done ) done();
+            state.stop();
+        }, diagram.tickTime + 50);
+    });
+         
+    return (example.autoPlay) ? state.start() : state;
+}
 /**
  * 
  * @param element 
