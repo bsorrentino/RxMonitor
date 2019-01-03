@@ -132,7 +132,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
         `
         .marble {
             font-family: monospace;
-            font-size: 18px;
+            font-size: 15px;
             border-collapse: collapse;
             border-spacing: 0;
             margin: 1em 0 0 1em;

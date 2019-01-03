@@ -94,11 +94,7 @@ let deplay$ = () => {
       .pipe( watch( '$result') )
     
     
-    return source.subscribe( 
-        val => console.log(val), 
-        err => {},
-        () => {}
-        )
+    return source.subscribe( val => console.log(val));
    
 };
 
@@ -114,7 +110,11 @@ window.addEventListener('load',  () => {
       () => combineAll$()
     ];
 
-    let currentExample = startExample( 'diagram1',  shapes$[2] );
     
-    currentExample.start();
+    
+
+    document.addEventListener( "click", ()=> {
+      let currentExample = startExample( 'diagram1',  shapes$[2] );
+      currentExample.start();
+    })
 });
