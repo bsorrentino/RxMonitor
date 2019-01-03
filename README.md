@@ -22,6 +22,7 @@ The plan is to create such operators to monitor application based on :
 
 ### forkJoin
 
+#### [extract from learn-rxjs](https://www.learnrxjs.io/operators/combination/forkjoin.html)
 ```javascript
 let forkJoin$ = () => {
 
@@ -42,3 +43,33 @@ return example.subscribe(val => console.log(val));
 ```
 
 ![ForkJoin Example](forkjoin.gif)
+
+## combineLatest
+
+#### [extract from learn-rxjs](https://www.learnrxjs.io/operators/combination/combinelatest.html)
+```javascript
+let combineLatest$ = () => {
+
+const timerOne = timer(1000, 4000);
+const timerTwo = timer(2000, 4000);
+const timerThree = timer(3000, 4000);
+
+const combined = combineLatest(timerOne, timerTwo, timerThree);
+
+return combined.subscribe(
+  ([timerValOne, timerValTwo, timerValThree]) => {
+    console.log(
+      `
+      Timer One Latest: ${timerValOne},
+      Timer Two Latest: ${timerValTwo},
+      Timer Three Latest: ${timerValThree}
+      `
+    );
+  }
+);
+
+}
+
+```
+
+![ForkJoin Example](combineLatest.gif)

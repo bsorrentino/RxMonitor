@@ -114,7 +114,7 @@ window.addEventListener('load',  () => {
     
 
     document.addEventListener( "click", ()=> {
-      let currentExample = startExample( 'diagram1',  shapes$[2] );
+      let currentExample = startExample( 'diagram1',  shapes$[1] );
       currentExample.start();
     })
 });
