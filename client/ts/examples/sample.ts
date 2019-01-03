@@ -21,7 +21,7 @@ const timerTwo = timer(2000, 4000).pipe( watch('timerTwo', 'combineLatest'));
 const timerThree = timer(3000, 4000).pipe( take(2), watch('timerThree', 'combineLatest'));
 
 //when one timer emits, emit the latest values from each timer as an array
-const combined = combineLatest(timerOne, timerTwo, timerThree).pipe( take(8), watch('combineLatest'));
+const combined = combineLatest(timerOne, timerTwo, timerThree).pipe( take(10), watch('combineLatest'));
 
 const subscribe = combined.subscribe(
   ([timerValOne, timerValTwo, timerValThree]) => {
@@ -47,16 +47,17 @@ let forkJoin$ = () => {
     from( 
     new Promise(resolve => {
   
-      let t = generateRandomNumber( 2500, 5000);
+      let t = generateRandomNumber( 5000, 10000);
       setTimeout(() => resolve(`res: ${val}`), t )
 
     })).pipe( watch("promise", 'forkJoin'))
 
 
     
-const source = of([1, 2, 3, 4, 5]).pipe( watch( 'of', 'forkJoin'));
+const source = of([1, 2, 3, 4, 5, 6, 7, 8]).pipe( watch( 'of', 'forkJoin'));
 
 //emit array of all 5 results
+
 const example = source.pipe( mergeMap(q => forkJoin(...q.map(myPromise))), watch('forkJoin') );
 
 const subscribe = example.subscribe(val => console.log(val));
@@ -111,8 +112,8 @@ window.addEventListener('load',  () => {
     let shapes$:rxmarbles.ExampleCode = {
         autoPlay: true,
         exec: () =>  {
-            //combineLatest$();  
-            forkJoin$();
+            combineLatest$();  
+            //forkJoin$();
             return () => {}
         }
 

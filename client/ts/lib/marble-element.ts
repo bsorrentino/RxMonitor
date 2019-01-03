@@ -1,21 +1,71 @@
 /** Simple Quick & Dirty marble visualizer, POJS no framework */
 
-import { Observable } from 'rxjs';
-import { 
-    Sample, 
-    SampleInfo,
-    SamplerLogger
- } from './marble-handler';
+import { Observable, Subject } from 'rxjs';
+import { bufferTime, map, tap, filter, takeWhile } from 'rxjs/operators';
 
- const USE_SHADOW_DOM = true;
+const enum SampleItemType {
+    Start, Value, Error, Complete, Stop
+}
+
+type SampleInfo = { 
+    type: SampleItemType;
+    time:number;
+}
+
+interface SampleBase {
+    id: string,
+    parentId?: string,
+    name: string,
+}
+interface SampleStart extends SampleBase {
+    createdByValue: boolean,
+    isIntermediate: boolean,
+
+}
+type SampleStop = SampleBase;
+
+type SampleComplete = SampleBase;
+
+interface SampleValue extends SampleBase {
+    value:any
+}
+interface SampleError extends SampleBase {
+    err:any
+}
+
+interface Sample extends SampleInfo, Partial<SampleStart>, Partial<SampleValue>, Partial<SampleError> {
+}
+
+const noneFilledShapes  = ['□', '△', '○', '▷', '☆'];
+const filledShapes      = ['■', '▲', '●', '▶', '★'];
+
+const USE_SHADOW_DOM = true;
+
+function isStart( info:SampleInfo  ) {
+    return info && info.type === SampleItemType.Start;
+}
+function isValue(info:SampleInfo ) {
+    return info && info.type === SampleItemType.Value;
+};
+function isError(info:SampleInfo ) {
+    return info && info.type === SampleItemType.Error;
+};
+function isComplete(info:SampleInfo) {
+    return info && info.type === SampleItemType.Complete;
+};
+function isStop(info:SampleInfo ) {
+    return info && info.type === SampleItemType.Stop;
+};   
+
 // @see
 // https://dev.to/aspittel/building-web-components-with-vanilla-javascript--jho
 // https://www.codementor.io/ayushgupta/vanilla-js-web-components-chguq8goz
 export class RXMarbleDiagramElement extends HTMLElement {
 
-    
-    tableEl:HTMLTableElement;
-    nbrOfSamplesReceived = 0;
+    private samples = new Subject<Sample>();  
+
+    private tableEl:HTMLTableElement;
+    private nbrOfSamplesReceived = 0;
 
     get maxNbrOfSamples() {
         return Number(this.getAttribute("max-samples") || 50 );
@@ -40,6 +90,11 @@ export class RXMarbleDiagramElement extends HTMLElement {
 
         this.tableEl = createTable();
         shadowRoot.appendChild( this.tableEl );
+
+        window.addEventListener( 'rxmarbles.event', (event:any) => {
+            this.samples.next( event.detail );
+        });
+
 
     }
 
@@ -115,9 +170,30 @@ export class RXMarbleDiagramElement extends HTMLElement {
 
     /**
      * 
+     * @param sampleFilter 
+     * @param tickTime 
+     */
+    private getSamples( sampleFilter:( (s:Sample) => boolean), tickTime:number = 1000 ):Observable<Sample[]> {
+
+        let sort = (a:SampleInfo,b:SampleInfo) => {
+            let timeDiff = b.time - a.time ;
+            if( timeDiff !== 0 ) return timeDiff;
+            return b.type - a.type; 
+
+        }
+
+        return this.samples
+                .pipe( takeWhile( sample => sample.type!=SampleItemType.Complete || sample.parentId!=undefined) )
+                .pipe( filter( sampleFilter)  )
+                .pipe( bufferTime( tickTime ), map( s => s.sort( sort ) ))
+                ;
+    }
+
+    /**
+     * 
      * @param samples$ 
      */
-    public start( samples$:Observable<Sample[]> ) {
+    public start( sampleFilter:( (s:Sample) => boolean), tickTime:number = 1000 ) {
         
         const shadowRoot = (USE_SHADOW_DOM) ?  this.shadowRoot : document;
 
@@ -321,15 +397,15 @@ export class RXMarbleDiagramElement extends HTMLElement {
             return sampleEl;
         }
         function sampleItemToTooltip(info:Sample) {
-            if (SamplerLogger.isValue(info))
+            if (isValue(info))
                 return "Value: " + toText(info.value);
-            if (SamplerLogger.isError(info))
+            if (isError(info))
                 return "Error: " + toText(info.err);
-            if (SamplerLogger.isStart(info))
+            if (isStart(info))
                 return ''; // `Subscribed`; // Disabled for easier colored line
-            if (SamplerLogger.isComplete(info))
+            if (isComplete(info))
                 return "Completed";
-            if (SamplerLogger.isStop(info))
+            if (isStop(info))
                 return "Unsubscribe";
             console.error('Unknown Sample Object', info);
             return '';
@@ -360,15 +436,15 @@ export class RXMarbleDiagramElement extends HTMLElement {
     
                 function _getText( info:Sample ) {
                     
-                    if (SamplerLogger.isValue(info))
+                    if (isValue(info))
                         return getValue(info.value);
-                    if (SamplerLogger.isStart(info))
+                    if (isStart(info))
                         return info.createdByValue ? '╰──────' : '───────'; // Multiple lines added for wide columns and clipped with CSS
-                    if (SamplerLogger.isError(info))
+                    if (isError(info))
                         return '✖';
-                    if (SamplerLogger.isComplete(info))
+                    if (isComplete(info))
                         return '┤';
-                    if (SamplerLogger.isStop(info))
+                    if (isStop(info))
                         return '╴';
                     console.error('Unknown Sample Object', info);
                     return '?';
@@ -392,10 +468,10 @@ export class RXMarbleDiagramElement extends HTMLElement {
                     rowEl.appendChild(sampleEl);
                     // Update Counters
                     if (!rowEl.getAttribute('data-parent-id')) {
-                        updateNbrOfValues(rowEl, sampleItems.filter( (info:SampleInfo) => SamplerLogger.isValue(info)).length);
+                        updateNbrOfValues(rowEl, sampleItems.filter( (info:SampleInfo) => isValue(info)).length);
                     }
                     // End Row
-                    var shouldEndRow = sampleItems.some( (info:SampleInfo) => SamplerLogger.isStop(info) || SamplerLogger.isComplete(info) || SamplerLogger.isError(info) );
+                    var shouldEndRow = sampleItems.some( (info:SampleInfo) => isStop(info) || isComplete(info) || isError(info) );
                     if (shouldEndRow)
                         rows.setRowEnded(rowEl, true);
                 }
@@ -434,7 +510,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
             sample
                 .reverse() // So first parents are created
                 .forEach((sampleItem) => {
-                    if (SamplerLogger.isStart(sampleItem)) {
+                    if (isStart(sampleItem)) {
                         // Add
                         if (!rows.getRow(sampleItem.id)) {
                             rows.createAndInsertRow(sampleItem);
@@ -458,12 +534,13 @@ export class RXMarbleDiagramElement extends HTMLElement {
 
         this.clear();
         
-        samples$.subscribe( { 
-            next: (sample:any) => {
-                this.nbrOfSamplesReceived++;
-                addSample(sample);
-            }
-        });
+        this.getSamples( sampleFilter, tickTime )
+                .subscribe( { 
+                    next: (sample:any) => {
+                        this.nbrOfSamplesReceived++;
+                        addSample(sample);
+                    }
+                });
     
         // Hover effect on column
         tableEl.addEventListener('mouseover',  (e:Event) => {
@@ -510,15 +587,17 @@ export class RXMarbleDiagramElement extends HTMLElement {
     }
 }
 
-
 try {
 
     customElements.define('rxmarble-diagram', RXMarbleDiagramElement);
 
 } catch (err) {
-const h3 = document.createElement('h3')
-h3.innerHTML = "This site uses webcomponents which don't work in all browsers! Try this site in a browser that supports them!"
-document.body.appendChild(h3)
+    console.error( err );
+    /*
+    const h3 = document.createElement('h3')
+    h3.innerHTML = "This site uses webcomponents which don't work in all browsers! Try this site in a browser that supports them!"
+    document.body.appendChild(h3);
+    */
 }
     
 

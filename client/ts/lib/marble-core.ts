@@ -1,9 +1,7 @@
 import { Observable, interval } from 'rxjs';
 import { filter } from 'rxjs/operators';
 
-import { SamplerLogger } from './marble-handler';
-
- import { RXMarbleDiagramElement} from  './marble-element';
+import { RXMarbleDiagramElement} from  './marble-element';
 
 export interface Example {
     exec:( ( p?:(() => void)) => () => void );
@@ -77,15 +75,10 @@ export class ExampleState {
 export type Diagram = any;
 
 export class RxMarbles {
-    private _logger: SamplerLogger;
     
     private stepInMs:number;
     
     isPaused = false;
-
-    get logger() {
-        return this._logger;
-    }
 
     get diagram() {
         return this._diagram;
@@ -97,7 +90,6 @@ export class RxMarbles {
      * @param stepInMs 
      */
     constructor( private _diagram:RXMarbleDiagramElement ) {
-        this._logger = new SamplerLogger();
 
         this.stepInMs = _diagram.maxNbrOfSamples;
     }
@@ -111,7 +103,7 @@ export class RxMarbles {
         if( !example ) throw new Error( "example argument in null!");
 
         // Draw marble diagram
-        this._diagram.start( this._logger.getSamples( () => !this.isPaused ));
+        this._diagram.start( () => !this.isPaused );
 
         const state = new ExampleState( this, example, () => {
             // Complete stops before sample is completed
