@@ -4,7 +4,7 @@ import {
     concatMap, delay, tap, take, combineAll, map, mergeMap
 } from 'rxjs/operators';
 
-import * as rxmarbles from '../lib/marble-core';
+import { ExampleState, startExample} from '../lib/marble-core';
 import { watch } from '../sdk/marble-rxjs';
 
 function generateRandomNumber(min:number , max:number) {
@@ -86,14 +86,15 @@ return combined.subscribe(val => console.log(val));
 
 }
 
-let sample1$ = () => {
-
-    return 
-    //of( 'A', 'B', 'C', 'D', 'E', 'F' )
-    interval( 1000 ).pipe(take(20), watch( 'interval()' , '$result') )
-    .pipe( concatMap( e =>  of(e).pipe( delay(1000) , watch( 'delay()' , '$result') ) ) )
-    .pipe( watch( '$result') )
-    .subscribe( 
+let deplay$ = () => {
+   
+    let source = 
+      interval( 1000 ).pipe(take(20), watch( 'interval()' , '$result') )
+      .pipe( concatMap( e =>  of(e).pipe( delay(1000) , watch( 'delay()' , '$result') ) ) )
+      .pipe( watch( '$result') )
+    
+    
+    return source.subscribe( 
         val => console.log(val), 
         err => {},
         () => {}
@@ -101,21 +102,19 @@ let sample1$ = () => {
    
 };
 
-var currentExample:rxmarbles.ExampleState;
-
 /**
  * 
  */
 window.addEventListener('load',  () => { 
   
-    let marbles = rxmarbles.create( 'diagram1' );
+    let shapes$ = [
+      () => deplay$(),
+      () => combineLatest$(),  
+      () => forkJoin$(),
+      () => combineAll$()
+    ];
 
-    let shapes$:rxmarbles.ExampleCode = {
-        autoPlay: true,
-        exec: () => combineLatest$()  
-        //exec: () => forkJoin$()
-    }
-
-    currentExample = marbles.startExample( shapes$ );
+    let currentExample = startExample( 'diagram1',  shapes$[2] );
     
+    currentExample.start();
 });

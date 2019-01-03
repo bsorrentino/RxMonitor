@@ -92,6 +92,8 @@ export class RXMarbleDiagramElement extends HTMLElement {
        //console.log( "set pause", String(v) );
        this.setAttribute(PAUSE_ATTR, String(v) );
     }
+    
+    static get observedAttributes() { return [PAUSE_ATTR, TICKTIME_ATTR]; }
 
     constructor() {
         super();
@@ -122,8 +124,6 @@ export class RXMarbleDiagramElement extends HTMLElement {
 
         console.log( "update ${attribute}", oldval, newval );
     }
-    
-    static get observedAttributes() { return [PAUSE_ATTR, TICKTIME_ATTR]; }
 
 
     private getStyle() {
@@ -212,7 +212,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
 
         return this.samples
                 .pipe( takeWhile( sample => sample.type!=SampleItemType.Complete || sample.parentId!=undefined ) )
-                .pipe( tap( sample => console.log( "filter", this.pause  )), filter( sample => this.pause===false ) )
+                .pipe( filter( sample => this.pause===false ) )
                 .pipe( bufferTime( this.tickTime ), map( s => s.sort( sort ) ))
                 ;
     }
@@ -621,11 +621,6 @@ try {
 
 } catch (err) {
     console.error( err );
-    /*
-    const h3 = document.createElement('h3')
-    h3.innerHTML = "This site uses webcomponents which don't work in all browsers! Try this site in a browser that supports them!"
-    document.body.appendChild(h3);
-    */
 }
     
 
