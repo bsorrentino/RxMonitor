@@ -2,14 +2,19 @@
   "name": "rxmarbles",
   "version": "1.0.0",
   "description": "",
+  "homepage": "https://github.com/bsorrentino/RxMonitor",
   "main": "index.js",
   "scripts": {
-    "clean": "rm -r js ; rm -r dist", 
+    "clean": "rm -r js ; rm -r dist",
     "watch": "tsc --watch",
     "serve": "parcel index.html"
   },
   "author": "bsorrentino <bartolomeo.sorrentino@gmail.com> (http://soulsoftware-bsc.blogspot.it/)",
   "license": "MIT",
+  "repository": {
+    "type" : "git",
+    "url" : "https://github.com/bsorrentino/RxMonitor.git"
+  },
   "dependencies": {
     "rxjs": "^6.3.3"
   },

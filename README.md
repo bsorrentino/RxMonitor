@@ -17,6 +17,9 @@ The plan is to create such operators to monitor application based on :
 [rx-devtools](https://github.com/KwintenP/rx-devtools) | This is a chrome extension that can be used to visualize RxJS streams in realtime.
 [rxmarbles](https://stackblitz.com/edit/rxmarbles) | Angular project for live RxMarbles
 
+## Architecture
+
+![Component Diagram](architecture.png)
 
 ## Examples
 
