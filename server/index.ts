@@ -1,83 +1,148 @@
+import * as redis from 'redis';
+import {
+    Observable,
+    Observer,
+    fromEvent,
+    fromEventPattern,
+    bindNodeCallback,
+    interval,
+    pipe,
+} from 'rxjs';
+import {
+    switchMap,
+    mergeMap,
+    tap,
+    take,
+    finalize,
+    publish,
+} from 'rxjs/operators';
+
+import express = require('express');
+import bodyParser = require('body-parser');
+
+type SSEClient =  {
+    [clientId:string]:express.Response;
+}
+
+let clients:SSEClient = {}; // <- Keep a map of attached clients
 
 
-import { take, map, combineAll } from 'rxjs/operators';
-import { interval, Observable, Subscriber } from 'rxjs';
+const redis_options:redis.ClientOpts = {
+    host: "redis",
+    // port?: number;
+    // path?: string;
+    // url?: string;
+    // parser?: string;
+    // string_numbers?: boolean;
+    // return_buffers?: boolean;
+    // detect_buffers?: boolean;
+    // socket_keepalive?: boolean;
+    // no_ready_check?: boolean;
+    // enable_offline_queue?: boolean;
+    // retry_max_delay?: number;
+    // connect_timeout?: number;
+    // max_attempts?: number;
+    // retry_unfulfilled_commands?: boolean;
+    // auth_pass?: string;
+    // password?: string;
+    // db?: string | number;
+    // family?: string;
+    // rename_commands?: { [command: string]: string } | null;
+    // tls?: any;
+    // prefix?: string;
+    // retry_strategy?: RetryStrategy;
+}
 
+let client_pub = redis.createClient( redis_options );
 
-function _proxy_subscriber<T extends Object>( tag:string, input:T ):T {
-    
-    return  new Proxy( input, { 
-        get: (target: T, name: PropertyKey, receiver: any) => {
+let redisPublisher = ( event:string, data:string ) =>
+        Observable.create( (o:Observer<any>) => {
 
-            if( name in target ) {
-                switch( name ) {
-                    case 'next':
-                    case 'error':
-                        return ( v:any ) => {
-                            console.log( tag, name, v );
-                            (<any>target)[name]( v );
-                        }
-                    case 'complete':
-                        return () => {
-                            console.log( tag, name);
-                            (<any>target)[name]();
-                        }
-                    case 'remove':
-                        return ( v:any ) => {
-                            console.log( tag, name );
-                            (<any>target)[name]( v );
-                        }
-                    default:
-                        return (<any>target)[name];
+            console.log( "pushing message ....", event,  data );
+            client_pub.publish( event, data, (err,value) => {
+                if( err ) {
+                    o.error( err );
+                    return;
                 }
-                
-            }
-        }
-    });
-}
 
-function _proxy_subscribe<T extends Object>( tag:string, input:T ):T {
+                console.log( "message pushed ....", value );
 
-    return  new Proxy( input, { 
-        apply: (target: T, thisArg: any, argArray?: any) => {
-            
-            if( argArray && argArray.length == 1 && typeof(argArray[0]) == "object")  {
-                let args = [ _proxy_subscriber(tag, argArray[0]) ];
-        
-                return  (<any>target).apply( thisArg, args );
-            }
-            
+                o.next( value );
+                o.complete();
+            })
+        });
 
-            return (<any>target).apply( thisArg, argArray );
-        }
-    })
-}
+let redisSubscription = ( channel:string ):Observable<string> => {
 
-function _p<T extends Object>( tag:string, input:T ):T {
+        let client_sub = redis.createClient( redis_options );
 
-    return  new Proxy( input, { 
-        get: (target: T, name: PropertyKey, receiver: any) => {
-
-            if( name in target ) {
-                let result =  (<any>target)[name];
-
-                if( name === "subscribe" ) {
-                    return _proxy_subscribe( tag , result);
+        let onMessage = Observable.create( (o:Observer<string>) => {
+            client_sub.subscribe( channel, (err, value ) =>  {
+                if( err ) {
+                    o.error( err );
+                    return;
                 }
-                
-                return result;
+                client_sub.on( "message", (channel, message ) => o.next( message ) );
+            });
+            return () => { 
+                console.log( 'unsubscribe' );
+                client_sub.unsubscribe( channel );
+                client_sub.quit();
             }
-        },
-        apply: (target: T, thisArg: any, argArray?: any) => {
+        });
 
-            let result =  (<any>target).apply( thisArg, argArray);
+        return fromEvent( client_sub, 'ready')
+            .pipe( switchMap( () => onMessage) )
+            ;
+    }
 
-            return _p( tag, result);
-        }
-    })
-}
+const  redisSub = redisSubscription( 'rxmarble.event');
 
-_p("interval", interval( 1000 ))
-    .pipe( _p( "map", map( e => e * 2)))
-    .pipe( _p( "take", take(100)) )
-    .subscribe( t => console.log(t) );
+let subscription = redisSub.subscribe( message => {
+            console.log( "message received", message );
+            for ( var clientId in clients) {
+                clients[clientId].write(message); // <- Push a message to a single attached client
+            };
+
+});
+
+var clientSeq = 0;
+
+express()
+.get( '/events/',  (req, res) => {
+
+	req.socket.setTimeout(Number.MAX_VALUE);
+	res.writeHead(200, {
+		'Content-Type': 'text/event-stream', // <- Important headers
+		'Cache-Control': 'no-cache',
+		'Connection': 'keep-alive'
+	});
+    res.write('\n');
+
+    const clientId = "client" + clientSeq++;
+
+    clients[clientId] = res; // <- Add this client to those we consider "attached"
+
+    req.on("close", () => delete clients[clientId] ); // <- Remove this client when he disconnects
+
+})
+.use(bodyParser.json())
+.post( '/message', (req, res) => {
+
+    let msg = req.body;
+    // @todo validate json
+
+    redisPublisher( 'rxmarble.event', JSON.stringify(msg) )
+        .subscribe( () => res.end() );
+})
+.listen( process.env.PORT || 8080);
+
+/*
+fromEvent( client_pub, 'ready')
+    .pipe( switchMap( () =>
+                interval( 1000 )
+                .pipe( take(2) )
+                .pipe( mergeMap( ( tick ) =>
+                        redisPublisher( 'rxmarble.event', 'msg' + tick) ))))
+            .subscribe( );
+*/

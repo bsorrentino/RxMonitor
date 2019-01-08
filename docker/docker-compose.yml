@@ -1,0 +1,19 @@
+version: "3"
+services:
+  redis:
+    image: redis:5.0
+    container_name: redis
+    ports:
+    - 6379:6379
+    labels:
+    - redis
+  rxmonitor:
+    build: .
+    image: rxmonitor:1.0.0
+    container_name: rxmonitor
+    depends_on:
+    - redis
+    ports:
+    - 8080:8080
+    labels:
+    - rxmonitor
