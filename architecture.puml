@@ -1,0 +1,27 @@
+@startuml
+left to right direction
+
+
+frame "Server" {
+[Redis] .> [RxMonitor] : event
+''[RxMonitor] --> [Redis] : sub
+}
+
+frame "Application" {
+  [rxwatcher] --> [Redis] : pub
+}
+
+frame "Browser" {
+  package "Document" {
+    [listener] as listener
+    [diagram] as diagram
+  }
+}
+'Document --> [RxMonitor] : Download from
+
+[listener] .> [diagram] : dom event
+
+
+[RxMonitor] ..> [listener] : SSE
+
+@enduml
