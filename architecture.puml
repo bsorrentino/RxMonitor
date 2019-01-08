@@ -1,6 +1,7 @@
 @startuml
 left to right direction
 
+title Overall Architecture
 
 frame "Server" {
   [RxMonitor] as RxMonitor << nodejs >>
@@ -20,7 +21,7 @@ frame "Browser" {
     [diagram] as diagram << webcomponent >>
   }
 }
-'Document --> [RxMonitor] : Download from
+'Client --> [RxMonitor] : Download from
 
 [listener] .> [diagram] : dom event
 
