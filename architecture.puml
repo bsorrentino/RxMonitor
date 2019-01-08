@@ -15,7 +15,7 @@ frame "Application" {
 }
 
 frame "Browser" {
-  package "Document" {
+  package "Client" {
     [listener] as listener << webcomponent >>
     [diagram] as diagram << webcomponent >>
   }
