@@ -3,18 +3,21 @@ left to right direction
 
 
 frame "Server" {
-[Redis] .> [RxMonitor] : event
-''[RxMonitor] --> [Redis] : sub
+  [RxMonitor] as RxMonitor << nodejs >>
+  [Pub / Sub] as Redis << Redis >>
+  [Redis] .> [RxMonitor] : event
+  ''[RxMonitor] --> [Redis] : sub
 }
 
 frame "Application" {
-  [rxwatcher] --> [Redis] : pub
+  [rxwatcher] as [rxwatcher]  << sdk >>
+  [rxwatcher] --> [Redis] : event
 }
 
 frame "Browser" {
   package "Document" {
-    [listener] as listener
-    [diagram] as diagram
+    [listener] as listener << webcomponent >>
+    [diagram] as diagram << webcomponent >>
   }
 }
 'Document --> [RxMonitor] : Download from
