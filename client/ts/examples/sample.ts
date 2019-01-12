@@ -4,8 +4,10 @@ import {
     concatMap, delay, tap, take, combineAll, map, mergeMap
 } from 'rxjs/operators';
 
-import { ExampleState, startExample} from '../lib/marble-core';
-import { watch } from '../sdk/marble-rxjs';
+import { 
+  watch,
+  startExample
+} from '../sdk/marble-rxjs';
 
 function generateRandomNumber(min:number , max:number) {
   let random_number = Math.random() * (max-min) + min;
