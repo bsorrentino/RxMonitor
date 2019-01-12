@@ -1,0 +1,31 @@
+@startuml
+left to right direction
+
+title Overall Architecture
+
+frame "Server" {
+  [RxMonitor] as RxMonitor << nodejs >>
+  [Pub / Sub] as Redis << Redis >>
+  [Redis] .> [RxMonitor] : event
+  ''[RxMonitor] --> [Redis] : sub
+}
+
+frame "Application" {
+  [rxwatcher] as [rxwatcher]  << sdk >>
+  [rxwatcher] --> [Redis] : event
+}
+
+frame "Browser" {
+  package "Client" {
+    [listener] as listener << webcomponent >>
+    [diagram] as diagram << webcomponent >>
+  }
+}
+'Client --> [RxMonitor] : Download from
+
+[listener] .> [diagram] : dom event
+
+
+[RxMonitor] ..> [listener] : SSE
+
+@enduml

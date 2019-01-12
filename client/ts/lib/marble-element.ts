@@ -2,39 +2,7 @@
 
 import { Observable, Subject } from 'rxjs';
 import { bufferTime, map, tap, filter, takeWhile } from 'rxjs/operators';
-
-const enum SampleItemType {
-    Start, Value, Error, Complete, Stop
-}
-
-type SampleInfo = { 
-    type: SampleItemType;
-    time:number;
-}
-
-interface SampleBase {
-    id: string,
-    parentId?: string,
-    name: string,
-}
-interface SampleStart extends SampleBase {
-    createdByValue: boolean,
-    isIntermediate: boolean,
-
-}
-type SampleStop = SampleBase;
-
-type SampleComplete = SampleBase;
-
-interface SampleValue extends SampleBase {
-    value:any
-}
-interface SampleError extends SampleBase {
-    err:any
-}
-
-interface Sample extends SampleInfo, Partial<SampleStart>, Partial<SampleValue>, Partial<SampleError> {
-}
+import { SampleItemType, Sample, SampleInfo } from './marble-types';
 
 const noneFilledShapes  = ['□', '△', '○', '▷', '☆'];
 const filledShapes      = ['■', '▲', '●', '▶', '★'];

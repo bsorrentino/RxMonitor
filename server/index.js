@@ -1,64 +1,89 @@
 "use strict";
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (Object.hasOwnProperty.call(mod, k)) result[k] = mod[k];
+    result["default"] = mod;
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
-const operators_1 = require("rxjs/operators");
+const redis = __importStar(require("redis"));
 const rxjs_1 = require("rxjs");
-function _proxy_subscriber(tag, input) {
-    return new Proxy(input, {
-        get: (target, name, receiver) => {
-            if (name in target) {
-                switch (name) {
-                    case 'next':
-                    case 'error':
-                        return (v) => {
-                            console.log(tag, name, v);
-                            target[name](v);
-                        };
-                    case 'complete':
-                        return () => {
-                            console.log(tag, name);
-                            target[name]();
-                        };
-                    case 'remove':
-                        return (v) => {
-                            console.log(tag, name);
-                            target[name](v);
-                        };
-                    default:
-                        return target[name];
-                }
-            }
+const operators_1 = require("rxjs/operators");
+const express = require("express");
+const bodyParser = require("body-parser");
+let clients = {}; // <- Keep a map of attached clients
+const redis_options = {
+    host: "redis",
+};
+let client_pub = redis.createClient(redis_options);
+let redisPublisher = (event, data) => rxjs_1.Observable.create((o) => {
+    console.log("pushing message ....", event, data);
+    client_pub.publish(event, data, (err, value) => {
+        if (err) {
+            o.error(err);
+            return;
         }
+        console.log("message pushed ....", value);
+        o.next(value);
+        o.complete();
     });
-}
-function _proxy_subscribe(tag, input) {
-    return new Proxy(input, {
-        apply: (target, thisArg, argArray) => {
-            if (argArray && argArray.length == 1 && typeof (argArray[0]) == "object") {
-                let args = [_proxy_subscriber(tag, argArray[0])];
-                return target.apply(thisArg, args);
+});
+let redisSubscription = (channel) => {
+    let client_sub = redis.createClient(redis_options);
+    let onMessage = rxjs_1.Observable.create((o) => {
+        client_sub.subscribe(channel, (err, value) => {
+            if (err) {
+                o.error(err);
+                return;
             }
-            return target.apply(thisArg, argArray);
-        }
+            client_sub.on("message", (channel, message) => o.next(message));
+        });
+        return () => {
+            console.log('unsubscribe');
+            client_sub.unsubscribe(channel);
+            client_sub.quit();
+        };
     });
-}
-function _p(tag, input) {
-    return new Proxy(input, {
-        get: (target, name, receiver) => {
-            if (name in target) {
-                let result = target[name];
-                if (name === "subscribe") {
-                    return _proxy_subscribe(tag, result);
-                }
-                return result;
-            }
-        },
-        apply: (target, thisArg, argArray) => {
-            let result = target.apply(thisArg, argArray);
-            return _p(tag, result);
-        }
+    return rxjs_1.fromEvent(client_sub, 'ready')
+        .pipe(operators_1.switchMap(() => onMessage));
+};
+const redisSub = redisSubscription('rxmarble.event');
+let subscription = redisSub.subscribe(message => {
+    console.log("message received", message);
+    for (var clientId in clients) {
+        clients[clientId].write(message); // <- Push a message to a single attached client
+    }
+    ;
+});
+var clientSeq = 0;
+express()
+    .get('/events/', (req, res) => {
+    req.socket.setTimeout(Number.MAX_VALUE);
+    res.writeHead(200, {
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive'
     });
-}
-_p("interval", rxjs_1.interval(1000))
-    .pipe(_p("map", operators_1.map(e => e * 2)))
-    .pipe(_p("take", operators_1.take(100)))
-    .subscribe(t => console.log(t));
+    res.write('\n');
+    const clientId = "client" + clientSeq++;
+    clients[clientId] = res; // <- Add this client to those we consider "attached"
+    req.on("close", () => delete clients[clientId]); // <- Remove this client when he disconnects
+})
+    .use(bodyParser.json())
+    .post('/message', (req, res) => {
+    let msg = req.body;
+    // @todo validate json
+    redisPublisher('rxmarble.event', JSON.stringify(msg))
+        .subscribe(() => res.end());
+})
+    .listen(process.env.PORT || 8080);
+/*
+fromEvent( client_pub, 'ready')
+    .pipe( switchMap( () =>
+                interval( 1000 )
+                .pipe( take(2) )
+                .pipe( mergeMap( ( tick ) =>
+                        redisPublisher( 'rxmarble.event', 'msg' + tick) ))))
+            .subscribe( );
+*/
