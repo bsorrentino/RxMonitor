@@ -1,0 +1,27 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>RX Marbles Monitor</title>
+
+  <style>
+    body {
+        background: #222222;
+        color: #eeeeee;
+        margin: 0;
+    }
+  </style>
+
+  <script type="text/javascript" src="ts/lib/marble-sse-element.ts"></script>
+  <script type="text/javascript" src="ts/lib/marble-element.ts"></script>
+  <script type="text/javascript" src="ts/examples/delay.ts"></script>
+</head>
+<body>
+
+    <h1>Delay operator</h1>
+    
+  <rxmarble-sse />
+  <rxmarble-diagram id="diagram1" max-samples="30" tick-time="800"></rxmarble-diagram>
+
+
+</body>
+</html>
