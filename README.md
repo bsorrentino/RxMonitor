@@ -19,7 +19,21 @@ The plan is to create such operators to monitor application based on :
 
 ## Architecture
 
+![Component Diagram](architecture2.png)
+
+
 ![Component Diagram](architecture.png)
+
+## Getting Started
+
+> Currently only the In-Process RxJS is available
+
+1. **Checkout Project**
+2. **go to `client` folder**
+3. **run `npm install`**
+4. **run `npm run serve`**
+5. **open url `http://localhost:1234/`**`
+
 
 ## Examples
 
