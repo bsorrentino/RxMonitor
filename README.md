@@ -19,6 +19,9 @@ The plan is to create such operators to monitor application based on :
 
 ## Architecture
 
+![Component Diagram](architecture2.png)
+
+
 ![Component Diagram](architecture.png)
 
 ## Examples
