@@ -2,27 +2,28 @@
 <head>
   <meta charset="utf-8">
   <title>RX Marbles Monitor</title>
-
+  
   <link rel="stylesheet" href="examples.css">
 
   <script type="text/javascript" src="ts/lib/marble-sse-element.ts"></script>
   <script type="text/javascript" src="ts/lib/marble-element.ts"></script>
-  <script type="text/javascript" src="ts/examples/window.ts"></script>
+  <script type="text/javascript" src="ts/examples/exhaustMap.ts"></script>
   <script type="text/javascript" src="ts/examples/snippet-element.ts"></script>
-</head>
 </head>
 <body>
 
-    <h1>Window operator</h1>
-    <h2>Observable of values for window of time.</h2>
-    
-  <rxmarble-sse ></rxmarble-sse>
+  <h1>ExhaustMap operator</h1>
+  <h2>Map to inner observable, ignore other values until that observable completes.</h2>
+  <rxmarble-sse></rxmarble-sse>
+
   <rxmarble-diagram id="diagram1" max-samples="30" tick-time="800">
-      <a href="#">click to start</a>
+  <a href="#">click to start</a>
   </rxmarble-diagram>
 
   <br>
   <h3>Code</h3>
-  <rxmarble-snippet url="window.ts.txt"></rxmarble-snippet>
+  <rxmarble-snippet url='exhaustMap.ts.txt'></rxmarble-snippet>
+
+
 </body>
 </html>
