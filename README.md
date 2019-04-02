@@ -34,6 +34,9 @@ The plan is to create such operators to monitor application based on :
 4. **run `npm run serve`**
 5. **open url `http://localhost:1234/`**`
 
+## Live Demo
+
+A live demo has been deployed on **heroku** [here](https://rxmonitor.herokuapp.com/index.html)
 
 ## Examples
 
