@@ -1,0 +1,19 @@
+@startuml
+left to right direction
+
+title Overall In-Process Architecture
+
+frame "Browser" {
+  package "Client" {
+    [diagram] as diagram << webcomponent >>
+  }
+  frame "RxJS based Application" {
+    [RxJS] -> [rxwatcher] : next\nerror\ncomplete
+    [rxwatcher] as [rxwatcher]  << sdk >>
+    [rxwatcher] --> [diagram] :  DOM Event
+  }
+
+}
+
+
+@enduml

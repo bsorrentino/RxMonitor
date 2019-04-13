@@ -1,0 +1,13 @@
+body {
+    background: #222222;
+    color: #eeeeee;
+    padding-left: 5;
+}
+
+a {
+  color: yellow;
+}
+
+rxmarble-snippet {
+    --font-size: 1.1em; 
+}

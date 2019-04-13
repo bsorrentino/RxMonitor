@@ -1,21 +1,28 @@
 {
   "name": "rxmarbles",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "",
+  "homepage": "https://github.com/bsorrentino/RxMonitor",
   "main": "index.js",
   "scripts": {
-    "clean": "rm -r js ; rm -r dist", 
-    "watch": "tsc --watch",
-    "serve": "parcel index.html"
+    "serve": "node ts/cli/dist.js; parcel index.html ;",
+    "build": "node ts/cli/dist.js; parcel build index.html --public-url . "
   },
   "author": "bsorrentino <bartolomeo.sorrentino@gmail.com> (http://soulsoftware-bsc.blogspot.it/)",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bsorrentino/RxMonitor.git"
+  },
   "dependencies": {
     "rxjs": "^6.3.3"
   },
   "devDependencies": {
+    "@types/fs-extra": "^5.0.5",
+    "@types/node": "^11.13.0",
+    "fs-extra": "^7.0.1",
     "http-server": "^0.11.1",
-    "parcel-bundler": "^1.10.3",
+    "parcel-bundler": "^1.12.3",
     "typescript": "^3.1.6"
   }
 }
