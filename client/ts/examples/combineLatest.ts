@@ -3,8 +3,6 @@ import { combineLatest, timer } from 'rxjs';
 import { take } from 'rxjs/operators';
 import { startExample, watch } from '../sdk/marble-rxjs';
 
-
-
 let combineLatest$ = () => {
 
   const w$ = <T>( id?:string ) => watch<T>( '$result', id );   
@@ -13,7 +11,6 @@ let combineLatest$ = () => {
   const timerTwo = timer(2000, 4000).pipe( w$('timerTwo') );
   const timerThree = timer(3000, 4000).pipe( take(2), w$('timerThree'));
 
-//when one timer emits, emit the latest values from each timer as an array
 const combined = combineLatest(timerOne, timerTwo, timerThree).pipe( take(10), w$());
 
 return combined.subscribe(
