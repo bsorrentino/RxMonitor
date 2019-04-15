@@ -8,7 +8,7 @@
 1. **run `git commit -m'initial import' -a`**
 1. **run `heroku git:remote --app rxmonitor`**
 1. **create file `index.php` containing:**
-> `<?php header( 'Location: /index.html' ) ;  ?>`
+> `echo <?php header( 'Location: /index.html' ) ;  ?> > index.php`
 1. **run `git push heroku master` **
 
 
