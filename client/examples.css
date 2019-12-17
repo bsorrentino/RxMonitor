@@ -7,3 +7,7 @@ body {
 a {
   color: yellow;
 }
+
+rxmarble-snippet {
+    --font-size: 1.1em; 
+}

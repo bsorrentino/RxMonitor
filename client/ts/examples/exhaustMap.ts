@@ -4,19 +4,20 @@ import { interval, merge, of } from 'rxjs';
 import { delay, take, exhaustMap, map } from 'rxjs/operators';
 
 let exhaustMap$ = () => {
+  const w$ = <T>( id?:string ) => watch<T>( '$result', id );
 
   const sourceInterval = interval(1000);
   const delayedInterval = sourceInterval.pipe(delay(10), map( v => v*2 ), take(4));
   
   const exhaustSub = merge(
-    delayedInterval.pipe( watch('delayedInterval', '$result') ),
-    of(true, false, true, false).pipe( watch('of()', '$result') )
+    delayedInterval.pipe( w$('delayedInterval') ),
+    of(true, false, true, false).pipe( w$('of()') )
     )
-    .pipe( watch('merge', '$result') )
-    .pipe(exhaustMap(_ => sourceInterval.pipe(take(6))), watch( 'exhaustMap', '$result'))
+    .pipe( w$('merge') )
+    .pipe(exhaustMap(_ => sourceInterval.pipe(take(6))), w$( 'exhaustMap'))
 
     return exhaustSub
-            .pipe( watch( '$result') )  
+            .pipe( w$() )  
             .subscribe( val => console.log(val));
 
 }

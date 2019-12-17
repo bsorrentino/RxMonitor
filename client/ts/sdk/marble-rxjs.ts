@@ -82,15 +82,11 @@ export function startExample( elementId:string, example:Example, done?:(()=>void
     return new ExampleState( diagram, example, done );
 }
 
-
-
-
-
-export function watch<T>( id:string, parentId?:string ):MonoTypeOperatorFunction<T> {
+export function watch<T>( parentId:string, id?:string ):MonoTypeOperatorFunction<T> {
 
     return (source:Observable<T>) => new Observable<T>( observer =>  {
 
-        return source.subscribe(observeAndNotify( observer, id, parentId ) );
+        return source.subscribe(observeAndNotify( observer, id || parentId, id ? parentId : undefined ) );
     })
 }
 
@@ -116,7 +112,8 @@ let eventTime = () => ++_eventSeq;
  */
 export function observeAndNotify<T>( observer:Observer<T> , id:string, parentId?:string ):PartialObserver<T> 
 {
-    
+    console.log( 'id=', id,  'parentId=', parentId );
+
     const _id =  (() => {
         if( _ids[id]===undefined ) {
             _ids[id] = 0;
