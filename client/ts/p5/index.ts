@@ -22,7 +22,7 @@ function s(k$: p5) {
     timeLine.addOperator( k$, 'operator 2' );
     timeLine.addOperator( k$, 'operator 3' );
     timeLine.addOperator( k$, 'operator 4' );
-    timeLine.addOperator( k$, 'operator 5' );
+    timeLine.addOperator( k$, 'result' );
   }
 
   k$.draw = () => {
@@ -40,7 +40,16 @@ function s(k$: p5) {
     emitter.tick( (tick) => {
         const tlindex = k$.floor(k$.random( 0, 5))
         //console.log( tlindex )
-        timeLine.next( tlindex, String(tick) )
+
+        const op = timeLine.getOperator(tlindex)
+
+        if( !op.isCompleted )  {
+          timeLine.next( op, String(tick) )
+        }
+
+        //if( tick == 100 ) {
+        //  timeLine.complete( tlindex )
+        //}
     })
 
     timeLine.draw( k$ )

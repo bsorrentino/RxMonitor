@@ -1,7 +1,7 @@
 import p5 from "p5"
 
 import { Boundary } from './common'
-import { Item } from './item'
+import { stream } from './item'
 import { operator, Operator } from "./operator"
 
 class Queue<T> {
@@ -43,7 +43,9 @@ type OperatorMap = { 
 
 type QItem = {
   operator:Operator;
-  label:string
+  type:'next'|'complete'|'error'
+  label?:string
+  error?:Error
 }
 
 export function timeline( k$:p5, y:number ) {
@@ -55,7 +57,7 @@ export class TimeLine  {
     private _itemsQueue = new Queue<QItem>();
     private _operators:OperatorMap = {}
     private _watch = new Watch( 5 )
-    private _lastItem:Item|undefined // last item added
+    private _lastItem:stream.Item|undefined // last item added
 
     constructor( private boundary:Boundary, private startY:number ) {
       //console.log( this.boundary )
@@ -78,10 +80,8 @@ export class TimeLine  {
     /**
      * 
      * @param operatorLabelOrIndex 
-     * @param item 
      */
-    next( operatorLabelOrIndex:string|number, item:string ) {
-      
+    getOperator( operatorLabelOrIndex:string|number ) {
       const keys = Object.keys(this._operators)
 
       let key:string 
@@ -91,11 +91,43 @@ export class TimeLine  {
       else {
         key = operatorLabelOrIndex
       }
-      const operator = this._operators[key]
+      return this._operators[key]
 
-      this._itemsQueue.push( { operator:operator, label:item} ) 
     }
 
+    /**
+     * 
+     * @param operatorLabelOrIndex 
+     * @param item 
+     */
+    next( operator:Operator, item:string ) {
+      
+      this._itemsQueue.push( { operator:operator, type:'next', label:item} ) 
+    }
+
+    /**
+     * 
+     * @param operatorLabelOrIndex 
+     * @param item 
+     */
+    complete( operator:Operator ) {
+      
+      this._itemsQueue.push( { operator:operator, type:'complete'} ) 
+    }
+
+    /**
+     * 
+     * @param operatorLabelOrIndex 
+     * @param item 
+     */
+    error( operator:Operator, e:Error ) {
+
+      this._itemsQueue.push( { operator:operator, type:'error', error:e} ) 
+    }
+
+    /**
+     * 
+     */
     needToScrollR() {
       return this._lastItem?.isPartialVisibleR( this.boundary ) || 
                       this._lastItem?.isNotVisibleR( this.boundary ) 
@@ -113,16 +145,37 @@ export class TimeLine  {
         
         const qi = this._itemsQueue.pop()
 
-        if( qi ) {
+        switch( qi?.type ) {
+        case 'next':{
+            const { operator, label } = qi
 
-          const { operator, label } = qi
+            this._lastItem = operator.next( label, tick, this._lastItem  );
 
-          this._lastItem = operator.next( label, tick, this._lastItem  );
+            if( this.needToScrollR() ) {
+              Operator.scrollFactor = 1
+            }
+          }
+          break;
+        case 'complete': {
+            const { operator } = qi
+
+            this._lastItem = operator.complete( tick, this._lastItem  );
+
+            if( this.needToScrollR() ) {
+              Operator.scrollFactor = 1
+            }
+          }
+          break;
+        case 'error': {
+          const { operator, error } = qi
+
+          this._lastItem = operator.error( error!, tick, this._lastItem  );
 
           if( this.needToScrollR() ) {
             Operator.scrollFactor = 1
           }
-
+        }
+          break;
         }
 
       })

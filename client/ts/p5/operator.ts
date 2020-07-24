@@ -1,7 +1,7 @@
 import p5 from "p5"
 
 import { Boundary, BACKGROUND} from './common'
-import { Item } from './item'
+import { stream } from './item'
 
 type Props = {
   label:string;
@@ -14,11 +14,11 @@ export function operator( k$:p5, props:Props ) {
 
 export class Operator  {
 
-    static get H()  { return 30 }
-
-    private _items = Array<Item>();
-    
+    static get H()  { return 30 }    
     static scrollFactor:number = 0
+
+    private _items = Array<stream.Item>();
+    private _completed:stream.Completed|stream.Error|null = null
 
     constructor( private boundary:Boundary, private props:Props ) {
       //console.log( this.boundary )
@@ -28,12 +28,18 @@ export class Operator  {
     
     get y() { return this.props.y }
 
+    get isCompleted() { return this._completed != null }
 
-    next( data:any, tick:number, relativeTo?:Item ) {
+    get isCompletedWithSuccess() { return this._completed instanceof stream.Completed }
+
+    get isCompletedWithError() { return this._completed instanceof stream.Error }
+
+    next( data:any, tick:number, relativeTo?:stream.Item ):stream.Item|undefined {
+      if( this._completed ) return
 
       const x = ( relativeTo ) ? relativeTo.x  : this.boundary.left
       
-      const item = new Item( data, x + Item.D, this.y, tick )
+      const item = new stream.Item( data, x + stream.Item.D, this.y, tick )
 
       this._items.push( item );
   
@@ -41,12 +47,24 @@ export class Operator  {
 
     }
 
-    complete(  ) {
+    complete( tick:number, relativeTo?:stream.Item  ):stream.Item { 
+      if( this._completed ) return this._completed
 
+      const x = ( relativeTo ) ? relativeTo.x  : this.boundary.left
+
+      this._completed = new stream.Completed( null, x  + stream.Item.D, this.y, tick ) 
+
+      return this._completed
     }
  
-    error(  ) {
+    error( e:Error, tick:number, relativeTo?:stream.Item ) { 
+      if( this._completed ) return this._completed
 
+      const x = ( relativeTo ) ? relativeTo.x  : this.boundary.left
+
+      this._completed = new stream.Error( e, x  + stream.Item.D, this.y, tick ) 
+
+      return this._completed
     }
 
     draw( k$: p5 ) {
@@ -56,16 +74,22 @@ export class Operator  {
       k$.stroke(255)
       k$.line( this.boundary.left, this.props.y, this.boundary.right, this.props.y)
 
-      // Items
-      this._items.filter( item => !item.isNotVisibleL(this.boundary) ).forEach( (item,i) =>  {
+      if( this._completed  ) {
+        // Completed
+        this._completed.draw(k$)
+      } 
+      else {
+        // Items
+        this._items.filter( item => !item.isNotVisibleL(this.boundary) ).forEach( (item,i) =>  {
+      
+          item.scrollOffsetX += Operator.scrollFactor
+          item.draw(k$)
     
-        item.scrollOffsetX += Operator.scrollFactor
-        item.draw(k$)
-  
-      })
+        })
+      }
 
       // Rect
-      let height = Item.D + 2;
+      let height = stream.Item.D + 2;
 
       k$.noStroke()
       k$.fill( BACKGROUND )
