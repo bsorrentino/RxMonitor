@@ -45,11 +45,12 @@ function s(k$: p5) {
 
         if( !op.isCompleted )  {
           timeLine.next( op, String(tick) )
+
+          if( tick == 100 ) {
+            timeLine.complete( op )
+          }
         }
 
-        //if( tick == 100 ) {
-        //  timeLine.complete( tlindex )
-        //}
     })
 
     timeLine.draw( k$ )
