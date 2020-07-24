@@ -40,7 +40,7 @@ function s(k$: p5) {
     emitter.tick( (tick) => {
         const tlindex = k$.floor(k$.random( 0, 5))
         //console.log( tlindex )
-        timeLine.pushItem( tlindex, String(tick) )
+        timeLine.next( tlindex, String(tick) )
     })
 
     timeLine.draw( k$ )

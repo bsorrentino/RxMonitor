@@ -80,7 +80,7 @@ export class TimeLine  {
      * @param operatorLabelOrIndex 
      * @param item 
      */
-    pushItem( operatorLabelOrIndex:string|number, item:string ) {
+    next( operatorLabelOrIndex:string|number, item:string ) {
       
       const keys = Object.keys(this._operators)
 
@@ -117,7 +117,7 @@ export class TimeLine  {
 
           const { operator, label } = qi
 
-          this._lastItem = operator.addItem( label, tick, this._lastItem  );
+          this._lastItem = operator.next( label, tick, this._lastItem  );
 
           if( this.needToScrollR() ) {
             Operator.scrollFactor = 1

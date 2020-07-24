@@ -29,7 +29,7 @@ export class Operator  {
     get y() { return this.props.y }
 
 
-    addItem(  data:any, tick:number, relativeTo?:Item ) {
+    next( data:any, tick:number, relativeTo?:Item ) {
 
       const x = ( relativeTo ) ? relativeTo.x  : this.boundary.left
       
@@ -38,6 +38,14 @@ export class Operator  {
       this._items.push( item );
   
       return item
+
+    }
+
+    complete(  ) {
+
+    }
+ 
+    error(  ) {
 
     }
 
