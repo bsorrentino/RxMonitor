@@ -67,24 +67,27 @@ export class Operator  {
       return this._completed
     }
 
+    private get visibleItems() {
+      return this._items.filter( item => !item.isNotVisibleL(this.boundary) )
+    }
+
     draw( k$: p5 ) {
 
       // Line
-
       k$.stroke(255)
       k$.line( this.boundary.left, this.props.y, this.boundary.right, this.props.y)
 
       if( this._completed  ) {
         // Completed
+        // Items
+        this.visibleItems.forEach( item =>  item.draw(k$))
         this._completed.draw(k$)
       } 
       else {
         // Items
-        this._items.filter( item => !item.isNotVisibleL(this.boundary) ).forEach( (item,i) =>  {
-      
+        this.visibleItems.forEach( item =>  {
           item.scrollOffsetX += Operator.scrollFactor
-          item.draw(k$)
-    
+          item.draw(k$)   
         })
       }
 
