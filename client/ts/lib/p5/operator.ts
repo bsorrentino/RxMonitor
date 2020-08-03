@@ -1,6 +1,6 @@
 import p5 from "p5"
 
-import { Boundary, BACKGROUND} from './common'
+import { Boundary, DEFAULT_BACKGROUND} from './common'
 import { stream } from './item'
 
 type Props = {
@@ -95,7 +95,7 @@ export class Operator  {
       let height = stream.Item.D + 2;
 
       k$.noStroke()
-      k$.fill( BACKGROUND )
+      k$.fill( DEFAULT_BACKGROUND )
       k$.rect( 0, this.props.y - height/2, this.boundary.left, height )
 
       // Typography

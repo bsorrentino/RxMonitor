@@ -1,40 +1,9 @@
 import p5 from "p5"
 
-import { Boundary } from './common'
+import { Boundary, Queue, Watch } from './common'
 import { stream } from './item'
 import { operator, Operator } from "./operator"
 
-class Queue<T> {
-
-  private elements = Array<T>()
-
-  get length() { return this.elements.length }
-
-  isEmpty() { return this.elements.length  == 0 } 
-  
-  push( e:T ) { return this.elements.push(e) }
-
-  pop() { return this.elements.shift() }
-
-  peek() { return this.isEmpty() ? undefined : this.elements[0] }
-
-}
-
-
-export class Watch {
-  ticks = 0;
-
-  constructor( private framesPerTick:number) {}
-
-  tick( onTick: ( tick:number ) => void) {
-    if( ++this.ticks%this.framesPerTick == 0 ) {
-      onTick( this.ticks ) 
-      
-    }
-  }
-
-
-}
 
 
 type OperatorMap = { 
@@ -48,11 +17,11 @@ type QItem = {
   error?:Error
 }
 
-export function timeline( k$:p5, y:number ) {
-  return new TimeLine( { left:100, right:k$.width }, y)
+export function diagram( k$:p5, y:number ) {
+  return new Diagram( { left:100, right:k$.width }, y)
 }
 
-export class TimeLine  {
+export class Diagram  {
   
     private _itemsQueue = new Queue<QItem>();
     private _operators:OperatorMap = {}

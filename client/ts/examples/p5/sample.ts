@@ -1,21 +1,21 @@
 import p5 from 'p5'
 
-import { BACKGROUND, FPS } from './common'
-import { timeline as timelineFactory, TimeLine, Watch } from './timeline'
+import { DEFAULT_BACKGROUND, DEFAULT_FPS, Watch } from '../../lib/p5/common'
+import { diagram as timelineFactory, Diagram } from '../../lib/p5/diagram'
 
 
 function s(k$: p5) {
     
   let seconds = 0
   
-  let timeLine:TimeLine
+  let timeLine:Diagram
 
-  let watch = new Watch(FPS)
+  let watch = new Watch(DEFAULT_FPS)
   let emitter = new Watch(5)
 
   k$.setup = () => { 
     k$.createCanvas(1024,768);
-    k$.frameRate(FPS);
+    k$.frameRate(DEFAULT_FPS);
 
     timeLine = timelineFactory( k$, 70 )
     timeLine.addOperator( k$, 'operator 1' );
@@ -27,7 +27,7 @@ function s(k$: p5) {
 
   k$.draw = () => {
     
-    k$.background(BACKGROUND);
+    k$.background(DEFAULT_BACKGROUND);
     
     // Typography
     k$.textSize(30);

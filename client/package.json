@@ -5,9 +5,11 @@
   "homepage": "https://github.com/bsorrentino/RxMonitor",
   "main": "index.js",
   "scripts": {
-    "serve-p5": "parcel serve index-p5-sample.html ;",
-    "serve": "node ts/cli/dist.js; parcel index.html ;",
-    "build": "node ts/cli/dist.js; parcel build index.html --public-url . "
+    "build:diagram": "parcel build ts/lib/marble-diagram-element.ts",
+    "build:sse": "parcel build ts/lib/marble-sse-element.ts",
+    "serve:p5": "parcel serve index-p5-sample.html ;",
+    "serve": "parcel serve index.html ;",
+    "build": "parcel build index.html --public-url . "
   },
   "author": "bsorrentino <bartolomeo.sorrentino@gmail.com> (http://soulsoftware-bsc.blogspot.it/)",
   "license": "MIT",

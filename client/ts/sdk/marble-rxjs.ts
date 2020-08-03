@@ -1,4 +1,4 @@
-/// <reference path="../lib/marble-element.d.ts" />
+/// <reference path="../lib/marble-diagram-element.d.ts" />
 
 import {  
     Observable, 

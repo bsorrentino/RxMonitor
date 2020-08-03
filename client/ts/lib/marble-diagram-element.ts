@@ -1,11 +1,11 @@
 /** Simple Quick & Dirty marble visualizer, POJS no framework */
 import p5 from 'p5'
 import { Observable, Subject } from 'rxjs';
-import { bufferTime, map, tap, filter, takeWhile } from 'rxjs/operators';
-import { SampleItemType, Sample, SampleInfo } from '../lib/marble-types';
+import { bufferTime, map, filter, takeWhile } from 'rxjs/operators';
+import { SampleItemType, Sample, SampleInfo } from './marble-types';
 
-import { BACKGROUND, FPS } from './common'
-import { timeline as timelineFactory, TimeLine, Watch } from './timeline'
+import { DEFAULT_BACKGROUND, DEFAULT_FPS, Watch } from './p5/common'
+import { diagram as timelineFactory, Diagram  } from './p5/diagram'
 
 const noneFilledShapes  = ['□', '△', '○', '▷', '☆'];
 const filledShapes      = ['■', '▲', '●', '▶', '★'];
@@ -35,7 +35,7 @@ const TICKTIME_ATTR     = 'tick-time';
 // @see
 // https://dev.to/aspittel/building-web-components-with-vanilla-javascript--jho
 // https://www.codementor.io/ayushgupta/vanilla-js-web-components-chguq8goz
-export class RXMarbleDiagramP5Element extends HTMLElement {
+export class RXMarbleDiagramElement extends HTMLElement {
 
     private samples = new Subject<Sample>();  
 
@@ -125,13 +125,13 @@ export class RXMarbleDiagramP5Element extends HTMLElement {
     private sketchSetup( k$:p5 ) {
         let seconds = 0
   
-        let diagram:TimeLine
+        let diagram:Diagram
       
-        let watch = new Watch(FPS)
+        let watch = new Watch(DEFAULT_FPS)
       
         k$.setup = () => { 
           const canvas = k$.createCanvas(1024,768);
-          k$.frameRate(FPS);
+          k$.frameRate(DEFAULT_FPS);
           k$.noLoop()  
           
           canvas.style( 'visibility', 'visible' )
@@ -141,7 +141,7 @@ export class RXMarbleDiagramP5Element extends HTMLElement {
       
         k$.draw = () => {
           
-          k$.background(BACKGROUND);
+          k$.background(DEFAULT_BACKGROUND);
           
           // Typography
           k$.textSize(30);
@@ -231,7 +231,7 @@ export class RXMarbleDiagramP5Element extends HTMLElement {
 
 try {
 
-    customElements.define('rxmarble-p5-diagram', RXMarbleDiagramP5Element);
+    customElements.define('rxmarble-diagram', RXMarbleDiagramElement);
 
 } catch (err) {
     console.error( err );
