@@ -54,6 +54,8 @@ export class Operator  {
 
       this._completed = new stream.Completed( null, x  + stream.Item.D, this.y, tick ) 
 
+      this._items.push( this._completed );
+
       return this._completed
     }
  
@@ -64,11 +66,20 @@ export class Operator  {
 
       this._completed = new stream.Error( e, x  + stream.Item.D, this.y, tick ) 
 
+      this._items.push( this._completed );
+
       return this._completed
     }
 
     private get visibleItems() {
       return this._items.filter( item => !item.isNotVisibleL(this.boundary) )
+    }
+
+    /**
+     * 
+     */
+    needToScrollR() {
+      return this._completed?.isPartialVisibleR( this.boundary ) ||  this._completed?.isNotVisibleR( this.boundary ) 
     }
 
     draw( k$: p5 ) {
@@ -80,8 +91,12 @@ export class Operator  {
       if( this._completed  ) {
         // Completed
         // Items
-        this.visibleItems.forEach( item =>  item.draw(k$))
-        this._completed.draw(k$)
+        this.visibleItems.forEach( item =>  { 
+          if( this.needToScrollR() ) item.scrollOffsetX += 1
+          item.draw(k$)
+        })
+
+
       } 
       else {
         // Items
