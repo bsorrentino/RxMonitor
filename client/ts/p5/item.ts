@@ -83,9 +83,10 @@ export namespace stream {
       k$.push()
 
       k$.stroke( k$.color(255, 0, 0) )
-      k$.strokeWeight(5)
-      const hh = Item.D/2
-      k$.line( this.x, this.y - hh, this.x, this.y + hh )
+      k$.strokeWeight(4)
+      const hh = Item.D/2 - 3
+      k$.line( this.x - hh, this.y - hh, this.x + hh, this.y + hh )
+      k$.line( this.x + hh, this.y - hh, this.x - hh, this.y + hh )
       
       k$.pop()
     }

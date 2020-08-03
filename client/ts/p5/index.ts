@@ -47,7 +47,7 @@ function s(k$: p5) {
           timeLine.next( op, String(tick) )
 
           if( tick == 100 ) {
-            timeLine.complete( op )
+            timeLine.error( op, new Error() )
           }
         }
 
