@@ -74,7 +74,11 @@ export class TimeLine  {
                         .map( k => this._operators[k].y )
                         .reduce( ( prev, curr ) => prev + Operator.H*2, this.startY)
 
-      this._operators[ label ] = operator( k$, { label:label, y:y} )
+      const result = operator( k$, { label:label, y:y} )
+
+      this._operators[ label ] = result
+      
+      return result
     }
 
     /**

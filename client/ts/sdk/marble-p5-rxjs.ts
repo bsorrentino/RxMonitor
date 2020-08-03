@@ -1,4 +1,4 @@
-/// <reference path="../lib/marble-element.d.ts" />
+/// <reference path="../p5/marble-p5-element.d.ts" />
 
 import {  
     Observable, 
@@ -23,7 +23,7 @@ export class ExampleState {
         return this._example;
     }
 
-    constructor( private diagram:RXMarbleDiagramElement, private _example:Example, private done:()=>void) {
+    constructor( private diagram:RXMarbleDiagramP5Element, private _example:Example, private done:()=>void) {
     }
 
     get isStopped() {

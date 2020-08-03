@@ -1,0 +1,30 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>RX Marbles Monitor</title>
+
+  <link rel="stylesheet" href="examples.css">
+
+  <script src="ts/examples/combineLatest-p5.ts"></script>
+  <script src="ts/examples/snippet-element.ts"></script>
+
+</head>
+<body>
+
+    <script src="dist/marble-p5-element.js"></script>
+  
+    <h1>CombineLatest operator</h1>
+    <h2>
+      When any observable emits a value, emit the latest value from each.
+    </h2>
+    <rxmarble-p5-diagram id="diagram1" max-samples="30" tick-time="800">
+        <a href="#">click to start</a>
+    </rxmarble-p5-diagram>
+  
+    <br>
+    <h3>Code</h3>
+    <rxmarble-snippet url="combineLatest.ts.txt"></rxmarble-snippet>
+ 
+
+</body>
+</html>
