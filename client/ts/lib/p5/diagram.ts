@@ -98,12 +98,10 @@ export class Diagram  {
       this._itemsQueue.push( { operator:operator, type:'error', error:e} ) 
     }
 
-    /**
-     * 
-     */
-    needToScrollR() {
-      return this._lastItem?.isPartialVisibleR( this.boundary ) || 
-                      this._lastItem?.isNotVisibleR( this.boundary ) 
+    private needToScrollR() {
+      if( this._lastItem?.needToScrollR( this.boundary) ) {
+        Operator.scrollFactor = 1
+      }
     }
 
     /**
@@ -111,8 +109,6 @@ export class Diagram  {
      * @param k$ 
      */
     draw( k$: p5 ) { 
-
-      let scrollFactor = 0
 
       this._watch.tick( ( tick ) => {
         
@@ -124,9 +120,7 @@ export class Diagram  {
 
             this._lastItem = operator.next( label, tick, this._lastItem  );
 
-            if( this.needToScrollR() ) {
-              Operator.scrollFactor = 1
-            }
+            this.needToScrollR()
           }
           break;
         case 'complete': {
@@ -134,9 +128,7 @@ export class Diagram  {
 
             this._lastItem = operator.complete( tick, this._lastItem  );
 
-            if( this.needToScrollR() ) {
-              Operator.scrollFactor = 1
-            }
+            this.needToScrollR()
           }
           break;
         case 'error': {
@@ -144,9 +136,7 @@ export class Diagram  {
 
           this._lastItem = operator.error( error!, tick, this._lastItem  );
 
-          if( this.needToScrollR() ) {
-            Operator.scrollFactor = 1
-          }
+          this.needToScrollR()
         }
           break;
         }

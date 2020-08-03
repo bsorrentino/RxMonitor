@@ -75,12 +75,6 @@ export class Operator  {
       return this._items.filter( item => !item.isNotVisibleL(this.boundary) )
     }
 
-    /**
-     * 
-     */
-    needToScrollR() {
-      return this._completed?.isPartialVisibleR( this.boundary ) ||  this._completed?.isNotVisibleR( this.boundary ) 
-    }
 
     draw( k$: p5 ) {
 
@@ -92,7 +86,7 @@ export class Operator  {
         // Completed
         // Items
         this.visibleItems.forEach( item =>  { 
-          if( this.needToScrollR() ) item.scrollOffsetX += 1
+          if( this._completed.needToScrollR(this.boundary) ) item.scrollOffsetX += 1
           item.draw(k$)
         })
 

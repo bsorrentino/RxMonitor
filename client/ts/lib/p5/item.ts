@@ -48,6 +48,10 @@ export namespace stream {
       return (this.x <= b.left-Item.D) 
     }
   
+    needToScrollR( b: Boundary ) {
+      return this.isPartialVisibleR( b ) ||  this.isNotVisibleR( b ) 
+    }
+
     draw(k$: p5) {
       k$.push()
 
