@@ -213,7 +213,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
         }
 
         return this.samples
-                .pipe( takeWhile( sample => sample.type!=SampleItemType.Complete || sample.parentId!=undefined ) )
+                //.pipe( takeWhile( sample => sample.type!=SampleItemType.Complete || sample.parentId!=undefined ) )
                 .pipe( filter( sample => this.pause===false ) )
                 .pipe( bufferTime( this.tickTime ), map( s => s.sort( sort ) ))
                 ;
