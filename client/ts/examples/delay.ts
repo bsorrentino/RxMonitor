@@ -6,7 +6,7 @@ let delay$ = () => {
   const w$ = <T>( id?:string ) => watch<T>( '$result', id );
 
   let source = 
-      interval( 1000 ).pipe(take(20), w$( 'interval()' ) )
+      interval( 1000 ).pipe(take(10), w$( 'interval()' ) )
       .pipe( concatMap( e =>  of(e).pipe( delay(1000) , w$( 'delay()') ) ) )
       .pipe( w$() )
       

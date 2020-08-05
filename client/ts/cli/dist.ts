@@ -64,13 +64,13 @@ function _copyFile (src:string, dst:string , finish: (err: any) => void) {
         return;
     }
 
-    try {
+    // try {
 
-        await fsx.emptyDir(destdir);
+    //     await fsx.emptyDir(destdir);
         
-    } catch (err) {
-        console.error( 'error cleaning dir', destdir, err );
-    }
+    // } catch (err) {
+    //     console.error( 'error cleaning dir', destdir, err );
+    // }
   
   
   _copyFiles();

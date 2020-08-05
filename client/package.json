@@ -5,9 +5,11 @@
   "homepage": "https://github.com/bsorrentino/RxMonitor",
   "main": "index.js",
   "scripts": {
+    "build:cli": "parcel build -t node ts/cli/dist.ts",
     "build:diagram": "parcel build ts/lib/marble-diagram-element.ts",
     "build:sse": "parcel build ts/lib/marble-sse-element.ts",
     "serve:p5": "parcel serve index-p5-sample.html ;",
+    "copy": "node dist/dist.js",
     "serve": "parcel serve index.html ;",
     "build": "parcel build index.html --public-url . "
   },

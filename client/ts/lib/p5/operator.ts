@@ -82,23 +82,11 @@ export class Operator  {
       k$.stroke(255)
       k$.line( this.boundary.left, this.props.y, this.boundary.right, this.props.y)
 
-      if( this._completed  ) {
-        // Completed
-        // Items
-        this.visibleItems.forEach( item =>  { 
-          if( this._completed.needToScrollR(this.boundary) ) item.scrollOffsetX += 1
-          item.draw(k$)
-        })
-
-
-      } 
-      else {
-        // Items
-        this.visibleItems.forEach( item =>  {
-          item.scrollOffsetX += Operator.scrollFactor
-          item.draw(k$)   
-        })
-      }
+      // Items
+      this.visibleItems.forEach( item =>  {
+        item.scrollOffsetX += Operator.scrollFactor
+        item.draw(k$)   
+      })
 
       // Rect
       let height = stream.Item.D + 2;

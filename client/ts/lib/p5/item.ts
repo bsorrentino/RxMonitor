@@ -74,7 +74,7 @@ export namespace stream {
 
       k$.stroke(255)
       k$.strokeWeight(5)
-      const hh = Item.D/2
+      const hh = Item.D/2 - 3
       k$.line( this.x, this.y - hh, this.x, this.y + hh )
 
       k$.pop()
