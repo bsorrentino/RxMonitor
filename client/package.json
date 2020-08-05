@@ -1,12 +1,15 @@
 {
   "name": "rxmarbles",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "",
   "homepage": "https://github.com/bsorrentino/RxMonitor",
   "main": "index.js",
   "scripts": {
-    "serve": "node ts/cli/dist.js; parcel index.html ;",
-    "build": "node ts/cli/dist.js; parcel build index.html --public-url . "
+    "build:diagram": "parcel build ts/lib/marble-diagram-element.ts",
+    "build:sse": "parcel build ts/lib/marble-sse-element.ts",
+    "serve:p5": "parcel serve index-p5-sample.html ;",
+    "serve": "parcel serve index.html ;",
+    "build": "parcel build index.html --public-url . "
   },
   "author": "bsorrentino <bartolomeo.sorrentino@gmail.com> (http://soulsoftware-bsc.blogspot.it/)",
   "license": "MIT",
@@ -15,14 +18,20 @@
     "url": "https://github.com/bsorrentino/RxMonitor.git"
   },
   "dependencies": {
-    "rxjs": "^6.3.3"
+    "p5": "^1.0.0",
+    "rxjs": "^6.6.2"
   },
   "devDependencies": {
-    "@types/fs-extra": "^5.0.5",
+    "@types/fs-extra": "^9.0.1",
     "@types/node": "^11.13.0",
-    "fs-extra": "^7.0.1",
-    "http-server": "^0.11.1",
+    "@types/p5": "^0.9.0",
+    "fs-extra": "^9.0.1",
+    "http-server": "^0.12.3",
+    "npx-run": "^2.1.2",
     "parcel-bundler": "^1.12.4",
-    "typescript": "^3.1.6"
+    "typescript": "^3.9.6"
+  },
+  "alias": {
+    "p5": "./node_modules/p5/lib/p5.min.js"
   }
 }

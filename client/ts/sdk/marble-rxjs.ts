@@ -1,5 +1,4 @@
-/// <reference path="../lib/marble-element.d.ts" />
-
+/// <reference path="../lib/marble-diagram-element.d.ts" />
 
 import {  
     Observable, 
@@ -11,7 +10,6 @@ import {
 import { SampleItemType, Sample } from '../lib/marble-types';
 
 import { Subscription } from 'rxjs';
-
 
 export type Example = ( p?:(() => void)) => Subscription;
 
