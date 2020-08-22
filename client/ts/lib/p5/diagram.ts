@@ -25,7 +25,7 @@ export class Diagram  {
   
     private _itemsQueue = new Queue<QItem>();
     private _operators:OperatorMap = {}
-    private _watch = new Watch( 30 )
+    private _watch = new Watch( 3 )
     private _lastItem:stream.Item|undefined // last item added
 
     constructor( private boundary:Boundary, private startY:number ) {

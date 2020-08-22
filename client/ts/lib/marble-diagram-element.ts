@@ -1,11 +1,9 @@
 /** Simple Quick & Dirty marble visualizer, POJS no framework */
 import p5 from 'p5'
-import { Observable, Subject } from 'rxjs';
-import { bufferTime, map, filter, takeWhile } from 'rxjs/operators';
 import { SampleItemType, Sample, SampleInfo } from './marble-types';
 
 import { DEFAULT_BACKGROUND, DEFAULT_FPS, Watch } from './p5/common'
-import { diagram as timelineFactory, Diagram  } from './p5/diagram'
+import { diagram as createDiagram, Diagram  } from './p5/diagram'
 
 const noneFilledShapes  = ['□', '△', '○', '▷', '☆'];
 const filledShapes      = ['■', '▲', '●', '▶', '★'];
@@ -36,8 +34,6 @@ const TICKTIME_ATTR     = 'tick-time';
 // https://dev.to/aspittel/building-web-components-with-vanilla-javascript--jho
 // https://www.codementor.io/ayushgupta/vanilla-js-web-components-chguq8goz
 export class RXMarbleDiagramElement extends HTMLElement {
-
-    private samples = new Subject<Sample>();  
 
     private container:HTMLDivElement
     private sketch:p5;
@@ -92,7 +88,6 @@ export class RXMarbleDiagramElement extends HTMLElement {
         this.sketch = new p5( (k$:p5) => this.sketchSetup(k$), this.container )
         shadowRoot.appendChild( this.container );
 
-        window.addEventListener( 'rxmarbles.event', (event:any) => this.samples.next( event.detail ))
     }
 
     /**
@@ -122,10 +117,32 @@ export class RXMarbleDiagramElement extends HTMLElement {
      
     }
 
+    private processSample( s:Sample, diagram:Diagram, k$:p5 ) {
+        this.nbrOfSamplesReceived++;
+
+        let op = diagram.getOperator( s.id )
+
+        if ( !op   ) {
+            if( isStart(s) )  diagram.addOperator( k$, s.id )
+            return 
+        }
+        
+        if( isValue( s ) ) {
+            diagram.next( op, s.value )
+        }
+        else if( isError( s ) ) {
+            diagram.error( op, s.err )
+        }
+        else if( isComplete( s ) ) {
+            diagram.complete( op )
+        }
+
+    }
+
     private sketchSetup( k$:p5 ) {
         let seconds = 0
   
-        let diagram:Diagram
+        let diagram = createDiagram( k$, 70 )
       
         let watch = new Watch(DEFAULT_FPS)
       
@@ -135,8 +152,10 @@ export class RXMarbleDiagramElement extends HTMLElement {
           k$.noLoop()  
           
           canvas.style( 'visibility', 'visible' )
-          
-          diagram = timelineFactory( k$, 70 )
+
+          window.addEventListener( 'rxmarbles.event', (event:any) => 
+            this.processSample( event.detail, diagram, k$ ))
+
         }
       
         k$.draw = () => {
@@ -153,41 +172,6 @@ export class RXMarbleDiagramElement extends HTMLElement {
           diagram.draw( k$ )
         };
 
-        function addSample(sample:Array<Sample>) {
-            // Create required operators
-            sample
-                .reverse()
-                .forEach( s => {
-
-                    let op = diagram.getOperator( s.id )
-
-                    if ( !op   ) {
-                        if( isStart(s) )  diagram.addOperator( k$, s.id )
-                        return 
-                    }
-                    
-                    if( isValue( s ) ) {
-                        diagram.next( op, s.value )
-                    }
-                    else if( isError( s ) ) {
-                        diagram.error( op, s.err )
-                    }
-                    else if( isComplete( s ) ) {
-                        diagram.complete( op )
-                    }
-
-                })
-        }
-
-
-        this.getSamples()
-            .subscribe( { 
-                next: (sample:any) => {
-                    this.nbrOfSamplesReceived++;
-                    addSample(sample);
-                }
-        });
-
     }
 
 
@@ -203,21 +187,21 @@ export class RXMarbleDiagramElement extends HTMLElement {
      * @param sampleFilter 
      * @param tickTime 
      */
-    private getSamples():Observable<Sample[]> {
+    // private getSamples():Observable<Sample[]> {
 
-        let sort = (a:SampleInfo,b:SampleInfo) => {
-            let timeDiff = b.time - a.time ;
-            if( timeDiff !== 0 ) return timeDiff;
-            return b.type - a.type; 
+    //     let sort = (a:SampleInfo,b:SampleInfo) => {
+    //         let timeDiff = b.time - a.time ;
+    //         if( timeDiff !== 0 ) return timeDiff;
+    //         return b.type - a.type; 
 
-        }
+    //     }
 
-        return this.samples
-                //.pipe( takeWhile( sample => sample.type!=SampleItemType.Complete || sample.parentId!=undefined ) )
-                .pipe( filter( sample => this.pause===false ) )
-                .pipe( bufferTime( this.tickTime ), map( s => s.sort( sort ) ))
-                ;
-    }
+    //     return this.samples
+    //             //.pipe( takeWhile( sample => sample.type!=SampleItemType.Complete || sample.parentId!=undefined ) )
+    //             .pipe( filter( sample => this.pause===false ) )
+    //             .pipe( bufferTime( this.tickTime ), map( s => s.sort( sort ) ))
+    //             ;
+    // }
     
     /**
      * 

@@ -7,9 +7,9 @@ let combineLatest$ = () => {
 
   const w$ = <T>( id?:string ) => watch<T>( '$result', id );   
 
-  const timerOne = timer(1000, 4000).pipe( w$('timerOne') );
-  const timerTwo = timer(2000, 4000).pipe( w$('timerTwo') );
-  const timerThree = timer(3000, 4000).pipe( take(2), w$('timerThree'));
+  const timerOne = timer(1000, 400).pipe( w$('timerOne') );
+  const timerTwo = timer(2000, 200).pipe( w$('timerTwo') );
+  const timerThree = timer(3000, 300).pipe( take(2), w$('timerThree'));
 
 const combined = combineLatest(timerOne, timerTwo, timerThree).pipe( take(10), w$());
 
