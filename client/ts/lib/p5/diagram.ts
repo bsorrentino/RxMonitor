@@ -1,6 +1,6 @@
 import p5 from "p5"
 
-import { Boundary, Queue, Watch } from './common'
+import { Boundary, Queue, Watch, IMarbleDiagram } from './common'
 import { stream } from './item'
 import { operator, Operator } from "./operator"
 
@@ -18,19 +18,24 @@ type QItem = {
 }
 
 export function diagram( k$:p5, y:number ) {
+  console.assert( k$.width > 100, 'sketch width must be > %d but %d', 100, k$.width )
+
   return new Diagram( { left:100, right:k$.width }, y)
 }
 
-export class Diagram  {
+export class Diagram implements IMarbleDiagram {
   
     private _itemsQueue = new Queue<QItem>();
     private _operators:OperatorMap = {}
-    private _watch = new Watch( 3 )
+    private _watch = new Watch( 5 )
     private _lastItem:stream.Item|undefined // last item added
 
     constructor( private boundary:Boundary, private startY:number ) {
+
       //console.log( this.boundary )
     }
+    
+    scrollFactor: number;
 
     /**
      * 
@@ -43,7 +48,7 @@ export class Diagram  {
                         .map( k => this._operators[k].y )
                         .reduce( ( prev, curr ) => prev + Operator.H*2, this.startY)
 
-      const result = operator( k$, { label:label, y:y} )
+      const result = operator( this, k$, { label:label, y:y} )
 
       this._operators[ label ] = result
       
@@ -98,10 +103,34 @@ export class Diagram  {
       this._itemsQueue.push( { operator:operator, type:'error', error:e} ) 
     }
 
+    /**
+     *  interrupt the diagram
+     */
+    stop() {
+
+    }
+
+    /**
+     *  interrupt the diagram
+     */
+    pause() {
+
+    }
+
+    /**
+     *  interrupt the diagram
+     */
+    resume() {
+
+    }
+
+    /**
+     * check if the diagram need to left scroll scroll 
+     * setting the diagram scroll factor
+     */
     private needToScrollR() {
-      if( this._lastItem?.needToScrollR( this.boundary) ) {
-        Operator.scrollFactor = 1
-      }
+      this.scrollFactor = 
+        ( this._lastItem?.needToScrollR( this.boundary) ) ? 3 : 0 
     }
 
     /**
@@ -120,7 +149,6 @@ export class Diagram  {
 
             this._lastItem = operator.next( label, tick, this._lastItem  );
 
-            this.needToScrollR()
           }
           break;
         case 'complete': {
@@ -128,15 +156,11 @@ export class Diagram  {
 
             this._lastItem = operator.complete( tick, this._lastItem  );
 
-            this.needToScrollR()
           }
           break;
         case 'error': {
           const { operator, error } = qi
-
-          this._lastItem = operator.error( error!, tick, this._lastItem  );
-
-          this.needToScrollR()
+          
         }
           break;
         }
@@ -146,6 +170,7 @@ export class Diagram  {
       Object.keys(this._operators)
                         .map( k => this._operators[k] )
                         .forEach( o => o.draw( k$ ) )
+      this.needToScrollR()
     }
 
   

@@ -34,4 +34,8 @@ export class Watch {
 
 }
   
+export interface IMarbleDiagram {
+
+    readonly scrollFactor:number
+}
   

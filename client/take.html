@@ -1,0 +1,36 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>RX Marbles Monitor</title>
+
+  <link rel="stylesheet" href="examples.css">
+
+  <script src="ts/examples/take.ts"></script>
+  <!--
+  <script src="ts/examples/snippet-element.ts"></script>
+  -->
+</head>
+</head>
+<body>
+  <!--
+    <script src="dist/marble-sse-element.js"></script>
+  -->
+    <script src="ts/lib/marble-diagram-element.ts"></script>
+
+    <h1>Window operator</h1>
+    <h2>Observable of values for window of time.</h2>
+    
+  <!--
+  <rxmarble-sse ></rxmarble-sse>
+  -->  
+  <rxmarble-diagram id="diagram1" max-samples="30" tick-time="800">
+      <a href="#">click to start</a>
+  </rxmarble-diagram>
+
+<!-- 
+  <br>
+  <h3>Code</h3>
+  <rxmarble-snippet url="take.ts.txt"></rxmarble-snippet>
+-->
+</body>
+</html>

@@ -138,23 +138,42 @@ export class RXMarbleDiagramElement extends HTMLElement {
         }
 
     }
-
+    
     private sketchSetup( k$:p5 ) {
         let seconds = 0
   
-        let diagram = createDiagram( k$, 70 )
+        var diagram:Diagram = null 
       
         let watch = new Watch(DEFAULT_FPS)
       
         k$.setup = () => { 
-          const canvas = k$.createCanvas(1024,768);
-          k$.frameRate(DEFAULT_FPS);
-          k$.noLoop()  
-          
-          canvas.style( 'visibility', 'visible' )
+            const canvas = k$.createCanvas(1024,768);
+            k$.frameRate(DEFAULT_FPS);
+            k$.noLoop()  
+            
+            canvas.style( 'visibility', 'visible' )
 
-          window.addEventListener( 'rxmarbles.event', (event:any) => 
-            this.processSample( event.detail, diagram, k$ ))
+            diagram = createDiagram( k$, 70 )
+
+            const eventHandler = (event:any) =>  this.processSample( event.detail, diagram, k$ )
+            window.addEventListener( 'rxmarbles.event', eventHandler)
+
+            const pauseHandler = (event:any) => diagram.pause()
+            this.addEventListener( 'rxmarbles.pause', pauseHandler)
+
+            const resumeHandler = (event:any) => diagram.resume()
+            this.addEventListener( 'rxmarbles.resume', resumeHandler)
+            
+            this.addEventListener( 'rxmarbles.stop', (event:any) => {
+
+                window.removeEventListener( 'rxmarbles.event', eventHandler)
+                window.removeEventListener( 'rxmarbles.pause', pauseHandler)
+                window.removeEventListener( 'rxmarbles.resume', resumeHandler)
+
+                diagram.stop()
+                
+
+            })
 
         }
       

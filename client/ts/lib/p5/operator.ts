@@ -1,6 +1,6 @@
 import p5 from "p5"
 
-import { Boundary, DEFAULT_BACKGROUND} from './common'
+import { Boundary, DEFAULT_BACKGROUND, IMarbleDiagram, Watch} from './common'
 import { stream } from './item'
 
 type Props = {
@@ -8,20 +8,21 @@ type Props = {
   y:number;
 }
 
-export function operator( k$:p5, props:Props ) {
-  return new Operator( { left:100, right:k$.width }, props)
+export function operator( owner:IMarbleDiagram, k$:p5, props:Props ) {
+  return new Operator( owner, { left:100, right:k$.width }, props)
 }
 
 export class Operator  {
 
     static get H()  { return 30 }    
-    static scrollFactor:number = 0
+    //static scrollFactor:number = 0
 
     private _items = Array<stream.Item>();
     private _completed:stream.Completed|stream.Error|null = null
 
-    constructor( private boundary:Boundary, private props:Props ) {
+    constructor( private /*WeakRef*/ owner:IMarbleDiagram, private boundary:Boundary, private props:Props ) {
       //console.log( this.boundary )
+
     }
 
     get numItems() { return this._items.length }
@@ -74,17 +75,15 @@ export class Operator  {
     private get visibleItems() {
       return this._items.filter( item => !item.isNotVisibleL(this.boundary) )
     }
-
-
+    
     draw( k$: p5 ) {
-
-      // Line
+        // Line
       k$.stroke(255)
       k$.line( this.boundary.left, this.props.y, this.boundary.right, this.props.y)
 
       // Items
       this.visibleItems.forEach( item =>  {
-        item.scrollOffsetX += Operator.scrollFactor
+        item.scrollOffsetX += this.owner.scrollFactor
         item.draw(k$)   
       })
 
