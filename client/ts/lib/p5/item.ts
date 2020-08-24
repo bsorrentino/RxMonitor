@@ -49,7 +49,6 @@ export namespace stream {
     }
   
     needToScrollR( b: Boundary ) {
-      console.debug( `needToScrollR ${this.data} - [${b.left},${b.right}] - isPartialVisibleR(${this.x}): ${this.isPartialVisibleR( b )} - isNotVisibleR(${this.x}): ${this.isNotVisibleR( b ) }`)
       return this.isPartialVisibleR( b ) ||  this.isNotVisibleR( b ) 
     }
 

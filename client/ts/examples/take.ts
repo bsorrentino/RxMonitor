@@ -8,7 +8,7 @@ let window$ = () => {
   const source = interval(1000).pipe( w$('interval(1s)') );
   const example = source.pipe(take(20), w$( 'take(20)') ).pipe( delay(5000), w$( 'delay(5s)') );
 
-  return example.pipe( w$() ) .subscribe( (val:any) => console.log(val));
+  return example.pipe( w$() ).subscribe( (val:any) => console.debug(val));
    
 };
 
