@@ -1,6 +1,6 @@
 import p5 from "p5"
 
-import { Boundary, Queue, Watch, IMarbleDiagram } from './common'
+import { Boundary, Queue, Watch, IMarbleDiagram, P5 } from './common'
 import { stream } from './item'
 import { operator, Operator } from "./operator"
 
@@ -23,7 +23,7 @@ export function diagram( k$:p5, y:number ) {
   return new Diagram( { left:100, right:k$.width }, y)
 }
 
-export class Diagram implements IMarbleDiagram {
+export class Diagram implements IMarbleDiagram, P5.IDrawable {
   
     private _itemsQueue = new Queue<QItem>();
     private _operators:OperatorMap = {}

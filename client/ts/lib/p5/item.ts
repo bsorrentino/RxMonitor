@@ -1,6 +1,5 @@
 import p5 from "p5"
-
-
+import { P5 } from './common'
 
 export namespace stream {
 
@@ -19,7 +18,7 @@ export namespace stream {
   //   return new stream.Item( data, px, y, tick )
   // }
 
-  export class Item {
+  export class Item implements P5.IDrawable {
     static get D() { return 30 }
   
     scrollOffsetX = 0
