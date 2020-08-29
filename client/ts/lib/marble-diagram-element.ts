@@ -153,7 +153,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
             
             canvas.style( 'visibility', 'visible' )
 
-            diagram = createDiagram( k$, 70 )
+            diagram = createDiagram( { y:70 }, k$ )
 
             const eventHandler = (event:any) =>  this.processSample( event.detail, diagram, k$ )
             window.addEventListener( 'rxmarbles.event', eventHandler)

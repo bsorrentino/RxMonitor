@@ -3,6 +3,7 @@ import p5 from "p5"
 import { Boundary, Queue, Watch, IMarbleDiagram, P5 } from './common'
 import { stream } from './item'
 import { operator, Operator } from "./operator"
+import { Timeline } from "./timeline"
 
 
 
@@ -17,10 +18,10 @@ type QItem = {
   error?:Error
 }
 
-export function diagram( k$:p5, y:number ) {
+export function diagram( options:{y:number}, k$:p5 ) {
   console.assert( k$.width > 100, 'sketch width must be > %d but %d', 100, k$.width )
 
-  return new Diagram( { left:100, right:k$.width }, y)
+  return new Diagram( { left:100, right:k$.width }, options.y, k$)
 }
 
 export class Diagram implements IMarbleDiagram, P5.IDrawable {
@@ -30,9 +31,11 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
     private _watch = new Watch( 5 )
     private _lastItem:stream.Item|undefined // last item added
 
-    constructor( private boundary:Boundary, private startY:number ) {
+    private _timeline:Timeline
 
-      //console.log( this.boundary )
+    constructor( private boundary:Boundary, private startY:number, k$:p5 ) {
+
+      this._timeline = Timeline.create( {owner:this, label:"timeline", y:startY}, k$ )
     }
     
     scrollFactor: number;
