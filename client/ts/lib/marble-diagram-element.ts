@@ -140,11 +140,8 @@ export class RXMarbleDiagramElement extends HTMLElement {
     }
     
     private sketchSetup( k$:p5 ) {
-        let seconds = 0
   
         var diagram:Diagram = null 
-      
-        let watch = new Watch(DEFAULT_FPS)
       
         k$.setup = () => { 
             const canvas = k$.createCanvas(1024,768);
@@ -153,7 +150,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
             
             canvas.style( 'visibility', 'visible' )
 
-            diagram = createDiagram( { y:70 }, k$ )
+            diagram = createDiagram( { y:10 }, k$ )
 
             const eventHandler = (event:any) =>  this.processSample( event.detail, diagram, k$ )
             window.addEventListener( 'rxmarbles.event', eventHandler)
@@ -180,14 +177,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
         k$.draw = () => {
           
           k$.background(DEFAULT_BACKGROUND);
-          
-          // Typography
-          k$.textSize(30);
-          k$.textAlign(k$.CENTER, k$.CENTER);
-          k$.text( seconds, 30, 20 )
-          
-          watch.tick( () => ++seconds )
-            
+                      
           diagram.draw( k$ )
         };
 

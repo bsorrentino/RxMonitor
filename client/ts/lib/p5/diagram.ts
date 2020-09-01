@@ -49,7 +49,7 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
       
       const y = Object.keys(this._operators)
                         .map( k => this._operators[k].y )
-                        .reduce( ( prev, curr ) => prev + Operator.H*2, this.startY)
+                        .reduce( ( prev, curr ) => prev + Operator.H*2, this.startY + Timeline.H*2)
 
       const result = operator( this, k$, { label:label, y:y} )
 
@@ -169,6 +169,8 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
         }
 
       })
+
+      this._timeline.draw(k$)
 
       Object.keys(this._operators)
                         .map( k => this._operators[k] )
