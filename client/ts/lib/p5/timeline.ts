@@ -10,10 +10,10 @@ export class Timeline implements P5.IDrawable {
     }
     static get H()  { return 30 }   
 
-    get pointPerSecs() { return DEFAULT_FPS }
+    get pointPerSecs() { return 128 }
 
     get seconds() { return  this._seconds }
-    
+
     private _seconds = 0
 
     private eachSeconds = new Watch(DEFAULT_FPS)
@@ -24,9 +24,10 @@ export class Timeline implements P5.IDrawable {
 
     private scrollOffsetX = 0
 
+    
     constructor( private /*WeakRef*/ owner:IMarbleDiagram, viewport:Boundary, private label:string, private y:number ) {
 
-      const w = viewport.right - viewport.left
+      const w = viewport.right // - viewport.left 
       
       this.viewport = {
         width:w,
@@ -35,7 +36,9 @@ export class Timeline implements P5.IDrawable {
         right:viewport.right
       }
 
-      const maxNumberSecsDisplayable = Math.floor(w / this.pointPerSecs)
+      const maxNumberSecsDisplayable = w / this.pointPerSecs
+      
+      console.assert( w%this.pointPerSecs == 0, 'this algorithm works only if pointPerSecs is a multiple of viewport width!' )
 
       this.doubleBuffer = new DoubleSecsBuffer(maxNumberSecsDisplayable)
 
@@ -54,10 +57,16 @@ export class Timeline implements P5.IDrawable {
 
     draw( k$: p5 ) {
 
+      // Line
+      k$.stroke(255)
+      k$.line( this.viewport.left, this.y, this.viewport.right, this.y)
+
+
+      // Seconds
+        
       ++this.scrollOffsetX
   
-      if(this.scrollOffsetX==this.viewport.width * 2 ) {
-        //console.log( 'scroll end 2' )
+      if(this.scrollOffsetX==this.viewport.width2 ) {
         
         this.doubleBuffer.flip()
         this.doubleBuffer.primary.substractX(this.viewport.width)
@@ -66,7 +75,6 @@ export class Timeline implements P5.IDrawable {
       }
     
       if(this.scrollOffsetX==this.viewport.width) {
-        //console.log( 'scroll end 1' )
         
         let startX = this.viewport.right + this.viewport.width
         
@@ -75,13 +83,17 @@ export class Timeline implements P5.IDrawable {
         
       }
     
-        // Line
-      k$.stroke(255)
-      k$.line( this.viewport.left, this.y, this.viewport.right, this.y)
+      
+      
+      this.eachSeconds.tick( () => ++this._seconds )
 
+      this.doubleBuffer.forEach( ( b, i ) => {
+        let x = b.data[i] - this.scrollOffsetX
+        this.drawSecond( b.start + i, x, k$)
+      })
 
       // Rect
-      let height = stream.Item.D + 2;
+      let height = 40;
 
       k$.noStroke()
       k$.fill( DEFAULT_BACKGROUND )
@@ -95,13 +107,6 @@ export class Timeline implements P5.IDrawable {
 
       k$.text( this.label, 0, this.y )
       
-      
-      this.eachSeconds.tick( () => ++this._seconds )
-
-      this.doubleBuffer.forEach( ( b, i ) => {
-        let x = b.data[i] - this.scrollOffsetX
-        this.drawSecond( b.start + i, x, k$)
-      })
     } 
   
   } 
@@ -119,6 +124,8 @@ class SecsBuffer {
     this.start = 0
   }
   
+  get lastX():number { return this.data[ this.data.length - 1] }
+
   get end():number { return this.start + this.data.length }
 
   get length() { return this.data.length }
