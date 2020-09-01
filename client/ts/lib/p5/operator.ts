@@ -1,6 +1,6 @@
 import p5 from "p5"
 
-import { Boundary, DEFAULT_BACKGROUND, IMarbleDiagram, Watch} from './common'
+import { Boundary, DEFAULT_BACKGROUND, IMarbleDiagram, P5} from './common'
 import { stream } from './item'
 
 type Props = {
@@ -12,7 +12,7 @@ export function operator( owner:IMarbleDiagram, k$:p5, props:Props ) {
   return new Operator( owner, { left:100, right:k$.width }, props)
 }
 
-export class Operator  {
+export class Operator implements P5.IDrawable {
 
     static get H()  { return 30 }    
     //static scrollFactor:number = 0

@@ -1,3 +1,5 @@
+import p5 from "p5"
+
 export const DEFAULT_BACKGROUND = 51
 
 export const DEFAULT_FPS = 30
@@ -38,4 +40,11 @@ export interface IMarbleDiagram {
 
     readonly scrollFactor:number
 }
-  
+
+export namespace P5 {
+    
+    export interface IDrawable {
+
+        draw( k$: p5 ):void;
+    }
+}

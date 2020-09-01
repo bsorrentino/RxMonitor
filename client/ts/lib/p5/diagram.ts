@@ -1,8 +1,9 @@
 import p5 from "p5"
 
-import { Boundary, Queue, Watch, IMarbleDiagram } from './common'
+import { Boundary, Queue, Watch, IMarbleDiagram, P5 } from './common'
 import { stream } from './item'
 import { operator, Operator } from "./operator"
+import { Timeline } from "./timeline"
 
 
 
@@ -17,22 +18,24 @@ type QItem = {
   error?:Error
 }
 
-export function diagram( k$:p5, y:number ) {
+export function diagram( options:{y:number}, k$:p5 ) {
   console.assert( k$.width > 100, 'sketch width must be > %d but %d', 100, k$.width )
 
-  return new Diagram( { left:100, right:k$.width }, y)
+  return new Diagram( { left:100, right:k$.width }, options.y, k$)
 }
 
-export class Diagram implements IMarbleDiagram {
+export class Diagram implements IMarbleDiagram, P5.IDrawable {
   
     private _itemsQueue = new Queue<QItem>();
     private _operators:OperatorMap = {}
     private _watch = new Watch( 5 )
     private _lastItem:stream.Item|undefined // last item added
 
-    constructor( private boundary:Boundary, private startY:number ) {
+    private _timeline:Timeline
 
-      //console.log( this.boundary )
+    constructor( private boundary:Boundary, private startY:number, k$:p5 ) {
+
+      this._timeline = Timeline.create( {owner:this, label:"timeline", y:startY}, k$ )
     }
     
     scrollFactor: number;
@@ -46,7 +49,7 @@ export class Diagram implements IMarbleDiagram {
       
       const y = Object.keys(this._operators)
                         .map( k => this._operators[k].y )
-                        .reduce( ( prev, curr ) => prev + Operator.H*2, this.startY)
+                        .reduce( ( prev, curr ) => prev + Operator.H*2, this.startY + Timeline.H*2)
 
       const result = operator( this, k$, { label:label, y:y} )
 
@@ -166,6 +169,8 @@ export class Diagram implements IMarbleDiagram {
         }
 
       })
+
+      this._timeline.draw(k$)
 
       Object.keys(this._operators)
                         .map( k => this._operators[k] )
