@@ -1,9 +1,9 @@
 import p5 from "p5"
 
-import { Viewport, Queue, Watch, IMarbleDiagram, P5 } from './common'
+import { Sample } from '../marble-types';
+import { Viewport, Queue, Watch, IMarbleDiagram, P5, DEFAULT_FPS } from './common'
 import { stream } from './item'
 import { Operator } from "./operator"
-import { Timeline } from "./timeline"
 
 
 
@@ -14,9 +14,10 @@ type OperatorMap = { 
 type QItem = {
   operator:Operator;
   type:'next'|'complete'|'error'
-  label?:string
-  error?:Error
+  eventData:Sample
 }
+
+type LastItem = { item?:stream.Item ; time?: number }
 
 export function diagram( options:{y:number}, k$:p5 ) {
   console.assert( k$.width > 100, 'sketch width must be > %d but %d', 100, k$.width )
@@ -28,14 +29,10 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
   
     private _itemsQueue = new Queue<QItem>();
     private _operators:OperatorMap = {}
-    private _watch = new Watch( 5 )
-    private _lastItem:stream.Item|undefined // last item added
-
-    private _timeline:Timeline
+    private _watch = new Watch( 1 /*DEFAULT_FPS*/ )
+    private _lastItem:LastItem = {} // last item added
 
     constructor( private viewport:Viewport, private startY:number, k$:p5 ) {
-
-      this._timeline = Timeline.of( {owner:this, label:"timeline", y:startY}, k$ )
     }
     
     scrollFactor: number;
@@ -49,7 +46,7 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
       
       const y = Object.keys(this._operators)
                         .map( k => this._operators[k].y )
-                        .reduce( ( prev, curr ) => prev + Operator.H*2, this.startY + Timeline.H*2)
+                        .reduce( ( prev, curr ) => prev + Operator.H*2, this.startY)
 
       const result = Operator.of( { owner:this, label:label, y:y }, k$ )
 
@@ -81,9 +78,9 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
      * @param operatorLabelOrIndex 
      * @param item 
      */
-    next( operator:Operator, item:string ) {
+    next( operator:Operator, eventData:Sample ) {
       
-      this._itemsQueue.push( { operator:operator, type:'next', label:item} ) 
+      this._itemsQueue.push( { operator:operator, type:'next', eventData:eventData} ) 
     }
 
     /**
@@ -91,9 +88,9 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
      * @param operatorLabelOrIndex 
      * @param item 
      */
-    complete( operator:Operator ) {
+    complete( operator:Operator, eventData:Sample ) {
       
-      this._itemsQueue.push( { operator:operator, type:'complete'} ) 
+      this._itemsQueue.push( { operator:operator, type:'complete', eventData:eventData } ) 
     }
 
     /**
@@ -101,9 +98,9 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
      * @param operatorLabelOrIndex 
      * @param item 
      */
-    error( operator:Operator, e:Error ) {
+    error( operator:Operator, eventData:Sample ) {
 
-      this._itemsQueue.push( { operator:operator, type:'error', error:e} ) 
+      this._itemsQueue.push( { operator:operator, type:'error', eventData:eventData} ) 
     }
 
     /**
@@ -133,7 +130,7 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
      */
     private needToScrollR() {
       this.scrollFactor = 
-        ( this._lastItem?.needToScrollR( this.viewport) ) ? 3 : 0 
+        ( this._lastItem.item?.needToScrollR( this.viewport) ) ? 2 : 0 
     }
 
     /**
@@ -142,35 +139,29 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
      */
     draw( k$: p5 ) { 
 
-      this._watch.tick( ( tick ) => { // time windowing
+      this._watch.tick( ( tick ) => {
         
+        if( this._itemsQueue.isEmpty() ) return;
+
         const qi = this._itemsQueue.pop()
 
+        const { operator, eventData } = qi
+        
         switch( qi?.type ) {
-        case 'next':{
-            const { operator, label } = qi
-
-            this._lastItem = operator.next( label, tick, this._lastItem  );
-
-          }
+        case 'next':
+          this._lastItem.item = operator.next( eventData, tick, this._lastItem  )
           break;
-        case 'complete': {
-            const { operator } = qi
-
-            this._lastItem = operator.complete( tick, this._lastItem  );
-
-          }
+        case 'complete':
+          this._lastItem.item = operator.complete(eventData,  tick, this._lastItem  )
           break;
-        case 'error': {
-          const { operator, error } = qi
-          
-        }
+        case 'error':
+          this._lastItem.item = operator.error( eventData, tick, this._lastItem  )
           break;
         }
+
+        this._lastItem.time = eventData.time
 
       })
-
-      this._timeline.draw(k$)
 
       Object.keys(this._operators)
                         .map( k => this._operators[k] )

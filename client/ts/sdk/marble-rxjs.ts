@@ -88,7 +88,6 @@ export function watch<T>( parentId:string, id?:string ):MonoTypeOperatorFunction
     })
 }
 
-//let eventTime = () => (performance) ? performance.now() : Date.now() ;
 class StreamsInfo {
     [ id:string ]:number;
 
@@ -96,11 +95,11 @@ class StreamsInfo {
 
 let _ids:StreamsInfo = {}
 
-var _eventSeq = 0;
+//var _eventSeq = 0;
+//let eventTime = () => ++_eventSeq;
 
-//let eventTime = () => (performance) ? performance.now() : Date.now() ;
+let eventTime = () => (performance) ? performance.now() : Date.now() ;
 
-let eventTime = () => ++_eventSeq;
 
 /**
  * 
