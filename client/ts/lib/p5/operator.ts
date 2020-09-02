@@ -77,7 +77,7 @@ export class Operator implements P5.IDrawable {
 
     }
 
-    complete( eventData:Sample, tick:number, relativeTo:LastItem ):stream.Item { 
+    complete( _:Sample, tick:number, relativeTo:LastItem ):stream.Item { 
       if( this._completed ) return this._completed
 
       const { item, time } = relativeTo
@@ -94,7 +94,7 @@ export class Operator implements P5.IDrawable {
     error( eventData:Sample, tick:number, relativeTo:LastItem ) { 
       if( this._completed ) return this._completed
 
-      const { item, time } = relativeTo
+      const { item } = relativeTo
       const x = ( item ) ? item.x  : this.viewport.left
 
       this._completed = stream.Error.of( {data: eventData.err, x: x + stream.Item.D, y: this.y, tick: tick} ) 
