@@ -10,7 +10,7 @@ export class Timeline implements P5.IDrawable {
     }
     static get H()  { return 30 }   
 
-    get pointPerSecs() { return 128 }
+    get pointPerSecs() { return 30 }
 
     get seconds() { return  this._seconds }
 
@@ -36,8 +36,9 @@ export class Timeline implements P5.IDrawable {
         right:viewport.right
       }
 
-      const maxNumberSecsDisplayable = w / this.pointPerSecs
-      
+      const maxNumberSecsDisplayable = Math.floor(w / this.pointPerSecs)
+      //const remainder = w % this.pointPerSecs
+
       console.assert( w%this.pointPerSecs == 0, 'this algorithm works only if pointPerSecs is a multiple of viewport width!' )
 
       this.doubleBuffer = new DoubleSecsBuffer(maxNumberSecsDisplayable)
