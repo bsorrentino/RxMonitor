@@ -57,9 +57,11 @@ export namespace stream {
     draw(k$: p5) {
       k$.push()
 
+      k$.stroke( 0 )
       k$.fill( 255 )
       k$.circle(this.x, this.y, Item.D)
       
+      k$.noStroke()
       k$.fill( 0 )
       k$.textSize(15)
       k$.textAlign(k$.CENTER, k$.CENTER);
