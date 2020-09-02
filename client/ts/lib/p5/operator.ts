@@ -1,33 +1,28 @@
 import p5 from "p5"
 
-import { Boundary, DEFAULT_BACKGROUND, IMarbleDiagram, P5} from './common'
+import { Viewport, DEFAULT_BACKGROUND, IMarbleDiagram, P5} from './common'
 import { stream } from './item'
 
-type Props = {
-  label:string;
-  y:number;
-}
-
-export function operator( owner:IMarbleDiagram, k$:p5, props:Props ) {
-  return new Operator( owner, { left:100, right:k$.width }, props)
-}
 
 export class Operator implements P5.IDrawable {
 
+    static  of( args:{ owner:IMarbleDiagram, label:string, y:number }, k$:p5):Operator {
+      return new Operator( args.owner, { left:100, right:k$.width }, args.label, args.y )
+    }
+
     static get H()  { return 30 }    
-    //static scrollFactor:number = 0
 
     private _items = Array<stream.Item>();
     private _completed:stream.Completed|stream.Error|null = null
 
-    constructor( private /*WeakRef*/ owner:IMarbleDiagram, private boundary:Boundary, private props:Props ) {
+    constructor( private /*WeakRef*/ owner:IMarbleDiagram, private viewport:Viewport, private label:string, private _y:number ) {
       //console.log( this.boundary )
 
     }
 
     get numItems() { return this._items.length }
     
-    get y() { return this.props.y }
+    get y() { return this._y }
 
     get isCompleted() { return this._completed != null }
 
@@ -38,9 +33,9 @@ export class Operator implements P5.IDrawable {
     next( data:any, tick:number, relativeTo?:stream.Item ):stream.Item|undefined {
       if( this._completed ) return
 
-      const x = ( relativeTo ) ? relativeTo.x  : this.boundary.left
+      const x = ( relativeTo ) ? relativeTo.x  : this.viewport.left
       
-      const item = new stream.Item( data, x + stream.Item.D, this.y, tick )
+      const item = stream.Item.of( { data: data, x: x + stream.Item.D, y: this.y, tick: tick } )
 
       this._items.push( item );
   
@@ -51,9 +46,9 @@ export class Operator implements P5.IDrawable {
     complete( tick:number, relativeTo?:stream.Item  ):stream.Item { 
       if( this._completed ) return this._completed
 
-      const x = ( relativeTo ) ? relativeTo.x  : this.boundary.left
+      const x = ( relativeTo ) ? relativeTo.x  : this.viewport.left
 
-      this._completed = new stream.Completed( null, x  + stream.Item.D, this.y, tick ) 
+      this._completed = stream.Completed.of( {x: x + stream.Item.D, y: this.y, tick: tick } ) 
 
       this._items.push( this._completed );
 
@@ -63,9 +58,9 @@ export class Operator implements P5.IDrawable {
     error( e:Error, tick:number, relativeTo?:stream.Item ) { 
       if( this._completed ) return this._completed
 
-      const x = ( relativeTo ) ? relativeTo.x  : this.boundary.left
+      const x = ( relativeTo ) ? relativeTo.x  : this.viewport.left
 
-      this._completed = new stream.Error( e, x  + stream.Item.D, this.y, tick ) 
+      this._completed = stream.Error.of( {data: e, x: x + stream.Item.D, y: this.y, tick: tick} ) 
 
       this._items.push( this._completed );
 
@@ -73,13 +68,13 @@ export class Operator implements P5.IDrawable {
     }
 
     private get visibleItems() {
-      return this._items.filter( item => !item.isNotVisibleL(this.boundary) )
+      return this._items.filter( item => !item.isNotVisibleL(this.viewport) )
     }
     
     draw( k$: p5 ) {
         // Line
       k$.stroke(255)
-      k$.line( this.boundary.left, this.props.y, this.boundary.right, this.props.y)
+      k$.line( this.viewport.left, this._y, this.viewport.right, this._y)
 
       // Items
       this.visibleItems.forEach( item =>  {
@@ -92,7 +87,7 @@ export class Operator implements P5.IDrawable {
 
       k$.noStroke()
       k$.fill( DEFAULT_BACKGROUND )
-      k$.rect( 0, this.props.y - height/2, this.boundary.left, height )
+      k$.rect( 0, this._y - height/2, this.viewport.left, height )
 
       // Typography
 
@@ -100,7 +95,7 @@ export class Operator implements P5.IDrawable {
       k$.textSize(18)
       k$.textAlign(k$.LEFT, k$.CENTER);
 
-      k$.text( this.props.label, 0, this.props.y )
+      k$.text( this.label, 0, this._y )
 
     } 
   

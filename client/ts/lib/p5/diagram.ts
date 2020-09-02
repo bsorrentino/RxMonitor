@@ -1,8 +1,8 @@
 import p5 from "p5"
 
-import { Boundary, Queue, Watch, IMarbleDiagram, P5 } from './common'
+import { Viewport, Queue, Watch, IMarbleDiagram, P5 } from './common'
 import { stream } from './item'
-import { operator, Operator } from "./operator"
+import { Operator } from "./operator"
 import { Timeline } from "./timeline"
 
 
@@ -33,9 +33,9 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
 
     private _timeline:Timeline
 
-    constructor( private boundary:Boundary, private startY:number, k$:p5 ) {
+    constructor( private viewport:Viewport, private startY:number, k$:p5 ) {
 
-      this._timeline = Timeline.create( {owner:this, label:"timeline", y:startY}, k$ )
+      this._timeline = Timeline.of( {owner:this, label:"timeline", y:startY}, k$ )
     }
     
     scrollFactor: number;
@@ -51,7 +51,7 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
                         .map( k => this._operators[k].y )
                         .reduce( ( prev, curr ) => prev + Operator.H*2, this.startY + Timeline.H*2)
 
-      const result = operator( this, k$, { label:label, y:y} )
+      const result = Operator.of( { owner:this, label:label, y:y }, k$ )
 
       this._operators[ label ] = result
       
@@ -133,7 +133,7 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
      */
     private needToScrollR() {
       this.scrollFactor = 
-        ( this._lastItem?.needToScrollR( this.boundary) ) ? 3 : 0 
+        ( this._lastItem?.needToScrollR( this.viewport) ) ? 3 : 0 
     }
 
     /**
@@ -142,7 +142,7 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
      */
     draw( k$: p5 ) { 
 
-      this._watch.tick( ( tick ) => {
+      this._watch.tick( ( tick ) => { // time windowing
         
         const qi = this._itemsQueue.pop()
 

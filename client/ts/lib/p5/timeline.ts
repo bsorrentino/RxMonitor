@@ -1,11 +1,11 @@
 import p5 from "p5"
 
-import { Boundary, DEFAULT_BACKGROUND, IMarbleDiagram, P5, Watch, DEFAULT_FPS } from './common'
+import { Viewport, DEFAULT_BACKGROUND, IMarbleDiagram, P5, Watch, DEFAULT_FPS } from './common'
 import { stream } from './item'
 
 export class Timeline implements P5.IDrawable {
 
-    static create( options:{ owner:IMarbleDiagram, label:string, y:number }, k$:p5 ):Timeline {
+    static of( options:{ owner:IMarbleDiagram, label:string, y:number }, k$:p5 ):Timeline {
       return new Timeline( options.owner, { left:100, right:k$.width }, options.label, options.y)
     }
     static get H()  { return 30 }   
@@ -18,14 +18,14 @@ export class Timeline implements P5.IDrawable {
 
     private eachSeconds = new Watch(DEFAULT_FPS)
 
-    private viewport:{ width:number, width2: number} & Boundary
+    private viewport:{ width:number, width2: number} & Viewport
 
     private doubleBuffer:DoubleSecsBuffer;
 
     private scrollOffsetX = 0
 
     
-    constructor( private /*WeakRef*/ owner:IMarbleDiagram, viewport:Boundary, private label:string, private y:number ) {
+    constructor( private /*WeakRef*/ owner:IMarbleDiagram, viewport:Viewport, private label:string, private y:number ) {
 
       const w = viewport.right // - viewport.left 
       

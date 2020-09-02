@@ -1,17 +1,10 @@
 import p5 from "p5"
-import { P5 } from './common'
+import { P5, Viewport } from './common'
+
+type GlobalError = Error
 
 export namespace stream {
 
-  type Boundary = { left:number ; right:number }
-
-  type Props = {
-    data:any;
-    px:number;
-    y:number;
-    tick:number
-  }
-  
   // export function item( props:Props ) {
   //   const { data, px, y, tick } = props 
     
@@ -20,34 +13,44 @@ export namespace stream {
 
   export class Item implements P5.IDrawable {
     static get D() { return 30 }
-  
+    
+    static of( args:{
+      data:any;
+      x:number;
+      y:number;
+      tick:number
+    } ):Item {
+      return new Item( args.data, args.x, args.y, args.tick )
+    }
+
+
     scrollOffsetX = 0
   
-    get x() { return this.px - this.scrollOffsetX }
+    get x() { return this._x - this.scrollOffsetX }
   
-    constructor(protected data: any, protected px: number, protected y: number, protected tick:number) { }
+    constructor(protected data: any, protected _x: number, protected y: number, protected tick:number) { }
   
-    IsFullVisible(b: Boundary) {
+    IsFullVisible(b: Viewport) {
       return (this.x > b.left && this.x < b.right - Item.D)
     }
   
-    isPartialVisibleR(b: Boundary) {
+    isPartialVisibleR(b: Viewport) {
       return (this.x < b.right && this.x + Item.D > b.right )
     }
   
-    isNotVisibleR(b: Boundary) { 
+    isNotVisibleR(b: Viewport) { 
       return (this.x >= b.right) 
     }
     
-    isPartialVisibleL( b: Boundary ) {
+    isPartialVisibleL( b: Viewport ) {
       return (this.x < b.left && this.x > b.left-Item.D)
     }
   
-    isNotVisibleL(b: Boundary) { 
+    isNotVisibleL(b: Viewport) { 
       return (this.x <= b.left-Item.D) 
     }
   
-    needToScrollR( b: Boundary ) {
+    needToScrollR( b: Viewport ) {
       return this.isPartialVisibleR( b ) ||  this.isNotVisibleR( b ) 
     }
 
@@ -67,7 +70,14 @@ export namespace stream {
   }
   
   export class Completed extends Item {
-  
+    static of( args:{
+      x:number;
+      y:number;
+      tick:number
+    } ):Completed {
+      return new Completed( null, args.x, args.y, args.tick )
+    }
+
     draw(k$: p5) {
       k$.push()
 
@@ -80,7 +90,17 @@ export namespace stream {
     }
   } 
   
+  
   export class Error extends Item {
+
+    static of( args:{
+      data: GlobalError,
+      x:number;
+      y:number;
+      tick:number
+    } ):Error {
+      return new Error( args.data, args.x, args.y, args.tick )
+    }
   
     draw(k$: p5) {
       k$.push()
