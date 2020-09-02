@@ -24,6 +24,12 @@ export class Operator implements P5.IDrawable {
 
     get numItems() { return this._items.length }
     
+    get lastItem():stream.Item|undefined {  
+      const n = this._items.length
+      if( n > 0 )
+        return this._items[n-1]
+    } 
+
     get y() { return this._y }
 
     get isCompleted() { return this._completed != null }
@@ -38,11 +44,24 @@ export class Operator implements P5.IDrawable {
 
       const x = ( item ) ? item.x  : this.viewport.right
 
-      const timePassed = Math.round(eventData.time - (time || 0))
+      
 
-      console.debug( 'time difference respect the last item emitted',  timePassed )
+      if( time ) {
+        const timePassed = Math.round(eventData.time - time)
 
-      return x  + (( timePassed > 0 ) ?  stream.Item.D + 2 : 0)
+        if( timePassed > 0 ) {
+          //console.debug( 'time difference respect the last item emitted',  timePassed )
+          return x  + stream.Item.D + 2
+        }
+
+      }
+      if( this.lastItem && this.lastItem.x == x ) {
+        console.debug( `override item detection on ${this.label}` )
+        return x + Math.floor(stream.Item.D / 2)
+      }
+
+      return x
+        
     }
 
     next( eventData:Sample, tick:number, relativeTo:LastItem ):stream.Item|undefined {
