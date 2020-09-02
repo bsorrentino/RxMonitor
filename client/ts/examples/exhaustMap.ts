@@ -7,14 +7,15 @@ let exhaustMap$ = () => {
   const w$ = <T>( id?:string ) => watch<T>( '$result', id );
 
   const sourceInterval = interval(1000);
-  const delayedInterval = sourceInterval.pipe(delay(10), map( v => v*2 ), take(4));
+  const delayedInterval = sourceInterval.pipe(delay(10), map( v => v*2 ), take(4))
+                                        .pipe( w$('delay(10)') );
   
   const exhaustSub = merge(
-    delayedInterval.pipe( w$('delayedInterval') ),
+    delayedInterval,
     of(true, false, true, false).pipe( w$('of()') )
     )
     .pipe( w$('merge') )
-    .pipe(exhaustMap(_ => sourceInterval.pipe(take(6))), w$( 'exhaustMap'))
+    .pipe(exhaustMap(_ => sourceInterval.pipe(take(6))), w$('exhaustMap'))
 
     return exhaustSub
             .pipe( w$() )  
