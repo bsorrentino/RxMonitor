@@ -109,7 +109,7 @@ let eventTime = () => (performance) ? performance.now() : Date.now() ;
  */
 export function observeAndNotify<T>( observer:Observer<T> , id:string, parentId?:string ):PartialObserver<T> 
 {
-    console.log( 'id=', id,  'parentId=', parentId );
+    console.debug( `id='${id}', parentId='${parentId}'` );
 
     const _id =  (() => {
         if( _ids[id]===undefined ) {
