@@ -1,8 +1,10 @@
 import p5 from "p5"
 
+import { Sample } from '../marble-types';
 import { Viewport, DEFAULT_BACKGROUND, IMarbleDiagram, P5} from './common'
 import { stream } from './item'
 
+type LastItem = { item?:stream.Item ; time?: number }
 
 export class Operator implements P5.IDrawable {
 
@@ -30,23 +32,38 @@ export class Operator implements P5.IDrawable {
 
     get isCompletedWithError() { return this._completed instanceof stream.Error }
 
-    next( data:any, tick:number, relativeTo?:stream.Item ):stream.Item|undefined {
+    private getNextItemX( eventData:Sample, relativeTo:LastItem ) {
+
+      const { item, time } = relativeTo
+
+      const x = ( item ) ? item.x  : this.viewport.right
+
+      const timePassed = Math.round(eventData.time - (time || 0))
+
+      console.debug( 'time difference respect the last item emitted',  timePassed )
+
+      return x  + (( timePassed > 0 ) ?  stream.Item.D + 2 : 0)
+    }
+
+    next( eventData:Sample, tick:number, relativeTo:LastItem ):stream.Item|undefined {
       if( this._completed ) return
-
-      const x = ( relativeTo ) ? relativeTo.x  : this.viewport.left
-      
-      const item = stream.Item.of( { data: data, x: x + stream.Item.D, y: this.y, tick: tick } )
-
-      this._items.push( item );
   
-      return item
+      const x = this.getNextItemX( eventData, relativeTo)
+
+      const result = stream.Item.of( { data: eventData.value, x: x, y: this.y, tick: tick } )
+
+      this._items.push( result );
+  
+      return result
 
     }
 
-    complete( tick:number, relativeTo?:stream.Item  ):stream.Item { 
+    complete( eventData:Sample, tick:number, relativeTo:LastItem ):stream.Item { 
       if( this._completed ) return this._completed
 
-      const x = ( relativeTo ) ? relativeTo.x  : this.viewport.left
+      const { item, time } = relativeTo
+
+      const x = ( item ) ? item.x  : this.viewport.left
 
       this._completed = stream.Completed.of( {x: x + stream.Item.D, y: this.y, tick: tick } ) 
 
@@ -55,12 +72,13 @@ export class Operator implements P5.IDrawable {
       return this._completed
     }
  
-    error( e:Error, tick:number, relativeTo?:stream.Item ) { 
+    error( eventData:Sample, tick:number, relativeTo:LastItem ) { 
       if( this._completed ) return this._completed
 
-      const x = ( relativeTo ) ? relativeTo.x  : this.viewport.left
+      const { item, time } = relativeTo
+      const x = ( item ) ? item.x  : this.viewport.left
 
-      this._completed = stream.Error.of( {data: e, x: x + stream.Item.D, y: this.y, tick: tick} ) 
+      this._completed = stream.Error.of( {data: eventData.err, x: x + stream.Item.D, y: this.y, tick: tick} ) 
 
       this._items.push( this._completed );
 

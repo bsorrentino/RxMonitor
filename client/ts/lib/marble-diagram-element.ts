@@ -39,18 +39,6 @@ export class RXMarbleDiagramElement extends HTMLElement {
     private sketch:p5;
     private nbrOfSamplesReceived = 0;
 
-    get maxNbrOfSamples() {
-        return Number(this.getAttribute(MAX_SAMPLES) || 50 );
-    }
-    
-    get tickTime() {
-        return Number(this.getAttribute(TICKTIME_ATTR) || 1000);
-    }
-
-    set tickTime( v:number ) {
-       this.setAttribute(TICKTIME_ATTR, String(v) );
-    }
-
     get pause() {
         //console.log( "get pause", this.getAttribute(PAUSE_ATTR) );
         return this.getAttribute(PAUSE_ATTR)==='true';
@@ -128,13 +116,13 @@ export class RXMarbleDiagramElement extends HTMLElement {
         }
         
         if( isValue( s ) ) {
-            diagram.next( op, s.value )
+            diagram.next( op, s )
         }
         else if( isError( s ) ) {
-            diagram.error( op, s.err )
+            diagram.error( op, s )
         }
         else if( isComplete( s ) ) {
-            diagram.complete( op )
+            diagram.complete( op, s )
         }
 
     }
@@ -150,7 +138,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
             
             canvas.style( 'visibility', 'visible' )
 
-            diagram = createDiagram( { y:10 }, k$ )
+            diagram = createDiagram( { y:25 }, k$ )
 
             const eventHandler = (event:any) =>  this.processSample( event.detail, diagram, k$ )
             window.addEventListener( 'rxmarbles.event', eventHandler)
@@ -183,7 +171,6 @@ export class RXMarbleDiagramElement extends HTMLElement {
 
     }
 
-
     /**
      * 
      */
@@ -193,28 +180,6 @@ export class RXMarbleDiagramElement extends HTMLElement {
 
     /**
      * 
-     * @param sampleFilter 
-     * @param tickTime 
-     */
-    // private getSamples():Observable<Sample[]> {
-
-    //     let sort = (a:SampleInfo,b:SampleInfo) => {
-    //         let timeDiff = b.time - a.time ;
-    //         if( timeDiff !== 0 ) return timeDiff;
-    //         return b.type - a.type; 
-
-    //     }
-
-    //     return this.samples
-    //             //.pipe( takeWhile( sample => sample.type!=SampleItemType.Complete || sample.parentId!=undefined ) )
-    //             .pipe( filter( sample => this.pause===false ) )
-    //             .pipe( bufferTime( this.tickTime ), map( s => s.sort( sort ) ))
-    //             ;
-    // }
-    
-    /**
-     * 
-     * @param tickTime 
      */
     public start() {
         
