@@ -33,7 +33,7 @@ export class Operator implements P5.IDrawable {
     next( data:any, tick:number, relativeTo?:stream.Item ):stream.Item|undefined {
       if( this._completed ) return
 
-      const x = ( relativeTo ) ? relativeTo.x  : this.viewport.left
+      const x = ( relativeTo ) ? relativeTo.x  : this.viewport.right
       
       const item = stream.Item.of( { data: data, x: x + stream.Item.D, y: this.y, tick: tick } )
 
