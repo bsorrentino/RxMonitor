@@ -130,7 +130,7 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
      */
     private needToScrollR() {
       this.scrollFactor = 
-        ( this._lastItem.item?.needToScrollR( this.viewport) ) ? 2 : 0 
+        ( this._lastItem.item?.needToScrollR( this.viewport) ) ? 1 : 0 
     }
 
     /**
