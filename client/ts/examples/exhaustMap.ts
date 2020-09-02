@@ -10,12 +10,12 @@ let exhaustMap$ = () => {
   const delayedInterval = sourceInterval.pipe(delay(10), map( v => v*2 ), take(4))
                                         .pipe( w$('delay(10)') );
   
-  const exhaustSub = merge(
-    delayedInterval,
-    of(true, false, true, false).pipe( w$('of()') )
+  const exhaustSub = merge( 
+      delayedInterval, 
+      of(true,false,true,true).pipe( w$('of()') )
     )
     .pipe( w$('merge') )
-    .pipe(exhaustMap(_ => sourceInterval.pipe(take(6))), w$('exhaustMap'))
+    .pipe( exhaustMap(_ => sourceInterval.pipe(w$('srcInterval(1s)')).pipe(take(5))) )
 
     return exhaustSub
             .pipe( w$() )  
