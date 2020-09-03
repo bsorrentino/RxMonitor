@@ -131,8 +131,6 @@ export class RXMarbleDiagramElement extends HTMLElement {
     
     private sketchSetup( k$:p5 ) {
   
-        
-      
         k$.setup = () => { 
             const canvas = k$.createCanvas(1024,768);
             canvas.style( 'background-color', '#222222')

@@ -3,8 +3,6 @@ declare class RXMarbleDiagramElement extends HTMLElement {
 
     readonly maxNbrOfSamples:number;
 
-    tickTime:number;
-
     pause:boolean;
 
     /**

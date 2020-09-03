@@ -9,26 +9,28 @@ import {
 
 import { SampleItemType, Sample } from '../lib/marble-types';
 
+interface StreamsInfo {
+    [ id:string ]:number;
+}
+
+let _ids:StreamsInfo = {}
+
+let eventTime = () => (performance) ? performance.now() : Date.now() ;
+
+/**
+ * 
+ * @param parentId 
+ * @param id 
+ */
 export function watch<T>( parentId:string, id?:string ):MonoTypeOperatorFunction<T> {
+
+    if( !id ) _ids = {}
 
     return (source:Observable<T>) => new Observable<T>( observer =>  {
 
         return source.subscribe(observeAndNotify( observer, id || parentId, id ? parentId : undefined ) );
     })
 }
-
-class StreamsInfo {
-    [ id:string ]:number;
-
-}
-
-let _ids:StreamsInfo = {}
-
-//var _eventSeq = 0;
-//let eventTime = () => ++_eventSeq;
-
-let eventTime = () => (performance) ? performance.now() : Date.now() ;
-
 
 /**
  * 

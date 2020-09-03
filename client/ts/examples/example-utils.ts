@@ -22,12 +22,10 @@ export class ExampleState {
     }
 
     start() {
-
-        const t = this.diagram.tickTime + 50;
-
+        const tickTime = 0
         this.diagram.pause = false;
         this.subscription = this._example( this.done );
-        this.subscription.add( () => setTimeout( () => { if( this.done ) this.done(); }, t ));
+        this.subscription.add( () => setTimeout( () => { if( this.done ) this.done(); }, tickTime ));
         return this;        
     }
 
