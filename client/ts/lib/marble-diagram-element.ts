@@ -51,6 +51,8 @@ export class RXMarbleDiagramElement extends HTMLElement {
     
     static get observedAttributes() { return [PAUSE_ATTR, TICKTIME_ATTR]; }
 
+    private diagram:Diagram = null 
+
     /**
      * 
      */
@@ -129,24 +131,23 @@ export class RXMarbleDiagramElement extends HTMLElement {
     
     private sketchSetup( k$:p5 ) {
   
-        var diagram:Diagram = null 
+        
       
         k$.setup = () => { 
             const canvas = k$.createCanvas(1024,768);
+            canvas.style( 'background-color', '#222222')
             k$.frameRate(DEFAULT_FPS);
             k$.noLoop()  
             
             canvas.style( 'visibility', 'visible' )
 
-            diagram = createDiagram( { y:25 }, k$ )
-
-            const eventHandler = (event:any) =>  this.processSample( event.detail, diagram, k$ )
+            const eventHandler = (event:any) =>  this.processSample( event.detail, this.diagram, k$ )
             window.addEventListener( 'rxmarbles.event', eventHandler)
 
-            const pauseHandler = (event:any) => diagram.pause()
+            const pauseHandler = (event:any) => this.diagram?.pause()
             this.addEventListener( 'rxmarbles.pause', pauseHandler)
 
-            const resumeHandler = (event:any) => diagram.resume()
+            const resumeHandler = (event:any) => this.diagram?.resume()
             this.addEventListener( 'rxmarbles.resume', resumeHandler)
             
             this.addEventListener( 'rxmarbles.stop', (event:any) => {
@@ -155,7 +156,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
                 window.removeEventListener( 'rxmarbles.pause', pauseHandler)
                 window.removeEventListener( 'rxmarbles.resume', resumeHandler)
 
-                diagram.stop()
+                this.diagram?.stop()
                 
 
             })
@@ -166,7 +167,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
           
           k$.background(DEFAULT_BACKGROUND);
                       
-          diagram.draw( k$ )
+          this.diagram?.draw( k$ )
         };
 
     }
@@ -181,8 +182,8 @@ export class RXMarbleDiagramElement extends HTMLElement {
     /**
      * 
      */
-    public start() {
-        
+    public start() {   
+        this.diagram = createDiagram( { y:25 }, this.sketch )
         this.sketch.loop()
     }
 }

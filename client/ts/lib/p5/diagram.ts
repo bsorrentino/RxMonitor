@@ -32,11 +32,11 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
     private _watch = new Watch( 1 /*DEFAULT_FPS*/ )
     private _lastItem:LastItem = {} // last item added
 
+    scrollFactor: number;
+
     constructor( private viewport:Viewport, private startY:number, k$:p5 ) {
     }
     
-    scrollFactor: number;
-
     /**
      * 
      * @param k$ 

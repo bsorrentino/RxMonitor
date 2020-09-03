@@ -1,6 +1,7 @@
 import { interval, of } from 'rxjs';
 import { concatMap, delay, take } from 'rxjs/operators';
-import { startExample, watch } from '../sdk/marble-rxjs';
+import { startExample } from './example-utils';
+import { watch } from '../sdk/marble-rxjs';
 
 let delay$ = () => {
   const w$ = <T>( id?:string ) => watch<T>( '$result', id );
@@ -14,10 +15,7 @@ let delay$ = () => {
    
 };
 
-window.addEventListener('load',  () => { 
-  
-    document.addEventListener( "click", ()=> {
-      let currentExample = startExample( 'diagram1',  () => delay$() );
-      currentExample.start();
-    })
+window.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('start')
+  btn.onclick = () => startExample( 'diagram1',  () => delay$() ).start()
 });

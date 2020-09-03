@@ -1,7 +1,8 @@
 
-import { startExample, watch } from '../sdk/marble-rxjs';
 import { interval, merge, of } from 'rxjs';
 import { delay, take, exhaustMap, map } from 'rxjs/operators';
+import { startExample } from './example-utils';
+import { watch } from '../sdk/marble-rxjs';
 
 let exhaustMap$ = () => {
   const w$ = <T>( id?:string ) => watch<T>( '$result', id );
@@ -23,7 +24,7 @@ let exhaustMap$ = () => {
 
 }
 
-window.addEventListener('load',  () =>  
-    document.addEventListener( "click", () => 
-      startExample( 'diagram1',  () => exhaustMap$() ).start())
-);
+window.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('start')
+  btn.onclick = () => startExample( 'diagram1',  () => exhaustMap$() ).start()
+});

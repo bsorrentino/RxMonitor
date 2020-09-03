@@ -1,7 +1,8 @@
 
 import { interval } from 'rxjs';
 import { combineAll, map, take } from 'rxjs/operators';
-import { startExample, watch } from '../sdk/marble-rxjs';
+import { startExample } from './example-utils';
+import { watch } from '../sdk/marble-rxjs';
 
 let combineAll$ = () => {
 
@@ -18,10 +19,8 @@ return combined.subscribe(val => console.log(val));
 
 }
 
-window.addEventListener('load',  () => { 
-  
-    document.addEventListener( "click", ()=> {
-      let currentExample = startExample( 'diagram1',  () => combineAll$() );
-      currentExample.start();
-    })
+
+window.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('start')
+  btn.onclick = () => startExample( 'diagram1',  () => combineAll$() ).start()
 });

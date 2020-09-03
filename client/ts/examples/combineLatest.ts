@@ -1,7 +1,8 @@
 
 import { combineLatest, timer } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { startExample, watch } from '../sdk/marble-rxjs';
+import { startExample } from './example-utils';
+import { watch } from '../sdk/marble-rxjs';
 
 let combineLatest$ = () => {
 
@@ -25,10 +26,7 @@ return combined.subscribe(
 
 }
 
-window.addEventListener('load',  () => {   
-
-    document.addEventListener( "click", ()=> {
-      let currentExample = startExample( 'diagram1',  () => combineLatest$() );
-      currentExample.start();
-    })
+window.addEventListener('DOMContentLoaded', () => {
+  const btn = document.getElementById('start')
+  btn.onclick = () => startExample( 'diagram1',  () => combineLatest$() ).start()
 });
