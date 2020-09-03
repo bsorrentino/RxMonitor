@@ -2,59 +2,90 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as fsx from 'fs-extra';
+import { promisify } from 'util'
+
+const css = 'materialize.min.css'
+const materialize_css = path.join('node_modules/materialize-css/dist/css', css)
+const srcdir = path.join( 'ts', 'examples' );
+const destdir = path.join( 'dist' );
 
 
-function _copyFile (src:string, dst:string , finish: (err: any) => void) {
-    const opts = {
-        flags:'w+',
-        mode: 0o666
-      }
-    fs.createReadStream(src)
-      .pipe(fs.createWriteStream(dst, opts))
-      .once('error', finish)
-      .once('finish', () => fs.chmod(dst, opts.mode, err => finish(err) ) )
-  }
+/**
+ * 
+ * @param src 
+ * @param dst 
+ * @param finish 
+ */
+async function copyFile (src:string, dst:string ) {
 
-  const srcdir = path.join( 'ts', 'examples' );
-  const destdir = path.join( 'dist' );
+    return new Promise( (resolve,reject) => {
+        
+        const opts = {
+            flags:'w+',
+            mode: 0o666
+          }
+        fs.createReadStream(src)
+          .pipe(fs.createWriteStream(dst, opts))
+          .once('error', (err) => reject(err))
+          .once('finish', () => fs.chmod(dst, opts.mode, err => {
+            if( err ) {
+                reject(err)
+                return
+            }
+            resolve()
+          }) )
+    
+    })
+}
 
-  function _copyFiles() {
+async function copy_TS_to_TXT( file:string ) {
+    const src = path.join( srcdir, file );
+    const dest = path.join( destdir, file + '.txt');
+
+    try {
+        await copyFile( src, dest )
+        console.error( `file ${src} copied to ${dest}`);
+    }
+    catch( err ) {
+        console.error( 'error copying file', src, 'to', dest, err );
+    }
+}
+
+async function copyCSS( ) {
+    const src = materialize_css;
+    const dest = path.join( destdir, css);
+
+    try {
+        await copyFile( src, dest )
+        console.error( `file ${src} copied to ${dest}`);
+    }
+    catch( err ) {
+        console.error( 'error copying file', src, 'to', dest, err );
+    }
+}
+
+/**
+ * 
+ */
+async function copyTS() {
+    const readdir = promisify( fs.readdir )
+
     console.log( 'reading dir ', srcdir );
 
-    fs.readdir( srcdir, ( err:any, files:string[] ) => {
-    
-        if( err ) {
-            console.error( 'error reading dir', srcdir, err );
-            return;
-        }
-        files.forEach( file => {
-            
-            const ext = path.extname( file );
-    
-            //console.log( 'process', file, ext );
-            if( ext === '.ts' ) {
-    
-                const src = path.join( srcdir, file );
-                const dest = path.join( destdir, file + '.txt');
-    
-                _copyFile( 
-                    src, 
-                    dest,
-                    err => {
-                        if( err )
-                            console.error( 'error copying file', src, 'to', dest, err );
-                        else 
-                            console.error( 'file', src, 'copied to', dest, err );
-                    });
-    
-            }
-    
-        } )
-    
-      }); 
-  
+    try {
+
+        const files = await readdir( srcdir );
+
+        files.filter( file => path.extname( file )==='.ts' ).forEach( copy_TS_to_TXT )
+    }
+    catch( err ) {
+        console.error( 'error reading dir', srcdir, err );
+    }
   }
   
+  /**
+   * 
+   */
   async function main() {
 
     try {
@@ -63,17 +94,10 @@ function _copyFile (src:string, dst:string , finish: (err: any) => void) {
         console.error('error creating dir', destdir, err);
         return;
     }
-
-    // try {
-
-    //     await fsx.emptyDir(destdir);
-        
-    // } catch (err) {
-    //     console.error( 'error cleaning dir', destdir, err );
-    // }
-  
-  
-  _copyFiles();
+    
+ 
+    await copyCSS()
+    await copyTS()
 
 }
 
