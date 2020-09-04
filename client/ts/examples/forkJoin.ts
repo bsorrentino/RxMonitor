@@ -1,6 +1,6 @@
 import { forkJoin, from, of } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
-import { startExample } from './example-utils';
+import { makeExample } from './example-utils';
 import { watch } from '../sdk/marble-rxjs';
 
 function generateRandomNumber(min:number , max:number) {
@@ -8,7 +8,7 @@ function generateRandomNumber(min:number , max:number) {
    return Math.floor(random_number);
 }
 
-let forkJoin$ = () => {
+const forkJoin$ = () => {
 
   const w$ = <T>( id?:string ) => watch<T>( '$result', id );
 
@@ -28,7 +28,4 @@ let forkJoin$ = () => {
 
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  const btn = document.getElementById('start')
-  btn.onclick = () => startExample( 'diagram1',  () => forkJoin$() ).start()
-});
+window.addEventListener('DOMContentLoaded', () => makeExample( forkJoin$ ) )

@@ -6,7 +6,7 @@ export type Example = ( p?:(() => void)) => Subscription;
 
 // Time of one step
 
-export class ExampleState {
+class ExampleState {
     
     private subscription:Subscription;
 
@@ -14,7 +14,7 @@ export class ExampleState {
         return this._example;
     }
 
-    constructor( private diagram:RXMarbleDiagramElement, private _example:Example, private done:()=>void) {
+    constructor( private diagram:HTMLElement, private _example:Example, private done:()=>void) {
     }
 
     get isStopped() {
@@ -23,7 +23,7 @@ export class ExampleState {
 
     start() {
         const tickTime = 0
-        this.diagram.pause = false;
+        this.diagram.setAttribute( 'pause', 'false' );
         this.subscription = this._example( this.done );
         this.subscription.add( () => setTimeout( () => { if( this.done ) this.done(); }, tickTime ));
         return this;        
@@ -32,18 +32,18 @@ export class ExampleState {
     stop( ) {
         if( !this.isStopped ) {
             this.subscription.unsubscribe();
-            this.diagram.pause = true;    
+            this.diagram.setAttribute( 'pause', 'true' );
         }
         return this;
     }
 
     pause() {
-        this.diagram.pause = true;
+        this.diagram.setAttribute( 'pause', 'true' );
         return this;
     }
 
     resume() {
-        this.diagram.pause = false;
+        this.diagram.setAttribute( 'pause', 'false' );
         return this;
     }
 
@@ -55,16 +55,25 @@ export class ExampleState {
  * @param example 
  * @param done 
  */
-export function startExample( elementId:string, example:Example, done?:(()=>void) ):ExampleState {
-
+export function makeExample( example:Example, done?:(()=>void) ):void {
+  
     if( !example ) throw new Error( "example argument in null!");
 
-    let diagram = document.getElementById(elementId) as RXMarbleDiagramElement
+    let diagram = document.getElementById('diagram1')
 
     if( !diagram ) throw new Error( "element ${elementId} not found!");
     
-    // Draw marble diagram
-    diagram.start();
+    const pause = document.getElementById('pause')
+    if( pause ) {
+        pause.onchange = (ev:any) =>  diagram.setAttribute( 'pause', String(ev.srcElement.checked) )  
+    }
 
-    return new ExampleState( diagram, example, done );
+    const btn = document.getElementById('start')
+    console.assert( btn, 'start button is not present in DOM')
+    let state = new ExampleState( diagram, example, done )
+
+    btn.onclick = () => {
+        diagram.setAttribute( 'start', 'true');
+        state.start() 
+    }
 }

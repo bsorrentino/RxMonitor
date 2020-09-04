@@ -1,9 +1,9 @@
 import { interval } from 'rxjs';
 import { take } from 'rxjs/operators';
-import { startExample } from './example-utils';
+import { makeExample } from './example-utils';
 import { watch } from '../sdk/marble-rxjs';
 
-let interval$ = () => {
+const interval$ = () => {
   const w$ = <T>( id?:string ) => watch<T>( '$result', id );   
 
   const example = interval(1000).pipe( w$('interval(1s)'), take(60) );
@@ -12,7 +12,4 @@ let interval$ = () => {
    
 };
 
-window.addEventListener('DOMContentLoaded', () => {
-  const btn = document.getElementById('start')
-  btn.onclick = () => startExample( 'diagram1',  () => interval$() ).start()
-});
+window.addEventListener('DOMContentLoaded', () => makeExample( interval$ ) )

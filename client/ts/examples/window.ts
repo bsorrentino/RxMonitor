@@ -1,9 +1,9 @@
 import { timer, interval } from 'rxjs';
 import { window as windowOp, scan } from 'rxjs/operators';
-import { startExample } from './example-utils';
+import { makeExample } from './example-utils';
 import { watch } from '../sdk/marble-rxjs';
 
-let window$ = () => {
+const window$ = () => {
   const w$ = <T>( id?:string ) => watch<T>( '$result', id );   
 
   const source = timer(0, 1000).pipe( w$('timer(0,1s)') );
@@ -16,7 +16,4 @@ let window$ = () => {
    
 };
 
-window.addEventListener('DOMContentLoaded', () => {
-  const btn = document.getElementById('start')
-  btn.onclick = () => startExample( 'diagram1',  () => window$() ).start()
-});
+window.addEventListener('DOMContentLoaded', () => makeExample( window$ ) )

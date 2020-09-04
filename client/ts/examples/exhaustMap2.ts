@@ -1,10 +1,10 @@
 
 import { interval } from 'rxjs';
 import { exhaustMap, take } from 'rxjs/operators';
-import { startExample } from './example-utils';
+import { makeExample } from './example-utils';
 import { watch } from '../sdk/marble-rxjs';
 
-let exhaustMap$ = () => {
+const exhaustMap$ = () => {
   const w$ = <T>( id?:string ) => watch<T>( '$result', id );
 
   const firstInterval = interval(1000).pipe(w$('1stInterval')).pipe(take(10) )
@@ -24,7 +24,4 @@ let exhaustMap$ = () => {
 
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-  const btn = document.getElementById('start')
-  btn.onclick = () => startExample( 'diagram1',  () => exhaustMap$() ).start()
-});
+window.addEventListener('DOMContentLoaded', () => makeExample( exhaustMap$ ) )

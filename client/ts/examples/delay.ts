@@ -1,9 +1,9 @@
 import { interval, of } from 'rxjs';
 import { concatMap, delay, take } from 'rxjs/operators';
-import { startExample } from './example-utils';
+import { makeExample } from './example-utils';
 import { watch } from '../sdk/marble-rxjs';
 
-let delay$ = () => {
+const delay$ = () => {
   const w$ = <T>( id?:string ) => watch<T>( '$result', id );
 
   let source = 
@@ -15,7 +15,4 @@ let delay$ = () => {
    
 };
 
-window.addEventListener('DOMContentLoaded', () => {
-  const btn = document.getElementById('start')
-  btn.onclick = () => startExample( 'diagram1',  () => delay$() ).start()
-});
+window.addEventListener('DOMContentLoaded', () => makeExample( delay$ ) )
