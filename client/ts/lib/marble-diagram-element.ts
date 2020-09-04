@@ -26,9 +26,12 @@ function isStop(info:SampleInfo ) {
 };   
 
 const USE_SHADOW_DOM    = true;
-const MAX_SAMPLES       = 'max-samples';
 const PAUSE_ATTR        = 'pause';
-const TICKTIME_ATTR     = 'tick-time';
+const START_ATTR        = 'start';
+
+function isTrue( v?:string ) {
+    return (v) ? v=='true' : false
+}
 
 // @see
 // https://dev.to/aspittel/building-web-components-with-vanilla-javascript--jho
@@ -39,17 +42,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
     private sketch:p5;
     private nbrOfSamplesReceived = 0;
 
-    get pause() {
-        //console.log( "get pause", this.getAttribute(PAUSE_ATTR) );
-        return this.getAttribute(PAUSE_ATTR)==='true';
-    }
-
-    set pause( v:boolean ) {
-       //console.log( "set pause", String(v) );
-       this.setAttribute(PAUSE_ATTR, String(v) );
-    }
-    
-    static get observedAttributes() { return [PAUSE_ATTR, TICKTIME_ATTR]; }
+    static get observedAttributes() { return [PAUSE_ATTR, START_ATTR]; }
 
     private diagram:Diagram = null 
 
@@ -74,8 +67,9 @@ export class RXMarbleDiagramElement extends HTMLElement {
         }
 
         this.container = document.createElement('div');
-        
+
         this.sketch = new p5( (k$:p5) => this.sketchSetup(k$), this.container )
+
         shadowRoot.appendChild( this.container );
 
     }
@@ -86,9 +80,25 @@ export class RXMarbleDiagramElement extends HTMLElement {
      * @param oldval 
      * @param newval 
      */
-    attributesChangedCallback(attribute:string, oldval:any, newval:any) {
+    attributeChangedCallback(attribute:string, oldval:any, newval:any) {
 
-        console.log( "update ${attribute}", oldval, newval );
+        console.debug( "update ${attribute}", oldval, newval );
+
+        switch( attribute ) {
+            case START_ATTR: 
+                if( isTrue(newval) ) {
+                    this._start()
+                }
+            break;
+            case PAUSE_ATTR: 
+                if( isTrue(newval) ) {
+                    this.sketch?.noLoop()
+                }
+                else {
+                    this.sketch?.loop()
+                }
+            break;
+        }
     }
 
 
@@ -107,24 +117,26 @@ export class RXMarbleDiagramElement extends HTMLElement {
      
     }
 
-    private processSample( s:Sample, diagram:Diagram, k$:p5 ) {
+    private processSample( s:Sample, k$:p5 ) {
+        console.assert( this.diagram, 'diagram is not started yet!')
+
         this.nbrOfSamplesReceived++;
 
-        let op = diagram.getOperator( s.id )
+        let op = this.diagram.getOperator( s.id )
 
         if ( !op   ) {
-            if( isStart(s) )  diagram.addOperator( k$, s.id )
+            if( isStart(s) )  this.diagram.addOperator( k$, s.id )
             return 
         }
         
         if( isValue( s ) ) {
-            diagram.next( op, s )
+            this.diagram.next( op, s )
         }
         else if( isError( s ) ) {
-            diagram.error( op, s )
+            this.diagram.error( op, s )
         }
         else if( isComplete( s ) ) {
-            diagram.complete( op, s )
+            this.diagram.complete( op, s )
         }
 
     }
@@ -139,7 +151,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
             
             canvas.style( 'visibility', 'visible' )
 
-            const eventHandler = (event:any) =>  this.processSample( event.detail, this.diagram, k$ )
+            const eventHandler = (event:any) =>  this.processSample( event.detail, k$ )
             window.addEventListener( 'rxmarbles.event', eventHandler)
 
             const pauseHandler = (event:any) => this.diagram?.pause()
@@ -148,7 +160,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
             const resumeHandler = (event:any) => this.diagram?.resume()
             this.addEventListener( 'rxmarbles.resume', resumeHandler)
             
-            this.addEventListener( 'rxmarbles.stop', (event:any) => {
+            this.addEventListener( 'rxmarbles.stop', (_) => {
 
                 window.removeEventListener( 'rxmarbles.event', eventHandler)
                 window.removeEventListener( 'rxmarbles.pause', pauseHandler)
@@ -173,15 +185,10 @@ export class RXMarbleDiagramElement extends HTMLElement {
     /**
      * 
      */
-    public clear() {
-        this.nbrOfSamplesReceived = 0;
-    }
+    private _start() {   
 
-    /**
-     * 
-     */
-    public start() {   
         this.diagram = createDiagram( { y:25 }, this.sketch )
+ 
         this.sketch.loop()
     }
 }
