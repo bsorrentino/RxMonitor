@@ -1,9 +1,8 @@
 
-export const enum SampleItemType {
-    Start, Value, Error, Complete, Stop
-}
+declare type SampleItemType = 'Start' | 'Value' | 'Error' | 'Complete' | 'Stop'
 
-export type SampleInfo = { 
+
+declare type SampleInfo = { 
     type: SampleItemType;
     time:number;
 }
@@ -29,6 +28,6 @@ declare interface SampleError extends SampleBase {
     err:any
 }
 
-export interface Sample extends SampleInfo, Partial<SampleStart>, Partial<SampleValue>, Partial<SampleError> {
+declare interface Sample extends SampleInfo, Partial<SampleStart>, Partial<SampleValue>, Partial<SampleError> {
 }
 

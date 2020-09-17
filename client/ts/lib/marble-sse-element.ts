@@ -33,7 +33,7 @@ export class RXMarbleSSEElement extends HTMLElement {
     
             evtSource.onmessage = e => observer.next( JSON.parse(e.data) );
     
-            evtSource.onerror = e => observer.next( new Error(e.data) );
+            evtSource.onerror = (e:any) => observer.next( new Error(e.data) );
     
             return () => evtSource.close();
         });

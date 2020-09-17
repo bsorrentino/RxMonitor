@@ -1,6 +1,5 @@
 import p5 from "p5"
 
-import { Sample } from '../marble-types';
 import { Viewport, DEFAULT_BACKGROUND, IMarbleDiagram, P5} from './common'
 import { stream } from './item'
 

@@ -1,13 +1,9 @@
-/// <reference path="../lib/marble-diagram-element.d.ts" />
-
 import {  
     Observable, 
     MonoTypeOperatorFunction,
     PartialObserver,
     Observer
 } from 'rxjs';
-
-import { SampleItemType, Sample } from '../lib/marble-types';
 
 interface StreamsInfo {
     [ id:string ]:number;
@@ -51,7 +47,7 @@ export function observeAndNotify<T>( observer:Observer<T> , id:string, parentId?
     })();
 
     const event:Sample = {
-        type: SampleItemType.Start,
+        type: 'Start',
         time: eventTime(),
         id:_id,
         parentId:parentId,
@@ -64,7 +60,7 @@ export function observeAndNotify<T>( observer:Observer<T> , id:string, parentId?
     return {
         next: (v:any) => {
             const event:Sample = {
-                type: SampleItemType.Value,
+                type: 'Value',
                 time: eventTime(),
                 id:_id,
                 parentId:parentId,
@@ -77,7 +73,7 @@ export function observeAndNotify<T>( observer:Observer<T> , id:string, parentId?
         error: (err:any) => {
             console.log( id, parentId, name, err );
             const event:Sample = {
-                type: SampleItemType.Error,
+                type: 'Error',
                 time: eventTime(),
                 id:_id,
                 parentId:parentId,
@@ -89,7 +85,7 @@ export function observeAndNotify<T>( observer:Observer<T> , id:string, parentId?
         },
         complete: () => {
             const event:Sample = {
-                type: SampleItemType.Complete,
+                type: 'Complete',
                 time: eventTime(),
                 id:_id,
                 parentId:parentId,

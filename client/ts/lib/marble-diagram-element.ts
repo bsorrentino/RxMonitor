@@ -1,6 +1,5 @@
 /** Simple Quick & Dirty marble visualizer, POJS no framework */
 import p5 from 'p5'
-import { SampleItemType, Sample, SampleInfo } from './marble-types';
 
 import { DEFAULT_BACKGROUND, DEFAULT_FPS, Watch } from './p5/common'
 import { diagram as createDiagram, Diagram  } from './p5/diagram'
@@ -10,19 +9,19 @@ const filledShapes      = ['■', '▲', '●', '▶', '★'];
 
 
 function isStart( info:SampleInfo  ) {
-    return info && info.type === SampleItemType.Start;
+    return info && info.type === 'Start';
 }
 function isValue(info:SampleInfo ) {
-    return info && info.type === SampleItemType.Value;
+    return info && info.type === 'Value';
 };
 function isError(info:SampleInfo ) {
-    return info && info.type === SampleItemType.Error;
+    return info && info.type === 'Error';
 };
 function isComplete(info:SampleInfo) {
-    return info && info.type === SampleItemType.Complete;
+    return info && info.type === 'Complete';
 };
 function isStop(info:SampleInfo ) {
-    return info && info.type === SampleItemType.Stop;
+    return info && info.type === 'Stop';
 };   
 
 const USE_SHADOW_DOM    = true;
