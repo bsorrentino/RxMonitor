@@ -19,10 +19,10 @@
   "dependencies": {
     "materialize-css": "^1.0.0",
     "rxjs": "^6.6.3",
-    "rxmarble-lib": "^0.0.11",
-    "rxmarble-sdk": "^0.0.11",
-    "rxmarble-snippet": "^0.0.11",
-    "rxmarble-sse": "^0.0.11"
+    "@bsorrentino/rxmarble-lib": "^0.0.19",
+    "@bsorrentino/rxmarble-sdk": "^0.0.19",
+    "@bsorrentino/rxmarble-snippet": "^0.0.19",
+    "@bsorrentino/rxmarble-sse": "^0.0.19"
   },
   "gitHead": "27e44604c83dd9c2533a681c6403a722345b0149"
 }
