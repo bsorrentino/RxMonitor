@@ -1,7 +1,7 @@
 {
   "name": "@rxmarble/samples",
-  "private":true,
-  "version": "0.0.2",
+  "private": true,
+  "version": "0.0.3",
   "description": "",
   "main": "index.js",
   "scripts": {},
@@ -9,10 +9,10 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@rxmarble/lib": "^0.0.2",
-    "@rxmarble/sdk": "^0.0.2",
-    "@rxmarble/snippet": "^0.0.2",
-    "@rxmarble/sse": "^0.0.2",
+    "@rxmarble/lib": "^0.0.3",
+    "@rxmarble/sdk": "^0.0.3",
+    "@rxmarble/snippet": "^0.0.3",
+    "@rxmarble/sse": "^0.0.3",
     "materialize-css": "^1.0.0",
     "rxjs": "^6.6.3"
   },
