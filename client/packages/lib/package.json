@@ -11,7 +11,7 @@
     "build": "parcel build marble-diagram-element.ts --out-dir lib --out-file index.js"
   },
   "keywords": [],
-  "author": "bsorrentino",
+  "author": "rxmarble",
   "license": "MIT",
   "dependencies": {
     "p5": "^1.1.9"
@@ -22,5 +22,5 @@
   "alias": {
     "p5": "./node_modules/p5/lib/p5.min.js"
   },
-  "gitHead": "82d056efad9d3731e69f5d5cb986f14718335541"
+  "gitHead": "9b7be04e110db11f21a42638c4e4e7b2dbc9f530"
 }

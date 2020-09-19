@@ -11,7 +11,7 @@
     "build": "parcel build marble-sse-element.ts --out-dir lib --out-file index.js"
   },
   "keywords": [],
-  "author": "bsorrentino",
+  "author": "rxmarble",
   "license": "MIT",
-  "gitHead": "82d056efad9d3731e69f5d5cb986f14718335541"
+  "gitHead": "9b7be04e110db11f21a42638c4e4e7b2dbc9f530"
 }
