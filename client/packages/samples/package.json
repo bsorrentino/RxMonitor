@@ -1,18 +1,17 @@
 {
   "name": "@rxmarble/samples",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "",
   "main": "index.js",
-  "scripts": {
-  },
+  "scripts": {},
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@rxmarble/lib": "^0.0.1",
-    "@rxmarble/sdk": "^0.0.1",
-    "@rxmarble/snippet": "^0.0.1",
-    "@rxmarble/sse": "^0.0.1",
+    "@rxmarble/lib": "^0.0.2",
+    "@rxmarble/sdk": "^0.0.2",
+    "@rxmarble/snippet": "^0.0.2",
+    "@rxmarble/sse": "^0.0.2",
     "materialize-css": "^1.0.0",
     "rxjs": "^6.6.3"
   }
