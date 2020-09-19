@@ -23,5 +23,5 @@
   "dependencies": {},
   "author": "bsorrentino",
   "license": "MIT",
-  "publishConfig": { "registry": "@rxmarble:https://npm.pkg.github.com/" }
+  "publishConfig": { "registry": "https://npm.pkg.github.com/" }
 }
