@@ -6,7 +6,7 @@
     "packages/snippet",
     "packages/sse"
   ],
-  "version": "0.0.5",
+  "version": "0.0.6",
   "command": {
     "publish": {
       "registry": "https://npm.pkg.github.com"
