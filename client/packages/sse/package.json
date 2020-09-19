@@ -2,12 +2,16 @@
   "name": "@rxmarble/sse",
   "version": "0.0.6",
   "description": "",
-  "main": "lib/index.js",
+  "main": "lib/index.js",  
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bsorrentino/RxMonitor.git"
+  },
   "scripts": {
     "build": "parcel build marble-sse-element.ts --out-dir lib --out-file index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "bsorrentino",
   "license": "MIT",
-  "gitHead": "2696ffd579c74ce716f0eb59e9fddec3b3344f1a"
+  "gitHead": "85545a46ffca0f8a997a049ecefc97bc0ebe3620"
 }

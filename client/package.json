@@ -1,6 +1,10 @@
 {
   "name": "rxmarble",
   "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bsorrentino/RxMonitor.git"
+  },
   "scripts": {
     "build:cli": "parcel build -t node cli/dist.ts",
     "build:copy": "node dist/dist.js",
@@ -16,5 +20,7 @@
     "typescript": "^4.0.2"
   },
   "dependencies": {},
+  "author": "bsorrentino",
+  "license": "MIT",
   "publishConfig": { "registry": "https://npm.pkg.github.com/" }
 }

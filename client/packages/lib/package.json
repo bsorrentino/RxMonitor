@@ -3,11 +3,15 @@
   "version": "0.0.6",
   "description": "",
   "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bsorrentino/RxMonitor.git"
+  },
   "scripts": {
     "build": "parcel build marble-diagram-element.ts --out-dir lib --out-file index.js"
   },
   "keywords": [],
-  "author": "",
+  "author": "bsorrentino",
   "license": "MIT",
   "dependencies": {
     "p5": "^1.1.9"
@@ -18,5 +22,5 @@
   "alias": {
     "p5": "./node_modules/p5/lib/p5.min.js"
   },
-  "gitHead": "2696ffd579c74ce716f0eb59e9fddec3b3344f1a"
+  "gitHead": "85545a46ffca0f8a997a049ecefc97bc0ebe3620"
 }
