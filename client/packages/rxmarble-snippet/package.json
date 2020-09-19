@@ -1,11 +1,16 @@
 {
-  "name": "rxmarble-snippet",
+  "name": "@bsorrentino/rxmarble-snippet",
+  "private":true,
   "version": "0.0.11",
   "description": "",
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bsorrentino/RxMonitor.git"
+    "url": "https://github.com/bsorrentino/RxMonitor.git",
+    "directory": "packages/rxmarble-snippet"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
     "build": "parcel build snippet-element.ts --out-dir lib --out-file index.js"

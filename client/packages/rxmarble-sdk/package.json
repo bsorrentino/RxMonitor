@@ -8,6 +8,9 @@
     "url": "https://github.com/bsorrentino/RxMonitor.git",
     "directory": "packages/rxmarble-sdk"
   },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
   "scripts": {
     "build": "parcel build marble-rxjs.ts --out-dir lib --out-file index.js"
   },
@@ -17,5 +20,5 @@
   "peerDependencies": {
     "rxjs": "^6.6.3"
   },
-  "gitHead": "f2b1db15d5aa286767a6cd38a120c5e3333fa121"
+  "gitHead": "2daef716a6ff6fad0307af6959ccc66e99aca952"
 }
