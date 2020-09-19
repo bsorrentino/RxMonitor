@@ -1,5 +1,5 @@
 {
-  "name": "@rxmarble/sdk",
+  "name": "rxmarble-sdk",
   "version": "0.0.9",
   "description": "",
   "main": "lib/index.js",
@@ -11,10 +11,10 @@
     "build": "parcel build marble-rxjs.ts --out-dir lib --out-file index.js"
   },
   "keywords": [],
-  "author": "rxmarble",
+  "author": "bsorrentino",
   "license": "MIT",
   "peerDependencies": {
     "rxjs": "^6.6.3"
   },
-  "gitHead": "9b7be04e110db11f21a42638c4e4e7b2dbc9f530"
+  "gitHead": "cfd325573cc6e05f99bd1290027fbb4ecca17258"
 }

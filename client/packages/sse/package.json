@@ -1,5 +1,5 @@
 {
-  "name": "@rxmarble/sse",
+  "name": "rxmarble-sse",
   "version": "0.0.9",
   "description": "",
   "main": "lib/index.js",
@@ -11,7 +11,7 @@
     "build": "parcel build marble-sse-element.ts --out-dir lib --out-file index.js"
   },
   "keywords": [],
-  "author": "rxmarble",
+  "author": "bsorrentino",
   "license": "MIT",
-  "gitHead": "9b7be04e110db11f21a42638c4e4e7b2dbc9f530"
+  "gitHead": "cfd325573cc6e05f99bd1290027fbb4ecca17258"
 }
