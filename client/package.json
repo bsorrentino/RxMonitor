@@ -21,6 +21,5 @@
   },
   "dependencies": {},
   "author": "bsorrentino",
-  "license": "MIT",
-  "publishConfig": { "registry": "https://npm.pkg.github.com/" }
+  "license": "MIT"
 }
