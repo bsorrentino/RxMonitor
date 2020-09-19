@@ -1,7 +1,8 @@
 {
   "packages": [
     "packages/rxmarble-lib",
-    "packages/rxmarble-sdk"
+    "packages/rxmarble-sdk",
+    "packages/rxmarble-sse"
   ],
   "version": "0.0.17",
   "command": {

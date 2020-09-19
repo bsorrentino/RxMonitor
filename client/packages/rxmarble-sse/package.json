@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bsorrentino/RxMonitor.git"
+    "url": "https://github.com/bsorrentino/RxMonitor.git",
+    "directory": "packages/rxmarble-sse"
   },
   "scripts": {
     "build": "parcel build marble-sse-element.ts --out-dir lib --out-file index.js"
