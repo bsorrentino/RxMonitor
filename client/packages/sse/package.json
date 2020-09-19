@@ -1,0 +1,13 @@
+{
+  "name": "@rxmarble/sse",
+  "version": "0.0.1",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "parcel build marble-sse-element.ts --out-dir lib --out-file index.js"
+
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

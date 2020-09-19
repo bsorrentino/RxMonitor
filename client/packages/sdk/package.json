@@ -1,0 +1,16 @@
+{
+  "name": "@rxmarble/sdk",
+  "version": "0.0.1",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "parcel build marble-rxjs.ts --out-dir lib --out-file index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "peerDependencies": {
+    "rxjs": "^6.6.3"
+  },
+  "devDependencies": {}
+}

@@ -1,0 +1,10 @@
+{
+  "packages": [
+    "packages/lib",
+    "packages/sdk",
+    "packages/samples",
+    "packages/snippet",
+    "packages/sse"
+  ],
+  "version": "0.0.1"
+}

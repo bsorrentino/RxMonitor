@@ -1,0 +1,39 @@
+{
+  "name": "rxmarbles",
+  "version": "2.0.0",
+  "description": "",
+  "homepage": "https://github.com/bsorrentino/RxMonitor",
+  "main": "index.js",
+  "scripts": {
+    "build:cli": "parcel build -t node ts/cli/dist.ts",
+    "build:diagram": "parcel build ts/lib/marble-diagram-element.ts",
+    "build:sse": "parcel build ts/lib/marble-sse-element.ts",
+    "build:copy": "node dist/dist.js",
+    "serve": "parcel serve index.html",
+    "build": "parcel build index.html --public-url . "
+  },
+  "author": "bsorrentino <bartolomeo.sorrentino@gmail.com> (http://soulsoftware-bsc.blogspot.it/)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bsorrentino/RxMonitor.git"
+  },
+  "dependencies": {
+    "materialize-css": "^1.0.0",
+    "p5": "^1.0.0",
+    "rxjs": "^6.6.2"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^9.0.1",
+    "@types/node": "^11.13.0",
+    "@types/p5": "^0.9.0",
+    "fs-extra": "^9.0.1",
+    "http-server": "^0.12.3",
+    "npx-run": "^2.1.2",
+    "parcel-bundler": "^1.12.4",
+    "typescript": "^3.9.6"
+  },
+  "alias": {
+    "p5": "./node_modules/p5/lib/p5.min.js"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@rxmarble/snippet",
+  "version": "0.0.1",
+  "description": "",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "parcel build snippet-element.ts --out-dir lib --out-file index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
