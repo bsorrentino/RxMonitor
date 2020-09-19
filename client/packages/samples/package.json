@@ -13,10 +13,10 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@rxmarble/lib": "^0.0.9",
-    "@rxmarble/sdk": "^0.0.9",
-    "@rxmarble/snippet": "^0.0.9",
-    "@rxmarble/sse": "^0.0.9",
+    "rxmarble-lib": "^0.0.10",
+    "rxmarble-sdk": "^0.0.10",
+    "rxmarble-snippet": "^0.0.10",
+    "rxmarble-sse": "^0.0.10",
     "materialize-css": "^1.0.0",
     "rxjs": "^6.6.3"
   },

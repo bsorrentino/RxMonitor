@@ -5,7 +5,8 @@
   "main": "lib/index.js",
   "repository": {
     "type": "git",
-    "url": "https://github.com/bsorrentino/RxMonitor.git"
+    "url": "https://github.com/bsorrentino/RxMonitor.git",
+    "directory": "packages/lib"
   },
   "scripts": {
     "build": "parcel build marble-diagram-element.ts --out-dir lib --out-file index.js"
@@ -22,5 +23,5 @@
   "alias": {
     "p5": "./node_modules/p5/lib/p5.min.js"
   },
-  "gitHead": "cfd325573cc6e05f99bd1290027fbb4ecca17258"
+  "gitHead": "afaf974a14d1c23653be847857976cf6372d96e9"
 }
