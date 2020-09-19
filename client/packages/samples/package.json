@@ -1,12 +1,13 @@
 {
   "name": "@rxmarble/samples",
+  "private":true,
   "version": "0.0.2",
   "description": "",
   "main": "index.js",
   "scripts": {},
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@rxmarble/lib": "^0.0.2",
     "@rxmarble/sdk": "^0.0.2",
@@ -14,5 +15,6 @@
     "@rxmarble/sse": "^0.0.2",
     "materialize-css": "^1.0.0",
     "rxjs": "^6.6.3"
-  }
+  },
+  "gitHead": "27e44604c83dd9c2533a681c6403a722345b0149"
 }

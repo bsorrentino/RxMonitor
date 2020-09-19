@@ -8,7 +8,7 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "p5": "^1.1.9"
   },
@@ -17,5 +17,6 @@
   },
   "alias": {
     "p5": "./node_modules/p5/lib/p5.min.js"
-  }
+  },
+  "gitHead": "27e44604c83dd9c2533a681c6403a722345b0149"
 }
