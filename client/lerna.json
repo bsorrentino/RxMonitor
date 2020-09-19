@@ -3,7 +3,7 @@
     "packages/rxmarble-lib",
     "packages/rxmarble-sdk"
   ],
-  "version": "0.0.16",
+  "version": "0.0.17",
   "command": {
     "publish": {
       "registry": "https://npm.pkg.github.com"
