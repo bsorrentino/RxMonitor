@@ -9,7 +9,7 @@
     "directory": "packages/lib"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
+    "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
     "build": "parcel build marble-diagram-element.ts --out-dir lib --out-file index.js"
@@ -26,5 +26,5 @@
   "alias": {
     "p5": "./node_modules/p5/lib/p5.min.js"
   },
-  "gitHead": "df89d200ba2a15438e930d78c3a638cfbfa9c8f8"
+  "gitHead": "c93237db55d7e8980ed95b4b1d3ea4dfa18bafe1"
 }

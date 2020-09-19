@@ -4,7 +4,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/bsorrentino/RxMonitor.git",
-    "directory": "packages/lib"
   },
   "scripts": {
     "build:cli": "parcel build -t node cli/dist.ts",
