@@ -4,7 +4,7 @@
     "packages/rxmarble-sdk",
     "packages/rxmarble-sse"
   ],
-  "version": "0.0.17",
+  "version": "0.0.18",
   "command": {
     "publish": {
       "registry": "https://npm.pkg.github.com"
