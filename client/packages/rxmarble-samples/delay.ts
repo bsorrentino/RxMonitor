@@ -11,7 +11,7 @@ const delay$ = () => {
       .pipe( concatMap( e =>  of(e).pipe( delay(1000) , w$( 'delay(1s)') ) ) )
       .pipe( w$() )
       
-  return source.subscribe( console.log ;
+  return source.subscribe( console.log );
    
 };
 
