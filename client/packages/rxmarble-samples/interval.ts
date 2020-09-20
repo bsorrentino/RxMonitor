@@ -6,7 +6,7 @@ import { watch } from '@bsorrentino/rxmarble-sdk';
 const interval$ = () => {
   const w$ = <T>( id?:string ) => watch<T>( '$result', id );   
 
-  const example = interval(1000).pipe( w$('interval(1s)'), take(60) );
+  const example = interval(1000).pipe( w$('interval(1s)'), take(10) );
 
   return example.pipe( w$() ).subscribe( (val:any) => console.debug(val));
    

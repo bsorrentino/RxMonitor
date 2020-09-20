@@ -3,7 +3,7 @@ import p5 from "p5"
 import { Viewport, DEFAULT_BACKGROUND, IMarbleDiagram, P5} from './common'
 import { stream } from './item'
 
-type LastItem = { item?:stream.Item ; time?: number }
+type LastItem = { item?:stream.Item ; event?: Sample }
 
 export class Operator implements P5.IDrawable {
 
@@ -39,14 +39,14 @@ export class Operator implements P5.IDrawable {
 
     private getNextItemX( eventData:Sample, relativeTo:LastItem ) {
 
-      const { item, time } = relativeTo
+      const { item, event } = relativeTo
 
       const x = ( item ) ? item.x  : this.viewport.right
 
       
 
-      if( time ) {
-        const timePassed = Math.round(eventData.time - time)
+      if( event ) {
+        const timePassed = Math.round(eventData.time - event.time)
 
         if( timePassed > 0 ) {
           //console.debug( 'time difference respect the last item emitted',  timePassed )
@@ -79,7 +79,7 @@ export class Operator implements P5.IDrawable {
     complete( _:Sample, tick:number, relativeTo:LastItem ):stream.Item { 
       if( this._completed ) return this._completed
 
-      const { item, time } = relativeTo
+      const { item } = relativeTo
 
       const x = ( item ) ? item.x  : this.viewport.left
 

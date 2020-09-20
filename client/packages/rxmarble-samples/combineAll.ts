@@ -8,14 +8,14 @@ const combineAll$ = () => {
 
   const w$ = <T>( id?:string ) => watch<T>( '$result', id );   
 
-  const source = interval(1000).pipe(take(2));
+  const source = interval(1000).pipe(take(2), w$('interval'));
 
-  const example = source.pipe( w$('source'),
-                    map(val => interval(1000).pipe( take(5), watch( 'source', 'example'))) );
+  const example = source.pipe( map(val => 
+      interval(1000).pipe( take(5), watch( 'source', 'example')))  );
 
-const combined = example.pipe(combineAll(), w$());
+  const combined = example.pipe(combineAll(), w$());
 
-return combined.subscribe(val => console.log(val));
+  return combined.subscribe(val => console.log(val));
 
 }
 

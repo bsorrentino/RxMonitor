@@ -16,7 +16,7 @@ type QItem = {
   eventData:Sample
 }
 
-type LastItem = { item?:stream.Item ; time?: number }
+type LastItem = { item?:stream.Item ; event?:Sample }
 
 export function diagram( options:{y:number}, k$:p5 ) {
   console.assert( k$.width > 100, 'sketch width must be > %d but %d', 100, k$.width )
@@ -128,8 +128,13 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
      * setting the diagram scroll factor
      */
     private needToScrollR() {
-      this.scrollFactor = 
-        ( this._lastItem.item?.needToScrollR( this.viewport) ) ? 1 : 0 
+
+      // const isItemInResult = ( this._lastItem.event?.id!==undefined && this._lastItem.event?.parentId===undefined )
+      // console.debug( `id: ${this._lastItem.event?.id}, parentId: ${this._lastItem.event?.parentId} = ${isItemInResult}`)
+      // this.scrollFactor = ( this._lastItem.item?.needToScrollR( this.viewport)) ? 1 : (isItemInResult) ? 0 : 1 
+
+      this.scrollFactor = ( this._lastItem.item?.needToScrollR( this.viewport)) ? 1 : 0 
+
     }
 
     /**
@@ -158,14 +163,14 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
           break;
         }
 
-        this._lastItem.time = eventData.time
+        this._lastItem.event = eventData
 
       })
 
       Object.keys(this._operators)
                         .map( k => this._operators[k] )
                         .forEach( o => o.draw( k$ ) )
-      this.needToScrollR()
+      this.needToScrollR();
     }
 
   
