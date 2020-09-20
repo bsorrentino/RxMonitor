@@ -2,26 +2,56 @@
 <head>
   <meta charset="utf-8">
   <title>RX Marbles Monitor</title>
+  <style>
+    rxmarble-snippet {
+        --font-size: 1.1em; 
+    }
+  </style>
+  <!--Import materialize.css--> 
+  <link rel="stylesheet" href="node_modules/materialize-css/dist/css/materialize.min.css" media="screen,projection">
+  
+  <!--Let browser know website is optimized for mobile-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-  <link rel="stylesheet" href="examples.css">
 
 </head>
 <body>
-
-    <h1>Delay operator</h1>
+    <nav>
+        <div class="nav-wrapper">
+          <a href="#" class="brand-logo">RXMonitor</a>
+        </div>
+      </nav>
+      <div>
+          
+        <div class="row">
     
-  <rxmarble-sse ></rxmarble-sse>
-  <rxmarble-diagram id="diagram1">
-      <a href="#">click to start</a>
-  </rxmarble-diagram>
+          <div class="col s4">
+              <div class="valign-wrapper">
+                <h5>Delay operator</h5>&nbsp;<a id="start" class="waves-effect waves-light btn-small">Test</a>
+              </div>
+              <p></p> 
+              
+          </div>
+          <div class="col s2">
+              
+          </div>
+          <div class="col s8">
+          </div>
+    
+        </div>
+        
+        <div class="row">
+          <div class="col s8">
+            <rxmarble-diagram id="diagram1"></rxmarble-diagram>   
+          </div>    
+          <div class="col s4">
+            <rxmarble-snippet url="delay.ts.txt"></rxmarble-snippet>
+        </div>    
+        </div>
+      </div>
 
-  <br>
-  <h3>Code</h3>
-  <rxmarble-snippet url="delay.ts.txt"></rxmarble-snippet>
-
-  <script src="samples-deps.ts"></script>    
-  <script src="delay.ts"></script>
-
-
-</body>
+      <script src="delay.ts"></script>
+      <script src="samples-deps.ts"></script>    
+     
+ </body>
 </html>

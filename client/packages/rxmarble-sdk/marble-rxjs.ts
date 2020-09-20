@@ -2,16 +2,31 @@ import {
     Observable, 
     MonoTypeOperatorFunction,
     PartialObserver,
-    Observer
+    Subscriber
 } from 'rxjs';
 
 interface StreamsInfo {
     [ id:string ]:number;
 }
 
-let _ids:StreamsInfo = {}
-
 let eventTime = () => (performance) ? performance.now() : Date.now() ;
+
+class StreamNameManager {
+    
+    _ids:StreamsInfo = {}
+
+    reset() { this._ids = {} } 
+
+    getName( theId:string ) {
+        if( this._ids[theId]===undefined ) {
+            this._ids[theId] = 0;
+            return theId;
+        }
+        return theId + String(++this._ids[theId]);
+    }
+}
+
+const globalStreamNameManager = new StreamNameManager()
 
 /**
  * 
@@ -20,81 +35,91 @@ let eventTime = () => (performance) ? performance.now() : Date.now() ;
  */
 export function watch<T>( idOrParentId:string, id?:string ):MonoTypeOperatorFunction<T> {
 
-    if( !id ) _ids = {}
+    if( !id ) globalStreamNameManager.reset()
 
-    return (source:Observable<T>) => new Observable<T>( observer =>  {
+    return (source:Observable<T>) =>  
 
-        return source.subscribe(observeAndNotify( observer, id || idOrParentId, id ? idOrParentId : undefined ) );
-    })
+        source.lift( function (this: Subscriber<T>, source: Observable<T>) {
+
+            const subscription =  source.subscribe( observeAndNotify( this, id || idOrParentId, id ? idOrParentId : undefined ) );
+
+            return () => {
+                //console.debug( `unsubscribe( id='${id || idOrParentId}', parentId='${id ? idOrParentId : undefined}' )` );
+                //subscription.unsubscribe()
+            }
+        })
 }
+
 
 /**
  * 
- * @param observer 
+ * @param subscriber 
  * @param id 
  * @param parentId 
  */
-export function observeAndNotify<T>( observer:Observer<T> , id:string, parentId?:string ):PartialObserver<T> 
+function observeAndNotify<T>( subscriber:Subscriber<T>, id:string, parentId?:string ):PartialObserver<T> 
 {
-    console.debug( `id='${id}', parentId='${parentId}'` );
+    console.debug( `subscribe( id='${id}', parentId='${parentId}' )` );
 
-    const _id =  (() => {
-        if( _ids[id]===undefined ) {
-            _ids[id] = 0;
-            return id;
-        }
-        return id + String(++_ids[id]);
-    })();
+    const theId =  globalStreamNameManager.getName( id );
 
     const event:Sample = {
         type: 'Start',
         time: eventTime(),
-        id:_id,
+        id:theId,
         parentId:parentId,
-        name:_id,
+        name:theId,
         createdByValue: true,
         isIntermediate:false
     };
     window.dispatchEvent( new CustomEvent('rxmarbles.event', { detail: event } ));
 
     return {
-        next: (v:any) => {
+        next: (v:T) => {
+            subscriber.next(v);
+
             const event:Sample = {
                 type: 'Value',
                 time: eventTime(),
-                id:_id,
+                id:theId,
                 parentId:parentId,
-                name:_id,
+                name:theId,
                 value: v
             };
+            console.debug( `next( id='${id}', parentId='${parentId}' )` );
+
             window.dispatchEvent( new CustomEvent('rxmarbles.event', { detail: event } ));
-            observer.next(v);
         },
-        error: (err:any) => {
-            console.log( id, parentId, name, err );
+        error: (err:T) => {
+            subscriber.error(err);
+
             const event:Sample = {
                 type: 'Error',
                 time: eventTime(),
-                id:_id,
+                id:theId,
                 parentId:parentId,
-                name:_id,
+                name:theId,
                 err:err
             };
+            console.error( `next( id='${id}', parentId='${parentId}' )` );
+
             window.dispatchEvent( new CustomEvent('rxmarbles.event', { detail: event } ));
-            observer.error(err);
         },
         complete: () => {
+            subscriber.complete();
+
             const event:Sample = {
                 type: 'Complete',
                 time: eventTime(),
-                id:_id,
+                id:theId,
                 parentId:parentId,
-                name:_id
+                name:theId
             };
+
+            console.debug( `complete( id='${id}', parentId='${parentId}' )` );
+
             window.dispatchEvent( new CustomEvent('rxmarbles.event', { detail: event } ));
-            observer.complete();
         }
     }
 };
-
 

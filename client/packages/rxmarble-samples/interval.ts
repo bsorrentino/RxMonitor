@@ -8,7 +8,7 @@ const interval$ = () => {
 
   const example = interval(1000).pipe( w$('interval(1s)'), take(10) );
 
-  return example.pipe( w$() ).subscribe( (val:any) => console.debug(val));
+  return example.pipe( w$() ).subscribe( console.debug );
    
 };
 

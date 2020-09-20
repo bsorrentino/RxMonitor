@@ -7,11 +7,11 @@ const delay$ = () => {
   const w$ = <T>( id?:string ) => watch<T>( '$result', id );
 
   let source = 
-      interval( 1000 ).pipe(take(10), w$( 'interval()' ) )
-      .pipe( concatMap( e =>  of(e).pipe( delay(1000) , w$( 'delay()') ) ) )
+      interval( 1000 ).pipe(take(5), w$( 'interval(1s)' ) )
+      .pipe( concatMap( e =>  of(e).pipe( delay(1000) , w$( 'delay(1s)') ) ) )
       .pipe( w$() )
       
-  return source.subscribe( val => console.log(val));
+  return source.subscribe( console.log ;
    
 };
 
