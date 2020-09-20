@@ -19,7 +19,7 @@
   "dependencies": {
     "materialize-css": "^1.0.0",
     "rxjs": "^6.6.3",
-    "@bsorrentino/rxmarble-lib": "^0.0.19",
+    "@bsorrentino/rxmarble-diagram": "^0.0.19",
     "@bsorrentino/rxmarble-sdk": "^0.0.19",
     "@bsorrentino/rxmarble-snippet": "^0.0.19",
     "@bsorrentino/rxmarble-sse": "^0.0.19"
