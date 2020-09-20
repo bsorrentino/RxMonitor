@@ -3,6 +3,7 @@
   "version": "0.0.20",
   "description": "",
   "main": "lib/index.js",
+  "types": "./marble-rxjs.d.ts",
   "repository": {
     "type": "git",
     "url": "https://github.com/bsorrentino/RxMonitor.git",

@@ -2,7 +2,7 @@
 import { interval } from 'rxjs';
 import { combineAll, map, take } from 'rxjs/operators';
 import { makeExample } from './example-utils';
-import { watch } from '@bsorrentino/rxmarble-sdk';
+import { watch } from '@bsorrentino/rxmarble-sdk'
 
 const combineAll$ = () => {
 
