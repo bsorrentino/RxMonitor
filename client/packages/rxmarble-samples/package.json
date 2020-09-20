@@ -1,7 +1,7 @@
 {
   "name": "@bsorrentino/rxmarble-samples",
   "private": true,
-  "version": "0.0.19",
+  "version": "0.0.20",
   "description": "",
   "main": "index.js",
   "repository": {
@@ -17,12 +17,12 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@bsorrentino/rxmarble-diagram": "^0.0.20",
+    "@bsorrentino/rxmarble-sdk": "^0.0.20",
+    "@bsorrentino/rxmarble-snippet": "^0.0.20",
+    "@bsorrentino/rxmarble-sse": "^0.0.20",
     "materialize-css": "^1.0.0",
-    "rxjs": "^6.6.3",
-    "@bsorrentino/rxmarble-diagram": "^0.0.19",
-    "@bsorrentino/rxmarble-sdk": "^0.0.19",
-    "@bsorrentino/rxmarble-snippet": "^0.0.19",
-    "@bsorrentino/rxmarble-sse": "^0.0.19"
+    "rxjs": "^6.6.3"
   },
   "gitHead": "27e44604c83dd9c2533a681c6403a722345b0149"
 }
