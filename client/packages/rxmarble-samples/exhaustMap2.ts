@@ -2,7 +2,7 @@
 import { interval } from 'rxjs';
 import { exhaustMap, take } from 'rxjs/operators';
 import { makeExample } from './example-utils';
-import { watch } from '../sdk/marble-rxjs';
+import { watch } from '@bsorrentino/rxmarble-sdk';
 
 const exhaustMap$ = () => {
   const w$ = <T>( id?:string ) => watch<T>( '$result', id );

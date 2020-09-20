@@ -1,7 +1,7 @@
 import { timer, interval } from 'rxjs';
 import { window as windowOp, scan } from 'rxjs/operators';
 import { makeExample } from './example-utils';
-import { watch } from '../sdk/marble-rxjs';
+import { watch } from '@bsorrentino/rxmarble-sdk';
 
 const window$ = () => {
   const w$ = <T>( id?:string ) => watch<T>( '$result', id );   

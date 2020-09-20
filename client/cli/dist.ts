@@ -5,7 +5,7 @@ import * as fsx from 'fs-extra';
 import { promisify } from 'util'
 
 
-const srcdir = path.join( 'packages', 'samples' )
+const srcdir = path.join( 'packages', 'rxmarble-samples' )
 const destdir = 'dist';
 
 console.debug( srcdir )

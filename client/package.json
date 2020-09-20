@@ -8,7 +8,7 @@
   "scripts": {
     "build:cli": "parcel build -t node cli/dist.ts",
     "build:copy": "node dist/dist.js",
-    "serve": "parcel serve packages/samples/index.html",
+    "serve": "parcel serve packages/rxmarble-samples/index.html",
     "build": "parcel build index.html --public-url . "
   },
   "devDependencies": {

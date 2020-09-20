@@ -1,7 +1,7 @@
 import { forkJoin, from, of } from 'rxjs';
 import { mergeMap } from 'rxjs/operators';
 import { makeExample } from './example-utils';
-import { watch } from '../sdk/marble-rxjs';
+import { watch } from '@bsorrentino/rxmarble-sdk';
 
 function generateRandomNumber(min:number , max:number) {
    const random_number = Math.random() * (max-min) + min;

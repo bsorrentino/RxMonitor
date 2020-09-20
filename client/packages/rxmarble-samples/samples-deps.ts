@@ -1,4 +1,4 @@
-import 'rxmarble/sdk'
-import '@rxmarble/snippet'
-import '@rxmarble/sse'
-import '@bsorrentino/rxmarble-lib'
+import '@bsorrentino/rxmarble-sdk'
+import '@bsorrentino/rxmarble-snippet'
+import '@bsorrentino/rxmarble-sse'
+import '@bsorrentino/rxmarble-diagram'
