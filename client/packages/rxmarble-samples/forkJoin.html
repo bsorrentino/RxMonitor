@@ -2,26 +2,54 @@
 <head>
   <meta charset="utf-8">
   <title>RX Marbles Monitor</title>
-
-  <link rel="stylesheet" href="examples.css">
-
+  
+  <style>
+    rxmarble-snippet {
+        --font-size: 1.1em; 
+    }
+  </style>
+  <!--Import materialize.css--> 
+  <link rel="stylesheet" href="node_modules/materialize-css/dist/css/materialize.min.css" media="screen,projection">
+  
+  <!--Let browser know website is optimized for mobile-->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 </head>
 <body>
+  <nav>
+    <div class="nav-wrapper">
+      <a href="#" class="brand-logo">RXMonitor</a>
+    </div>
+  </nav>
+  <div>
+      
+    <div class="row">
 
-    <h1>ForkJoin operator</h1>
-    <h2>When all observables complete, emit the last emitted value from each.</h2>
+      <div class="col s4">
+          <div class="valign-wrapper">
+            <h5>ForkJoin operator</h5>&nbsp;<a id="start" class="waves-effect waves-light btn-small">Test</a>
+          </div>
+          <p>When all observables complete, emit the last emitted value from each.</p> 
+          
+      </div>
+      <div class="col s2">
+          
+      </div>
+      <div class="col s8">
+      </div>
+
+    </div>
     
-    <rxmarble-sse ></rxmarble-sse>
-    <rxmarble-diagram id="diagram1">
-        <a href="#">click to start</a>
-    </rxmarble-diagram>
+    <div class="row">
+      <div class="col s12">
+        <rxmarble-diagram id="diagram1">
+        </rxmarble-diagram>
   
-    <br>
-    <h3>Code</h3>
-    <rxmarble-snippet url="forkJoin.ts.txt"></rxmarble-snippet>
+      </div>    
+    </div>
+  </div>
   
-    <script src="samples-deps.ts"></script>    
-    <script src="forkJoin.ts"></script>
+  <script src="samples-deps.ts"></script>    
+  <script src="forkJoin.ts"></script>
 
 </body>
 </html>
