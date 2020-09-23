@@ -11,18 +11,6 @@ const filledShapes      = ['■', '▲', '●', '▶', '★'];
 function isStart( info:SampleInfo  ) {
     return info && info.type === 'start';
 }
-function isValue(info:SampleInfo ) {
-    return info && info.type === 'value';
-};
-function isError(info:SampleInfo ) {
-    return info && info.type === 'error';
-};
-function isComplete(info:SampleInfo) {
-    return info && info.type === 'complete';
-};
-function isStop(info:SampleInfo ) {
-    return info && info.type === 'stop';
-};   
 
 const USE_SHADOW_DOM    = true;
 const PAUSE_ATTR        = 'pause';
@@ -128,15 +116,7 @@ export class RXMarbleDiagramElement extends HTMLElement {
             return 
         }
         
-        if( isValue( s ) ) {
-            this.diagram.next( op, s )
-        }
-        else if( isError( s ) ) {
-            this.diagram.error( op, s )
-        }
-        else if( isComplete( s ) ) {
-            this.diagram.complete( op, s )
-        }
+        this.diagram.processEvent( s, op )
 
     }
     

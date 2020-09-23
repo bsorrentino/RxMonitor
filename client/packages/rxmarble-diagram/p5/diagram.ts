@@ -73,31 +73,10 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
 
     /**
      * 
-     * @param operatorLabelOrIndex 
-     * @param item 
+     * @param operator 
+     * @param eventData 
      */
-    next( operator:Operator, eventData:Sample ) {
-      
-      this._itemsQueue.push( { operator:operator, eventData:eventData} ) 
-    }
-
-    /**
-     * 
-     * @param operatorLabelOrIndex 
-     * @param item 
-     */
-    complete( operator:Operator, eventData:Sample ) {
-      
-      this._itemsQueue.push( { operator:operator, eventData:eventData } ) 
-    }
-
-    /**
-     * 
-     * @param operatorLabelOrIndex 
-     * @param item 
-     */
-    error( operator:Operator, eventData:Sample ) {
-
+    processEvent( eventData:Sample, operator:Operator ) {
       this._itemsQueue.push( { operator:operator, eventData:eventData} ) 
     }
 
