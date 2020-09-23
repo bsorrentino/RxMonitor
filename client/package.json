@@ -6,10 +6,11 @@
     "url": "https://github.com/bsorrentino/RxMonitor.git"
   },
   "scripts": {
+    "build:packages": "lerna run build",
     "build:cli": "parcel build -t node cli/dist.ts",
     "build:copy": "node dist/dist.js",
     "serve": "parcel serve packages/rxmarble-samples/index.html",
-    "build": "parcel build index.html --public-url . "
+    "build": "parcel build packages/rxmarble-samples/index.html --public-url . "
   },
   "devDependencies": {
     "@types/fs-extra": "^9.0.1",

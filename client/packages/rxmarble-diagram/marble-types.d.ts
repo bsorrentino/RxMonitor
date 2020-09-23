@@ -1,5 +1,5 @@
 
-declare type SampleItemType = 'Start' | 'Value' | 'Error' | 'Complete' | 'Stop'
+declare type SampleItemType = 'start' | 'value' | 'error' | 'complete' | 'stop'
 
 
 declare type SampleInfo = { 

@@ -9,19 +9,19 @@ const filledShapes      = ['■', '▲', '●', '▶', '★'];
 
 
 function isStart( info:SampleInfo  ) {
-    return info && info.type === 'Start';
+    return info && info.type === 'start';
 }
 function isValue(info:SampleInfo ) {
-    return info && info.type === 'Value';
+    return info && info.type === 'value';
 };
 function isError(info:SampleInfo ) {
-    return info && info.type === 'Error';
+    return info && info.type === 'error';
 };
 function isComplete(info:SampleInfo) {
-    return info && info.type === 'Complete';
+    return info && info.type === 'complete';
 };
 function isStop(info:SampleInfo ) {
-    return info && info.type === 'Stop';
+    return info && info.type === 'stop';
 };   
 
 const USE_SHADOW_DOM    = true;

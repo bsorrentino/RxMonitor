@@ -12,7 +12,6 @@ type OperatorMap = { 
 
 type QItem = {
   operator:Operator;
-  type:'next'|'complete'|'error'
   eventData:Sample
 }
 
@@ -79,7 +78,7 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
      */
     next( operator:Operator, eventData:Sample ) {
       
-      this._itemsQueue.push( { operator:operator, type:'next', eventData:eventData} ) 
+      this._itemsQueue.push( { operator:operator, eventData:eventData} ) 
     }
 
     /**
@@ -89,7 +88,7 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
      */
     complete( operator:Operator, eventData:Sample ) {
       
-      this._itemsQueue.push( { operator:operator, type:'complete', eventData:eventData } ) 
+      this._itemsQueue.push( { operator:operator, eventData:eventData } ) 
     }
 
     /**
@@ -99,7 +98,7 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
      */
     error( operator:Operator, eventData:Sample ) {
 
-      this._itemsQueue.push( { operator:operator, type:'error', eventData:eventData} ) 
+      this._itemsQueue.push( { operator:operator, eventData:eventData} ) 
     }
 
     /**
@@ -124,16 +123,21 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
     }
 
     /**
+     * 
+     */
+    private isItemInResult( event?:Sample ):boolean {
+      return ( event?.id!==undefined && event?.parentId===undefined )
+    }
+
+    /**
      * check if the diagram need to left scroll scroll 
      * setting the diagram scroll factor
      */
-    private needToScrollR() {
+    private processScrollR() {
+      
+      const need2Scroll = this._lastItem.item?.needToScrollR( this.viewport)
 
-      // const isItemInResult = ( this._lastItem.event?.id!==undefined && this._lastItem.event?.parentId===undefined )
-      // console.debug( `id: ${this._lastItem.event?.id}, parentId: ${this._lastItem.event?.parentId} = ${isItemInResult}`)
-      // this.scrollFactor = ( this._lastItem.item?.needToScrollR( this.viewport)) ? 1 : (isItemInResult) ? 0 : 1 
-
-      this.scrollFactor = ( this._lastItem.item?.needToScrollR( this.viewport)) ? 1 : 0 
+      this.scrollFactor = (need2Scroll) ? 1 :  0 
 
     }
 
@@ -151,12 +155,15 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
 
         const { operator, eventData } = qi
         
-        switch( qi?.type ) {
-        case 'next':
+        switch( eventData.type ) {
+        case 'value':
           this._lastItem.item = operator.next( eventData, tick, this._lastItem  )
           break;
         case 'complete':
           this._lastItem.item = operator.complete(eventData,  tick, this._lastItem  )
+          if( this.isItemInResult(eventData)) {
+            this._watch.stop()
+          }
           break;
         case 'error':
           this._lastItem.item = operator.error( eventData, tick, this._lastItem  )
@@ -170,7 +177,7 @@ export class Diagram implements IMarbleDiagram, P5.IDrawable {
       Object.keys(this._operators)
                         .map( k => this._operators[k] )
                         .forEach( o => o.draw( k$ ) )
-      this.needToScrollR();
+      this.processScrollR();
     }
 
   

@@ -26,10 +26,15 @@ export class Queue<T> {
   
 export class Watch {
     ticks = 0;
+    private _stopped = false
 
     constructor( private framesPerTick:number) {}
 
+    stop() { this._stopped = true }
+    
     tick( onTick: ( tick:number ) => void) {
+        if( this._stopped ) return
+
         if( ++this.ticks%this.framesPerTick == 0 ) {
         onTick( this.ticks ) 
         

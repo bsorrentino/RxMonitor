@@ -9,7 +9,11 @@
 1. **run `heroku git:remote --app rxmonitor`**
 1. **create file `index.php` containing:**
 > `echo '<?php header( 'Location: /index.html' ) ; ?>' > index.php`
+1. `touch requirements.txt`
 1. **run `git push heroku master` **
 
+## Refers to 
 
-Refers to [How to Deploy a Static Site to Heroku](https://blog.teamtreehouse.com/deploy-static-site-heroku)
+* [How to Deploy a Static Site to Heroku](https://blog.teamtreehouse.com/deploy-static-site-heroku)
+* [Stackoverflow](https://stackoverflow.com/a/51931233/521197)
+

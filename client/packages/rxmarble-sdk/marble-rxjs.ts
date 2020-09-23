@@ -64,7 +64,7 @@ function observeAndNotify<T>( subscriber:Subscriber<T>, id:string, parentId?:str
     const theId =  globalStreamNameManager.getName( id );
 
     const event:Sample = {
-        type: 'Start',
+        type: 'start',
         time: eventTime(),
         id:theId,
         parentId:parentId,
@@ -79,7 +79,7 @@ function observeAndNotify<T>( subscriber:Subscriber<T>, id:string, parentId?:str
             subscriber.next(v);
 
             const event:Sample = {
-                type: 'Value',
+                type: 'value',
                 time: eventTime(),
                 id:theId,
                 parentId:parentId,
@@ -94,7 +94,7 @@ function observeAndNotify<T>( subscriber:Subscriber<T>, id:string, parentId?:str
             subscriber.error(err);
 
             const event:Sample = {
-                type: 'Error',
+                type: 'error',
                 time: eventTime(),
                 id:theId,
                 parentId:parentId,
@@ -109,7 +109,7 @@ function observeAndNotify<T>( subscriber:Subscriber<T>, id:string, parentId?:str
             subscriber.complete();
 
             const event:Sample = {
-                type: 'Complete',
+                type: 'complete',
                 time: eventTime(),
                 id:theId,
                 parentId:parentId,
