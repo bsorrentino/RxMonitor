@@ -1,8 +1,10 @@
 /** Simple Quick & Dirty marble visualizer, POJS no framework */
+
 import p5 from 'p5'
 
 import { DEFAULT_BACKGROUND, DEFAULT_FPS, Watch } from './p5/common'
 import { diagram as createDiagram, Diagram  } from './p5/diagram'
+import { Sample, SampleInfo } from './marble-types';
 
 const noneFilledShapes  = ['□', '△', '○', '▷', '☆'];
 const filledShapes      = ['■', '▲', '●', '▶', '★'];

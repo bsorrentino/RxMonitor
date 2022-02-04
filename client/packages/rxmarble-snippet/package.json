@@ -13,7 +13,7 @@
     "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
-    "build": "parcel build snippet-element.ts --out-dir lib --out-file index.js"
+    "prepare": "parcel build snippet-element.ts --dist-dir lib"
   },
   "keywords": [],
   "author": "bsorrentino",

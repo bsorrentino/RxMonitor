@@ -12,7 +12,9 @@
   "publishConfig": {
     "registry": "https://npm.pkg.github.com"
   },
-  "scripts": {},
+  "scripts": {
+    "start": "parcel serve index.html"
+  },
   "keywords": [],
   "author": "",
   "license": "MIT",
@@ -21,8 +23,7 @@
     "@bsorrentino/rxmarble-sdk": "^0.0.21",
     "@bsorrentino/rxmarble-snippet": "^0.0.21",
     "@bsorrentino/rxmarble-sse": "^0.0.21",
-    "materialize-css": "^1.0.0",
-    "rxjs": "^6.6.3"
+    "materialize-css": "^1.0.0"
   },
   "gitHead": "27e44604c83dd9c2533a681c6403a722345b0149"
 }

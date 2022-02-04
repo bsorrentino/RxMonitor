@@ -12,7 +12,7 @@
     "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
-    "build": "parcel build marble-sse-element.ts --out-dir lib --out-file index.js"
+    "prepare": "parcel build marble-sse-element.ts --dist-dir lib"
   },
   "keywords": [],
   "author": "bsorrentino",

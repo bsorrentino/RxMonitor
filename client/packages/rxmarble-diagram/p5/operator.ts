@@ -2,6 +2,7 @@ import p5 from "p5"
 
 import { Viewport, DEFAULT_BACKGROUND, IMarbleDiagram, P5} from './common'
 import { stream } from './item'
+import { Sample } from "../marble-types"
 
 type LastItem = { item?:stream.Item ; event?: Sample }
 
