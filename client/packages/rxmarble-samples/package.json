@@ -1,0 +1,29 @@
+{
+  "name": "@bsorrentino/rxmarble-samples",
+  "private": true,
+  "version": "0.0.21",
+  "description": "",
+  "main": "index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bsorrentino/RxMonitor.git",
+    "directory": "packages/rxmarble-samples"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "scripts": {
+    "start": "parcel serve index.html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@bsorrentino/rxmarble-diagram": "^0.0.21",
+    "@bsorrentino/rxmarble-sdk": "^0.0.21",
+    "@bsorrentino/rxmarble-snippet": "^0.0.21",
+    "@bsorrentino/rxmarble-sse": "^0.0.21",
+    "materialize-css": "^1.0.0"
+  },
+  "gitHead": "27e44604c83dd9c2533a681c6403a722345b0149"
+}

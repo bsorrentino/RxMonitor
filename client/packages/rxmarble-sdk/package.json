@@ -1,0 +1,27 @@
+{
+  "name": "@bsorrentino/rxmarble-sdk",
+  "version": "0.0.21",
+  "description": "",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bsorrentino/RxMonitor.git",
+    "directory": "packages/rxmarble-sdk"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "scripts": {
+    "prepare": "parcel build marble-rxjs.ts --dist-dir lib"
+  },
+  "keywords": [],
+  "author": "bsorrentino",
+  "license": "MIT",
+  "gitHead": "2daef716a6ff6fad0307af6959ccc66e99aca952",
+  "dependencies": {
+    "rxjs": "^7.5.2"
+  },
+  "devDependencies": {
+  }
+}

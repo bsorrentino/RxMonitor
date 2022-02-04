@@ -1,0 +1,21 @@
+{
+  "name": "@bsorrentino/rxmarble-sse",
+  "version": "0.0.21",
+  "description": "",
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bsorrentino/RxMonitor.git",
+    "directory": "packages/rxmarble-sse"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "scripts": {
+    "prepare": "parcel build marble-sse-element.ts --dist-dir lib"
+  },
+  "keywords": [],
+  "author": "bsorrentino",
+  "license": "MIT",
+  "gitHead": "2daef716a6ff6fad0307af6959ccc66e99aca952"
+}

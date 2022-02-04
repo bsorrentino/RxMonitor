@@ -1,0 +1,28 @@
+{
+  "name": "@bsorrentino/rxmarble-diagram",
+  "version": "0.0.21",
+  "description": "",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bsorrentino/RxMonitor.git",
+    "directory": "packages/rxmarble-lib"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "scripts": {
+    "prepare": "parcel build index.ts --dist-dir lib"
+  },
+  "keywords": [],
+  "author": "bsorrentino",
+  "license": "MIT",
+  "dependencies": {
+    "p5": "^1.4.1"
+  },
+  "devDependencies": {
+    "@types/p5": "^1.4.0"
+  },
+  "gitHead": "2daef716a6ff6fad0307af6959ccc66e99aca952"
+}

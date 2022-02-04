@@ -1,0 +1,22 @@
+{
+  "name": "@bsorrentino/rxmarble-snippet",
+  "private": true,
+  "version": "0.0.21",
+  "description": "",
+  "main": "lib/index.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bsorrentino/RxMonitor.git",
+    "directory": "packages/rxmarble-snippet"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "scripts": {
+    "prepare": "parcel build snippet-element.ts --dist-dir lib"
+  },
+  "keywords": [],
+  "author": "bsorrentino",
+  "license": "MIT",
+  "gitHead": "f2b1db15d5aa286767a6cd38a120c5e3333fa121"
+}

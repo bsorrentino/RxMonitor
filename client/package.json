@@ -1,28 +1,28 @@
 {
-  "name": "rxmarbles",
-  "version": "1.2.0",
-  "description": "",
-  "homepage": "https://github.com/bsorrentino/RxMonitor",
-  "main": "index.js",
-  "scripts": {
-    "serve": "node ts/cli/dist.js; parcel index.html ;",
-    "build": "node ts/cli/dist.js; parcel build index.html --public-url . "
-  },
-  "author": "bsorrentino <bartolomeo.sorrentino@gmail.com> (http://soulsoftware-bsc.blogspot.it/)",
-  "license": "MIT",
+  "name": "rxmarble",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/bsorrentino/RxMonitor.git"
   },
-  "dependencies": {
-    "rxjs": "^6.3.3"
+  "scripts": {
+    "build:packages": "lerna run build",
+    "build:cli": "parcel build -t node cli/dist.ts",
+    "build:copy": "zx zx-prepare-sample.mjs",
+    "serve": "parcel serve packages/rxmarble-samples/index.html",
+    "build": "parcel build packages/rxmarble-samples/index.html --public-url . "
   },
   "devDependencies": {
-    "@types/fs-extra": "^5.0.5",
-    "@types/node": "^11.13.0",
-    "fs-extra": "^7.0.1",
-    "http-server": "^0.11.1",
-    "parcel-bundler": "^1.12.4",
-    "typescript": "^3.1.6"
-  }
+    "@parcel/packager-ts": "^2.2.1",
+    "@parcel/transformer-typescript-types": "^2.2.1",
+    "lerna": "^4.0.0",
+    "parcel": "^2.2.1",
+    "typescript": "^4.5.5",
+    "zx": "^4.3.0"
+  },
+  "alias": {
+    "p5": "./node_modules/p5/lib/p5.min.js"
+  },
+  "author": "bsorrentino",
+  "license": "MIT"
 }
