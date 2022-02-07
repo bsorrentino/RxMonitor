@@ -12,7 +12,7 @@ const combineLatest$ = () => {
   const timerTwo = timer(2000, 200).pipe( w$('timerTwo') );
   const timerThree = timer(3000, 300).pipe( take(2), w$('timerThree'));
 
-const combined = combineLatest(timerOne, timerTwo, timerThree).pipe( take(10), w$());
+const combined = combineLatest([timerOne, timerTwo, timerThree]).pipe( take(10), w$());
 
 return combined.subscribe(
   ([timerValOne, timerValTwo, timerValThree]) => {
