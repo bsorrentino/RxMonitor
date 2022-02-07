@@ -1,0 +1,19 @@
+{
+  "name": "@bsorrentino/rxmarble-types",
+  "version": "0.0.21",
+  "description": "",
+  "types": "./index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/bsorrentino/RxMonitor.git",
+    "directory": "packages/rxmarble-sdk"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
+  },
+  "scripts": {
+  },
+  "keywords": [],
+  "author": "bsorrentino",
+  "license": "MIT"
+}

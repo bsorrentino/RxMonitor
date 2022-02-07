@@ -20,7 +20,8 @@
   "license": "MIT",
   "gitHead": "2daef716a6ff6fad0307af6959ccc66e99aca952",
   "dependencies": {
-    "rxjs": "^7.5.2"
+    "rxjs": "^7.5.2",
+    "@bsorrentino/rxmarble-types": "^0.0.21"
   },
   "devDependencies": {
   }

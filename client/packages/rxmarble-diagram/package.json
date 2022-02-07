@@ -19,7 +19,8 @@
   "author": "bsorrentino",
   "license": "MIT",
   "dependencies": {
-    "p5": "^1.4.1"
+    "p5": "^1.4.1",
+    "@bsorrentino/rxmarble-types": "^0.0.21"
   },
   "devDependencies": {
     "@types/p5": "^1.4.0"

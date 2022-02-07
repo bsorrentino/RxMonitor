@@ -1,8 +1,8 @@
+import { Sample } from "@bsorrentino/rxmarble-types";
 import p5 from "p5"
 
 import { Viewport, Queue, Watch, IMarbleDiagram, P5, DEFAULT_FPS } from './common'
 import { stream } from './item'
-import { Sample } from "../marble-types";
 import { Operator } from "./operator"
 
 
