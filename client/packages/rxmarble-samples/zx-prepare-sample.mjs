@@ -1,12 +1,23 @@
 #!/usr/bin/env zx
 import 'zx/globals'
 
-const materialize_css = path.join( 'node_modules', 'materialize-css')
+const materialize_css = path.join( '..', '..', 'node_modules', 'materialize-css')
 const destdir = path.join( 'packages', 'rxmarble-samples', materialize_css )
 
 
 await fs.copy( materialize_css, destdir )
 
+
+
+const srcdir = await fs.opendir('src');
+for await (const dirent of srcdir) {
+
+    if( dirent.isFile() && path.extname(dirent.name)==='.ts') {
+        
+        await fs.copyFile( path.join( srcdir.path, dirent.name ), path.join('dist',dirent.name ) )
+    }
+}
+  
 
 // async function copy_TS_to_TXT( file:string ) {
 //     const src = path.join( srcdir, file );

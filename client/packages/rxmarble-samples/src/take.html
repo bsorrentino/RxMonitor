@@ -2,17 +2,18 @@
 <head>
   <meta charset="utf-8">
   <title>RX Marbles Monitor</title>
-  
+
   <style>
     rxmarble-snippet {
         --font-size: 1.1em; 
     }
   </style>
   <!--Import materialize.css--> 
-  <link rel="stylesheet" href="node_modules/materialize-css/dist/css/materialize.min.css" media="screen,projection">
+  <link rel="stylesheet" href="../node_modules/materialize-css/dist/css/materialize.min.css" media="screen,projection">
   
   <!--Let browser know website is optimized for mobile-->
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
 </head>
 <body>
   <nav>
@@ -26,10 +27,15 @@
 
       <div class="col s4">
           <div class="valign-wrapper">
-            <h5>Window operator</h5>&nbsp;<a id="start" class="waves-effect waves-light btn-small">Test</a>
+            <h5>Take operator</h5>&nbsp;<a id="start" class="waves-effect waves-light btn-small">Test</a>
           </div>
-          <p>Observable of values for window of time.</p> 
-          
+          <p>provided number of values before completing.&nbsp;
+            <label>
+              <input id="pause" type="checkbox" class="filled-in"/>
+              <span>Pause</span>
+            </label>
+          </p>
+        
       </div>
       <div class="col s2">
           
@@ -40,16 +46,17 @@
     </div>
     
     <div class="row">
-      <div class="col s12">
-        <rxmarble-diagram id="diagram1">
-        </rxmarble-diagram>
-  
-      </div>    
+      <div class="col s8">
+        <rxmarble-diagram id="diagram1"></rxmarble-diagram>
+      </div>
+      <div class="col s4">
+        <rxmarble-snippet url="take"></rxmarble-snippet>
+      </div>
     </div>
   </div>
-  
+
   <script type="module" src="samples-deps.ts"></script>    
-  <script type="module" src="window.ts"></script>
+  <script type="module" src="take.ts"></script>
 
 </body>
 </html>

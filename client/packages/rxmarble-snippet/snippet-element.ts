@@ -5,7 +5,7 @@ const USE_SHADOW_DOM = true;
 /**
  * 
  */
-class RXMarbleCodeSnippetElement extends HTMLElement {
+export class RXMarbleCodeSnippetElement extends HTMLElement {
 
     get url() {
         return this.getAttribute('URL') ;
@@ -22,7 +22,9 @@ class RXMarbleCodeSnippetElement extends HTMLElement {
 
         this.shadowRoot.appendChild(this.getTemplate().content.cloneNode(true));
 
-        fetch(this.url)
+        console.log( 'fetch', this.url + '.ts' )
+        
+        fetch(this.url + '.ts')
         .then( response =>  {
             if (response.status !== 200) {
               console.log('Looks like there was a problem. Status Code: ', response.status);

@@ -1,10 +1,10 @@
 
-import { interval, from } from 'rxjs';
-import { combineAll, map, take, mergeMap } from 'rxjs/operators';
+import { interval } from 'rxjs';
+import { combineLatestAll, map, take } from 'rxjs/operators';
 import { makeExample } from './example-utils';
-import { watch, observeAndNotify } from '@bsorrentino/rxmarble-sdk'
+import { watch } from '@bsorrentino/rxmarble-sdk'
 
-const combineAll$ = () => {
+const combineLatestAll$ = () => {
 
   const w$ = <T>( id?:string ) => watch<T>( '$result', id );   
   // emit every 1s, take 2
@@ -17,7 +17,7 @@ const combineAll$ = () => {
     combineAll uses combineLatest strategy, emitting the last value from each
     whenever either observable emits a value
   */
-  return example$.pipe(combineAll()).pipe( w$() )
+  return example$.pipe(combineLatestAll()).pipe( w$() )
   /*
     output:
     ["Result (0): 0", "Result (1): 0"]
@@ -33,4 +33,4 @@ const combineAll$ = () => {
   .subscribe( console.log );
 }
 
-window.addEventListener('DOMContentLoaded', () => makeExample( combineAll$ ) )
+window.addEventListener('DOMContentLoaded', () => makeExample( combineLatestAll$ ) )

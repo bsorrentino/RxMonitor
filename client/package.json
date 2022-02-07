@@ -6,10 +6,7 @@
     "url": "https://github.com/bsorrentino/RxMonitor.git"
   },
   "scripts": {
-    "build:packages": "lerna run build",
-    "build:cli": "parcel build -t node cli/dist.ts",
-    "build:copy": "zx zx-prepare-sample.mjs",
-    "serve": "parcel serve packages/rxmarble-samples/index.html",
+    "start": "lerna run start --stream --scope @bsorrentino/rxmarble-samples",
     "build": "parcel build packages/rxmarble-samples/index.html --public-url . "
   },
   "devDependencies": {

@@ -13,7 +13,8 @@
     "registry": "https://npm.pkg.github.com"
   },
   "scripts": {
-    "start": "parcel serve index.html"
+    "prepare": "zx zx-prepare-sample.mjs",
+    "start": "parcel serve --no-cache src/index.html"
   },
   "keywords": [],
   "author": "",
