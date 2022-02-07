@@ -1,3 +1,4 @@
+import { Sample } from '@bsorrentino/rxmarble-types';
 import {  
     Observable, 
     MonoTypeOperatorFunction,
